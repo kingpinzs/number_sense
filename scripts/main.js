@@ -918,42 +918,66 @@ async function startCoach() {
                     const g = panel.querySelector('#g'); for (let k = 0; k < 25; k++) { const d = document.createElement('span'); d.className = 'dot'; g.appendChild(d); }
                     const dots = [...g.children]; const idx = [...dots.keys()].sort(() => Math.random() - 0.5).slice(0, n); idx.forEach(i => dots[i].style.visibility = 'visible');
                     await new Promise(res => panel.querySelector('#go').onclick = () => { if (+panel.querySelector('#ans').value === n) ok++; res(); });
-                } else {
-                    show('Symbol Map', `<div>Show <b>${n}</b> dots (tap to toggle)</div><div class="dotgrid" id="g"></div><div class="row"><button id="go">Done</button></div>`);
-                    const g = panel.querySelector('#g'); for (let k = 0; k < 25; k++) { const d = document.createElement('span'); d.className = 'dot'; d.style.visibility = 'hidden'; d.onclick = () => { d.style.visibility = d.style.visibility === 'hidden' ? 'visible' : 'hidden'; }; g.appendChild(d); }
-                    await new Promise(res => panel.querySelector('#go').onclick = () => { const cnt = [...g.children].filter(d => d.style.visibility === 'visible').length; if (cnt === n) ok++; res(); });
                 }
-            }
-            return { acc: ok / 10 };
-        }
+            } else {
+                // num → dots (toggle)
+                show('Symbol Map', `
+    <div>Show <b>${n}</b> dots (tap to toggle)</div>
+    <div class="dotgrid" id="g"></div>
+    <div class="row"><button id="go">Done</button><span id="fb" class="muted" style="margin-left:8px"></span></div>
+  `);
 
-        if (domain === 'place_value') {
-            let ok = 0;
-            for (let i = 0; i < 8; i++) {
-                const x = randInt(100, 9999); const which = ['ones', 'tens', 'hundreds', 'thousands'][randInt(0, 3)];
-                const m = { ones: 1, tens: 10, hundreds: 100, thousands: 1000 }[which]; const digit = Math.floor(x / m) % 10;
-                show('Place Value', `In <strong>${x}</strong>, ${which} digit?
+                const g = panel.querySelector('#g');
+                const fb = panel.querySelector('#fb');
+
+                // Build 25 clickable “cells” that are always visible.
+                // We toggle a CSS class instead of visibility.
+                for (let k = 0; k < 25; k++) {
+                    const d = document.createElement('span');
+                    d.className = 'dot toggle';     // <- new class
+                    d.onclick = () => d.classList.toggle('on');
+                    g.appendChild(d);
+                }
+
+                await new Promise(res => {
+                    panel.querySelector('#go').onclick = () => {
+                        const cnt = [...g.children].filter(d => d.classList.contains('on')).length;
+                        if (cnt === n) { ok++; fb.textContent = '✓'; } else { fb.textContent = `✗ (${cnt})`; }
+                        setTimeout(res, 400);
+                    };
+                });
+            }
+        }
+        return { acc: ok / 10 };
+    }
+
+    if (domain === 'place_value') {
+        let ok = 0;
+        for (let i = 0; i < 8; i++) {
+            const x = randInt(100, 9999); const which = ['ones', 'tens', 'hundreds', 'thousands'][randInt(0, 3)];
+            const m = { ones: 1, tens: 10, hundreds: 100, thousands: 1000 }[which]; const digit = Math.floor(x / m) % 10;
+            show('Place Value', `In <strong>${x}</strong>, ${which} digit?
              <div class="row"><input id="ans" type="number" style="width:120px"><button id="go">Enter</button></div>`);
-                await new Promise(res => panel.querySelector('#go').onclick = () => { if (+panel.querySelector('#ans').value === digit) ok++; res(); });
-            }
-            return { acc: ok / 8 };
+            await new Promise(res => panel.querySelector('#go').onclick = () => { if (+panel.querySelector('#ans').value === digit) ok++; res(); });
         }
+        return { acc: ok / 8 };
+    }
 
-        if (domain === 'estimation') {
-            let ok = 0;
-            for (let i = 0; i < 8; i++) {
-                const target = randInt(0, 100);
-                show('Number Line (mental)', `Place ${target} on 0–100 (type a number)<div class="row"><input id="ans" type="number" style="width:120px"><button id="go">Enter</button></div>`);
-                await new Promise(res => panel.querySelector('#go').onclick = () => { const val = +panel.querySelector('#ans').value; if (Math.abs(val - target) <= 5) ok++; res(); });
-            }
-            return { acc: ok / 8 };
+    if (domain === 'estimation') {
+        let ok = 0;
+        for (let i = 0; i < 8; i++) {
+            const target = randInt(0, 100);
+            show('Number Line (mental)', `Place ${target} on 0–100 (type a number)<div class="row"><input id="ans" type="number" style="width:120px"><button id="go">Enter</button></div>`);
+            await new Promise(res => panel.querySelector('#go').onclick = () => { const val = +panel.querySelector('#ans').value; if (Math.abs(val - target) <= 5) ok++; res(); });
         }
+        return { acc: ok / 8 };
+    }
 
-        if (domain === 'facts') {
-            let correct = 0, attempts = 0;
-            const end = Date.now() + factsSec * 1000;
+    if (domain === 'facts') {
+        let correct = 0, attempts = 0;
+        const end = Date.now() + factsSec * 1000;
 
-            show('Facts (timed)', `
+        show('Facts (timed)', `
     <div class="row">
       <div id="q" style="font-size:1.6rem;min-width:160px">—</div>
       <input id="a" type="number"><button id="go">Enter</button>
@@ -961,83 +985,83 @@ async function startCoach() {
     </div>
     <div id="fb" class="muted"></div>`);
 
-            const q = panel.querySelector('#q'),
-                a = panel.querySelector('#a'),
-                t = panel.querySelector('#t'),
-                fb = panel.querySelector('#fb');
+        const q = panel.querySelector('#q'),
+            a = panel.querySelector('#a'),
+            t = panel.querySelector('#t'),
+            fb = panel.querySelector('#fb');
 
-            const ops = ['+', '-', '×', '÷'];
-            const ri = (lo, hi) => Math.floor(Math.random() * (hi - lo + 1)) + lo;
+        const ops = ['+', '-', '×', '÷'];
+        const ri = (lo, hi) => Math.floor(Math.random() * (hi - lo + 1)) + lo;
 
-            function newQ() {
-                const op = ops[ri(0, 3)];
-                let A = ri(0, 12), B = ri(0, 12);
-                if (op === '-') { if (B > A) [A, B] = [B, A]; }
-                if (op === '÷') { B = ri(1, 12); A = B * ri(0, 12); }
-                return { text: `${A} ${op} ${B}`, ans: op === '+' ? A + B : op === '-' ? A - B : op === '×' ? A * B : (B ? A / B : 0) };
-            }
-
-            let cur = newQ(); q.textContent = `${cur.text} = ?`;
-
-            await new Promise(res => {
-                let finished = false;
-                const finish = () => {
-                    if (finished) return;
-                    finished = true;
-                    a.disabled = true;
-                    panel.querySelector('#go').disabled = true;
-                    clearInterval(timer);
-                    res();
-                };
-
-                const timer = setInterval(() => {
-                    const left = Math.max(0, end - Date.now());
-                    t.textContent = (left / 1000 | 0) + 's';
-                    if (left === 0) finish();
-                }, 200);
-
-                panel.querySelector('#go').onclick = () => {
-                    attempts++;
-                    const val = +a.value;
-                    const ans = cur.ans;
-                    fb.textContent = (val === ans) ? '✓' : `✗ (${ans})`;
-                    if (val === ans) correct++;
-                    a.value = '';
-                    cur = newQ();
-                    q.textContent = `${cur.text} = ?`;
-                    if (Date.now() >= end) finish();
-                };
-            });
-
-            return { acc: attempts ? correct / attempts : 0 };
+        function newQ() {
+            const op = ops[ri(0, 3)];
+            let A = ri(0, 12), B = ri(0, 12);
+            if (op === '-') { if (B > A) [A, B] = [B, A]; }
+            if (op === '÷') { B = ri(1, 12); A = B * ri(0, 12); }
+            return { text: `${A} ${op} ${B}`, ans: op === '+' ? A + B : op === '-' ? A - B : op === '×' ? A * B : (B ? A / B : 0) };
         }
 
+        let cur = newQ(); q.textContent = `${cur.text} = ?`;
+
+        await new Promise(res => {
+            let finished = false;
+            const finish = () => {
+                if (finished) return;
+                finished = true;
+                a.disabled = true;
+                panel.querySelector('#go').disabled = true;
+                clearInterval(timer);
+                res();
+            };
+
+            const timer = setInterval(() => {
+                const left = Math.max(0, end - Date.now());
+                t.textContent = (left / 1000 | 0) + 's';
+                if (left === 0) finish();
+            }, 200);
+
+            panel.querySelector('#go').onclick = () => {
+                attempts++;
+                const val = +a.value;
+                const ans = cur.ans;
+                fb.textContent = (val === ans) ? '✓' : `✗ (${ans})`;
+                if (val === ans) correct++;
+                a.value = '';
+                cur = newQ();
+                q.textContent = `${cur.text} = ?`;
+                if (Date.now() >= end) finish();
+            };
+        });
+
+        return { acc: attempts ? correct / attempts : 0 };
     }
 
-    function pickWeighted(w) { const e = Object.entries(w); let r = Math.random(), u = 0; for (const [k, v] of e) { u += v; if (r <= u) return k; } return e[e.length - 1][0]; }
+}
 
-    for (let i = 0; i < blocks; i++) {
-        const domain = pickWeighted(weights);
-        const res = await doBlock(domain);
-        log.blocks.push({ domain, res });
+function pickWeighted(w) { const e = Object.entries(w); let r = Math.random(), u = 0; for (const [k, v] of e) { u += v; if (r <= u) return k; } return e[e.length - 1][0]; }
+
+for (let i = 0; i < blocks; i++) {
+    const domain = pickWeighted(weights);
+    const res = await doBlock(domain);
+    log.blocks.push({ domain, res });
+}
+
+// Save + micro reweight
+const dd = dbGet(); dd.plan.sessionsCompleted = (dd.plan.sessionsCompleted || 0) + 1; dd.plan.lastLog = log;
+for (const b of log.blocks) {
+    const a = typeof b.res.acc === 'number' ? b.res.acc : null;
+    if (a != null) {
+        if (a >= 0.9) dd.plan.weights[b.domain] = Math.max(0.02, +(dd.plan.weights[b.domain] * 0.9).toFixed(3));
+        if (a < 0.7) dd.plan.weights[b.domain] = +(dd.plan.weights[b.domain] * 1.1).toFixed(3);
     }
+}
+const tot = Object.values(dd.plan.weights).reduce((s, v) => s + v, 0) || 1;
+for (const k in dd.plan.weights) { dd.plan.weights[k] = +(dd.plan.weights[k] / tot).toFixed(3); }
+dbSet(dd);
 
-    // Save + micro reweight
-    const dd = dbGet(); dd.plan.sessionsCompleted = (dd.plan.sessionsCompleted || 0) + 1; dd.plan.lastLog = log;
-    for (const b of log.blocks) {
-        const a = typeof b.res.acc === 'number' ? b.res.acc : null;
-        if (a != null) {
-            if (a >= 0.9) dd.plan.weights[b.domain] = Math.max(0.02, +(dd.plan.weights[b.domain] * 0.9).toFixed(3));
-            if (a < 0.7) dd.plan.weights[b.domain] = +(dd.plan.weights[b.domain] * 1.1).toFixed(3);
-        }
-    }
-    const tot = Object.values(dd.plan.weights).reduce((s, v) => s + v, 0) || 1;
-    for (const k in dd.plan.weights) { dd.plan.weights[k] = +(dd.plan.weights[k] / tot).toFixed(3); }
-    dbSet(dd);
-
-    WIZ.hint.textContent = (dd.plan.sessionsCompleted % (dd.plan.sessionsBeforeRetest || 15) === 0)
-        ? 'Session saved. Time to Retest in Assessment tab.'
-        : 'Session saved.';
+WIZ.hint.textContent = (dd.plan.sessionsCompleted % (dd.plan.sessionsBeforeRetest || 15) === 0)
+    ? 'Session saved. Time to Retest in Assessment tab.'
+    : 'Session saved.';
 }
 
 
