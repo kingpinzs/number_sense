@@ -369,12 +369,12 @@ selTicks.onchange = drawTicks;
 badge.style.display = 'block';
 newTarget();
 
-function genSubitizeConfig(level){
-  // simple scaler: level 1→ max 4 dots; level 2→6; 3+→9; flash speeds down slightly
-  const L = Math.max(1, level|0);
-  const maxDots = L <= 1 ? 4 : L === 2 ? 6 : 9;
-  const flashMs = L <= 1 ? 1200 : L === 2 ? 1000 : 800;
-  return { maxDots, flashMs };
+function genSubitizeConfig(level) {
+    // simple scaler: level 1→ max 4 dots; level 2→6; 3+→9; flash speeds down slightly
+    const L = Math.max(1, level | 0);
+    const maxDots = L <= 1 ? 4 : L === 2 ? 6 : 9;
+    const flashMs = L <= 1 ? 1200 : L === 2 ? 1000 : 800;
+    return { maxDots, flashMs };
 }
 
 /* ==== Engine shim (PRNG + levels + generator) ==== */
@@ -529,14 +529,15 @@ function startFacts() {
     updateLevelChip(level);
 
     // start at current difficulty for arithmetic; engine will self-adjust
-     const durationSec = +document.getElementById('ff-sec').value || 60;
-    state = { 
-        end: Date.now() + durationSec * 1000, 
+    const durationSec = +document.getElementById('ff-sec').value || 60;
+    state = {
+        end: Date.now() + durationSec * 1000,
         durationSec,
-        correct: 0, 
-        attempts: 0, 
-        level, 
-        cur: nextItem(level) };
+        correct: 0,
+        attempts: 0,
+        level,
+        cur: nextItem(level)
+    };
 
     fbEl.textContent = '';
     qEl.textContent = `${state.cur.q} = ?`;
@@ -556,10 +557,10 @@ function stopFacts() {
     clearInterval(timerId); timerId = null;
     const d = dbGet();
     d.train.facts.push({
-        correct: state.correct, 
-        attempts: state.attempts, 
+        correct: state.correct,
+        attempts: state.attempts,
         seconds: state.durationSec,
-        level_end: state.level, 
+        level_end: state.level,
         ts: new Date().toISOString()
     });
     dbSet(d);
@@ -725,40 +726,65 @@ async function startAssessment() {
     })();
 
     // Facts
+    // Facts
     out.domains.facts = await (async () => {
         let corr = 0, att = 0;
-        const ops = ['+', '-', '×', '÷']; const end = Date.now() + 60000;
         const el = show(`<div><strong>Facts</strong> — 60s mixed</div>
-                     <div class="row"><div id="q" style="font-size:1.6rem;min-width:140px">—</div>
-                     <input id="a" type="number"><button id="go">Enter</button>
-                     <div id="t" class="muted">60</div></div><div id="fb" class="muted"></div>`);
-        const q = el.querySelector('#q'), a = el.querySelector('#a'), t = el.querySelector('#t'), fb = el.querySelector('#fb');
-        const randInt = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+    <div class="row">
+      <div id="q" style="font-size:1.6rem;min-width:140px">—</div>
+      <input id="a" type="number"><button id="go">Enter</button>
+      <div id="t" class="muted">60</div>
+    </div>
+    <div id="fb" class="muted"></div>`);
+
+        const q = el.querySelector('#q'),
+            a = el.querySelector('#a'),
+            t = el.querySelector('#t'),
+            fb = el.querySelector('#fb');
+
         function newQ() {
-            // use engine for endless, non-repeating items
-            const lvl = currentLevel('arithmetic') || 3; // fall back if no history
+            const lvl = currentLevel('arithmetic') || 3;
             const item = genArithmetic(ERNG, lvl);
-            return { A: null, B: null, op: null, text: item.question, ans: item.answer };
+            return { text: item.question, ans: item.answer };
         }
-        let cur = newQ(); q.textContent = `${cur.text} = ?`;
-        const timer = setInterval(() => {
-            const left = Math.max(0, end - Date.now());
-            t.textContent = (left / 1000 | 0);
-            if (left === 0) { clearInterval(timer); a.disabled = true; el.querySelector('#go').disabled = true; }
-        }, 200);
+
+        const end = Date.now() + 60000;
+        let cur = newQ();
+        q.textContent = `${cur.text} = ?`;
+
         await new Promise(res => {
+            let finished = false;
+            const finish = () => {
+                if (finished) return;
+                finished = true;
+                a.disabled = true;
+                el.querySelector('#go').disabled = true;
+                clearInterval(timer);
+                res();
+            };
+
+            const timer = setInterval(() => {
+                const left = Math.max(0, end - Date.now());
+                t.textContent = (left / 1000 | 0);
+                if (left === 0) finish();
+            }, 200);
+
             el.querySelector('#go').onclick = () => {
                 att++;
                 const val = +a.value;
                 const ans = cur.ans;
-                if (val === ans) { corr++; fb.textContent = '✓'; } else { fb.textContent = `✗ (${ans})`; }
+                fb.textContent = (val === ans) ? '✓' : `✗ (${ans})`;
+                if (val === ans) corr++;
                 a.value = '';
-                cur = newQ(); q.textContent = `${cur.text} = ?`;
-                if (Date.now() >= end) res();
+                cur = newQ();
+                q.textContent = `${cur.text} = ?`;
+                if (Date.now() >= end) finish();
             };
         });
+
         return { acc: att ? corr / att : 0, detail: { correct: corr, attempts: att, seconds: 60 } };
     })();
+
 
     // Procedural
     out.domains.procedural = await (async () => {
@@ -925,42 +951,67 @@ async function startCoach() {
 
         if (domain === 'facts') {
             let correct = 0, attempts = 0;
-            const ops = ['+', '-', '×', '÷']; const end = Date.now() + factsSec * 1000;
-            show('Facts (timed)', `<div class="row"><div id="q" style="font-size:1.6rem;min-width:160px">—</div>
-            <input id="a" type="number"><button id="go">Enter</button><div id="t" class="muted">—</div></div><div id="fb" class="muted"></div>`);
-            const q = panel.querySelector('#q'), a = panel.querySelector('#a'), t = panel.querySelector('#t'), fb = panel.querySelector('#fb');
+            const end = Date.now() + factsSec * 1000;
+
+            show('Facts (timed)', `
+    <div class="row">
+      <div id="q" style="font-size:1.6rem;min-width:160px">—</div>
+      <input id="a" type="number"><button id="go">Enter</button>
+      <div id="t" class="muted">—</div>
+    </div>
+    <div id="fb" class="muted"></div>`);
+
+            const q = panel.querySelector('#q'),
+                a = panel.querySelector('#a'),
+                t = panel.querySelector('#t'),
+                fb = panel.querySelector('#fb');
+
+            const ops = ['+', '-', '×', '÷'];
+            const ri = (lo, hi) => Math.floor(Math.random() * (hi - lo + 1)) + lo;
+
             function newQ() {
-                const op = ops[randInt(0, 3)];
-                let A = randInt(0, 12), B = randInt(0, 12);
+                const op = ops[ri(0, 3)];
+                let A = ri(0, 12), B = ri(0, 12);
                 if (op === '-') { if (B > A) [A, B] = [B, A]; }
-                if (op === '÷') { B = randInt(1, 12); A = B * randInt(0, 12); }
-                return { A, B, op };
+                if (op === '÷') { B = ri(1, 12); A = B * ri(0, 12); }
+                return { text: `${A} ${op} ${B}`, ans: op === '+' ? A + B : op === '-' ? A - B : op === '×' ? A * B : (B ? A / B : 0) };
             }
-            let cur = newQ(); q.textContent = `${cur.A} ${cur.op} ${cur.B} = ?`;
-            const timer = setInterval(() => { const left = Math.max(0, end - Date.now()); t.textContent = (left / 1000 | 0) + 's'; if (left === 0) { clearInterval(timer); a.disabled = true; panel.querySelector('#go').disabled = true; } }, 200);
+
+            let cur = newQ(); q.textContent = `${cur.text} = ?`;
+
             await new Promise(res => {
+                let finished = false;
+                const finish = () => {
+                    if (finished) return;
+                    finished = true;
+                    a.disabled = true;
+                    panel.querySelector('#go').disabled = true;
+                    clearInterval(timer);
+                    res();
+                };
+
+                const timer = setInterval(() => {
+                    const left = Math.max(0, end - Date.now());
+                    t.textContent = (left / 1000 | 0) + 's';
+                    if (left === 0) finish();
+                }, 200);
+
                 panel.querySelector('#go').onclick = () => {
-                    attempts++; const val = +a.value; let ans;
-                    switch (cur.op) { case '+': ans = cur.A + cur.B; break; case '-': ans = cur.A - cur.B; break; case '×': ans = cur.A * cur.B; break; case '÷': ans = cur.B ? cur.A / cur.B : 0; }
-                    if (val === ans) { correct++; fb.textContent = '✓'; } else { fb.textContent = `✗ (${ans})`; }
-                    a.value = ''; cur = newQ(); q.textContent = `${cur.A} ${cur.op} ${cur.B} = ?`;
-                    if (Date.now() >= end) res();
+                    attempts++;
+                    const val = +a.value;
+                    const ans = cur.ans;
+                    fb.textContent = (val === ans) ? '✓' : `✗ (${ans})`;
+                    if (val === ans) correct++;
+                    a.value = '';
+                    cur = newQ();
+                    q.textContent = `${cur.text} = ?`;
+                    if (Date.now() >= end) finish();
                 };
             });
+
             return { acc: attempts ? correct / attempts : 0 };
         }
 
-        if (domain === 'procedural') {
-            let ok = 0, att = 0;
-            for (let i = 0; i < 4; i++) {
-                const type = Math.random() > 0.5 ? 'add' : 'sub';
-                let A, B, ans; if (type === 'add') { A = randInt(100, 999); B = randInt(100, 999); ans = A + B; } else { A = randInt(200, 999); B = randInt(100, A - 1); ans = A - B; }
-                show('Procedural', `${A} ${type === 'add' ? '+' : '-'} ${B} = ?
-             <div class="row"><input id="ans" type="number" style="width:140px"><button id="go">Enter</button></div>`);
-                await new Promise(res => panel.querySelector('#go').onclick = () => { att++; if (+panel.querySelector('#ans').value === ans) ok++; res(); });
-            }
-            return { acc: att ? ok / att : 0 };
-        }
     }
 
     function pickWeighted(w) { const e = Object.entries(w); let r = Math.random(), u = 0; for (const [k, v] of e) { u += v; if (r <= u) return k; } return e[e.length - 1][0]; }
