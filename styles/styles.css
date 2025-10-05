@@ -1,0 +1,351 @@
+        /* ===== Mid-tone theme ===== */
+        :root {
+            --bg: #e7eaef;
+            --bg-2: #d9dde4;
+            --card: #f4f6fb;
+            --ink: #243142;
+            --muted: #5b6878;
+            --line: #c6ccd6;
+            --accent: #4666d3;
+            --accent-2: #6f89f0;
+            --ok: #2b9a66;
+            --warn: #d28b00;
+            --err: #c44b4b;
+            --radius: 14px;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            background: linear-gradient(180deg, var(--bg) 0%, #eef1f6 100%);
+            color: var(--ink);
+            font: 14px/1.6 system-ui, Segoe UI, Roboto, Arial, sans-serif;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            background: rgba(231, 234, 239, .95);
+            backdrop-filter: saturate(1.1) blur(6px);
+            border-bottom: 1px solid var(--line)
+        }
+
+        .bar {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 10px 14px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .brand {
+            font-weight: 700;
+            letter-spacing: .3px
+        }
+
+        .tag {
+            margin-left: auto;
+            background: var(--bg-2);
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 4px 8px;
+            font-size: 12px;
+            color: var(--muted)
+        }
+
+        /* Tabs (desktop) */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            align-items: flex-end
+        }
+
+        .tabset {
+            display: flex;
+            border-bottom: 1px solid var(--line);
+            gap: 18px
+        }
+
+        .tab-btn {
+            appearance: none;
+            background: transparent;
+            border: 0;
+            padding: 10px 2px 12px;
+            cursor: pointer;
+            color: var(--muted);
+            position: relative
+        }
+
+        .tab-btn.active {
+            color: var(--ink);
+            font-weight: 600
+        }
+
+        .tab-btn.active::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -1px;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 3px
+        }
+
+        /* Mobile menu */
+        .tab-select {
+            display: none;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #fff;
+            color: var(--ink);
+            padding: 8px 10px
+        }
+
+        @media (max-width: 720px) {
+            .tabset {
+                display: none
+            }
+
+            .tab-select {
+                display: block
+            }
+
+            .tag {
+                display: none
+            }
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 16px
+        }
+
+        section {
+            display: none
+        }
+
+        section.active {
+            display: block
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 14px;
+            margin: 12px 0
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .muted {
+            color: var(--muted)
+        }
+
+        button,
+        select,
+        input {
+            border: 1px solid var(--line);
+            background: #fff;
+            color: var(--ink);
+            padding: 8px 10px;
+            border-radius: 10px
+        }
+
+        button {
+            background: var(--accent);
+            color: #fff;
+            border: 0;
+            cursor: pointer
+        }
+
+        button.secondary {
+            background: var(--bg-2);
+            color: var(--ink)
+        }
+
+        button.ghost {
+            background: transparent;
+            border: 1px solid var(--line);
+            color: var(--ink)
+        }
+
+        button:disabled {
+            opacity: .6;
+            cursor: not-allowed
+        }
+
+        h2 {
+            margin: .2rem 0 .6rem
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        th,
+        td {
+            border-bottom: 1px solid var(--line);
+            padding: 6px 8px;
+            text-align: left
+        }
+
+        .ok {
+            color: var(--ok)
+        }
+
+        .err {
+            color: var(--err)
+        }
+
+        .warn {
+            color: var(--warn)
+        }
+
+        /* Widgets */
+        .dotgrid {
+            display: grid;
+            grid-template-columns: repeat(5, 44px);
+            gap: 10px;
+            justify-content: center;
+            margin: 10px 0
+        }
+
+        .dot {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--accent);
+            visibility: hidden
+        }
+
+        .numline {
+            height: 90px;
+            position: relative;
+            background: #fff;
+            border: 1px dashed var(--line);
+            border-radius: 12px;
+            margin: 8px 0
+        }
+
+        .nl-track {
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            top: 44px;
+            height: 3px;
+            background: var(--accent)
+        }
+
+        .nl-tick {
+            position: absolute;
+            top: 35px;
+            width: 2px;
+            height: 20px;
+            background: #94a2bd
+        }
+
+        .nl-pointer {
+            position: absolute;
+            top: 28px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 16px solid var(--ink);
+            transform: translateX(-8px);
+            display: none
+        }
+
+        /* ===== Full-screen Wizard overlay ===== */
+        .wizard {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .05);
+            backdrop-filter: blur(2px);
+            display: none;
+            z-index: 60
+        }
+
+        .wizard.on {
+            display: block
+        }
+
+        .wiz-panel {
+            position: absolute;
+            inset: 12px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: var(--card);
+            overflow: hidden
+        }
+
+        .wiz-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--line);
+            background: var(--bg-2)
+        }
+
+        .wiz-title {
+            font-weight: 600
+        }
+
+        .wiz-body {
+            padding: 12px;
+            overflow: auto
+        }
+
+        .wiz-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            padding: 10px 12px;
+            border-top: 1px solid var(--line);
+            background: #fff
+        }
+
+        /* Corsi */
+        .grid9 {
+            display: grid;
+            grid-template-columns: repeat(3, 80px);
+            gap: 12px;
+            justify-content: center;
+            margin: 10px 0
+        }
+
+        .corsi {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            background: #fff;
+            border: 2px solid var(--line);
+            position: relative
+        }
+
+        .corsi.flash {
+            background: var(--accent-2)
+        }
