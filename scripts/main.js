@@ -87,6 +87,20 @@ function installEnterToClick() {
         }
     }, true); // capture to beat other handlers if needed
 }
+
+/* === Symbol Map helpers (class-based toggle) === */
+function buildToggleDotGrid(container, count = 25) {
+    container.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+        const d = document.createElement('span');
+        d.className = 'dot toggle';
+        d.onclick = () => d.classList.toggle('on');
+        container.appendChild(d);
+    }
+}
+function countOnDots(container) {
+    return [...container.children].filter(d => d.classList.contains('on')).length;
+}
 /* ====== TRAIN quick modules (inline) ====== */
 const grid = document.getElementById('s-grid');
 // Build the grid ONCE
@@ -662,21 +676,31 @@ async function startAssessment() {
     })();
 
     // Symbol mapping
+    // Symbol mapping
     out.domains.symbol_map = await (async () => {
         let ok = 0;
         for (let i = 0; i < 10; i++) {
             const n = Math.floor(rng() * 9) + 1;
             const mode = rng() > 0.5 ? 'dots→num' : 'num→dots';
+
             if (mode === 'dots→num') {
                 const el = show(`<div><strong>Symbol mapping</strong> — dots → number</div>
-                         <div class="dotgrid" id="g"></div>
-                         <div class="row"><input id="ans" type="number"><button id="go">Enter</button></div>`);
+        <div class="dotgrid" id="g"></div>
+        <div class="row"><input id="ans" type="number"><button id="go">Enter</button></div>`);
                 setupCompactAndNumpad(panel);
+
                 const g = el.querySelector('#g');
-                for (let k = 0; k < 25; k++) { const d = document.createElement('span'); d.className = 'dot'; d.style.visibility = 'hidden'; g.appendChild(d); }
+                // build empty grid (hidden by default)
+                for (let k = 0; k < 25; k++) {
+                    const d = document.createElement('span');
+                    d.className = 'dot';
+                    d.style.visibility = 'hidden';
+                    g.appendChild(d);
+                }
                 const dots = [...g.children];
                 const idxs = [...dots.keys()].sort(() => rng() - 0.5).slice(0, n);
-                idxs.forEach(i => dots[i].style.visibility = 'visible');
+                idxs.forEach(i => (dots[i].style.visibility = 'visible'));
+
                 await new Promise(res => {
                     el.querySelector('#go').onclick = () => {
                         if (+el.querySelector('#ans').value === n) ok++;
@@ -684,28 +708,28 @@ async function startAssessment() {
                     };
                 });
             } else {
+                // num → dots (toggle)  ← unified class-based version
                 const el = show(`<div><strong>Symbol mapping</strong> — show <b>${n}</b> dots (tap to toggle)</div>
-                         <div class="dotgrid" id="g"></div>
-                         <div class="row"><button id="go">Done</button></div>`);
+        <div class="dotgrid" id="g"></div>
+        <div class="row"><button id="go">Done</button><span id="fb" class="muted" style="margin-left:8px"></span></div>`);
                 setupCompactAndNumpad(panel);
+
                 const g = el.querySelector('#g');
-                for (let k = 0; k < 25; k++) {
-                    const d = document.createElement('span');
-                    d.className = 'dot'; d.style.visibility = 'hidden';
-                    d.onclick = () => { d.style.visibility = d.style.visibility === 'hidden' ? 'visible' : 'hidden'; };
-                    g.appendChild(d);
-                }
+                const fb = el.querySelector('#fb');
+                buildToggleDotGrid(g, 25);
+
                 await new Promise(res => {
                     el.querySelector('#go').onclick = () => {
-                        const cnt = [...g.children].filter(d => d.style.visibility === 'visible').length;
-                        if (cnt === n) ok++;
-                        res();
+                        const cnt = countOnDots(g);
+                        if (cnt === n) { ok++; fb.textContent = '✓'; } else { fb.textContent = `✗ (${cnt})`; }
+                        setTimeout(res, 300);
                     };
                 });
             }
         }
         return { acc: ok / 10 };
     })();
+
 
     // Place value
     out.domains.place_value = await (async () => {
@@ -918,44 +942,52 @@ async function startCoach() {
         if (domain === 'symbol_map') {
             let ok = 0;
             for (let i = 0; i < 10; i++) {
-                const n = randInt(1, 9); const mode = Math.random() > 0.5 ? 'dots→num' : 'num→dots';
-                if (mode === 'dots→num') {
-                    show('Symbol Map', `<div class="dotgrid" id="g"></div><div class="row"><input id="ans" type="number"><button id="go">Enter</button></div>`);
-                    const g = panel.querySelector('#g'); for (let k = 0; k < 25; k++) { const d = document.createElement('span'); d.className = 'dot'; g.appendChild(d); }
-                    const dots = [...g.children]; const idx = [...dots.keys()].sort(() => Math.random() - 0.5).slice(0, n); idx.forEach(i => dots[i].style.visibility = 'visible');
-                    await new Promise(res => panel.querySelector('#go').onclick = () => { if (+panel.querySelector('#ans').value === n) ok++; res(); });
+                const n = randInt(1, 9);
+                const mode = Math.random() > 0.5 ? 'dots→num' : 'num→dots';
 
+                if (mode === 'dots→num') {
+                    show('Symbol Map', `<div class="dotgrid" id="g"></div>
+        <div class="row"><input id="ans" type="number"><button id="go">Enter</button></div>`);
+                    const g = panel.querySelector('#g');
+
+                    for (let k = 0; k < 25; k++) {
+                        const d = document.createElement('span');
+                        d.className = 'dot';
+                        d.style.visibility = 'hidden';
+                        g.appendChild(d);
+                    }
+                    const dots = [...g.children];
+                    const idx = [...dots.keys()].sort(() => Math.random() - 0.5).slice(0, n);
+                    idx.forEach(i => (dots[i].style.visibility = 'visible'));
+
+                    await new Promise(res => panel.querySelector('#go').onclick = () => {
+                        if (+panel.querySelector('#ans').value === n) ok++;
+                        res();
+                    });
                 } else {
-                    // num → dots (toggle)
+                    // num → dots (toggle)  ← unified class-based version
                     show('Symbol Map', `
-    <div>Show <b>${n}</b> dots (tap to toggle)</div>
-    <div class="dotgrid" id="g"></div>
-    <div class="row"><button id="go">Done</button><span id="fb" class="muted" style="margin-left:8px"></span></div>
-  `);
+        <div>Show <b>${n}</b> dots (tap to toggle)</div>
+        <div class="dotgrid" id="g"></div>
+        <div class="row"><button id="go">Done</button><span id="fb" class="muted" style="margin-left:8px"></span></div>
+      `);
 
                     const g = panel.querySelector('#g');
                     const fb = panel.querySelector('#fb');
-
-                    // Build 25 clickable “cells” that are always visible.
-                    // We toggle a CSS class instead of visibility.
-                    for (let k = 0; k < 25; k++) {
-                        const d = document.createElement('span');
-                        d.className = 'dot toggle';     // <- new class
-                        d.onclick = () => d.classList.toggle('on');
-                        g.appendChild(d);
-                    }
+                    buildToggleDotGrid(g, 25);
 
                     await new Promise(res => {
                         panel.querySelector('#go').onclick = () => {
-                            const cnt = [...g.children].filter(d => d.classList.contains('on')).length;
+                            const cnt = countOnDots(g);
                             if (cnt === n) { ok++; fb.textContent = '✓'; } else { fb.textContent = `✗ (${cnt})`; }
-                            setTimeout(res, 400);
+                            setTimeout(res, 300);
                         };
                     });
                 }
             }
             return { acc: ok / 10 };
         }
+
 
         if (domain === 'place_value') {
             let ok = 0;
@@ -1283,25 +1315,48 @@ async function startCognition() {
     renderCognitionReport(run);
 }
 
-/* ========= Compact + Persistent Numpad Helpers ========= */
+/* ========= Compact + Persistent Numpad (singleton) ========= */
+
+function getWizardBody() {
+    return document.getElementById('wiz-body') || document.body;
+}
 
 /**
- * Mounts a persistent on-screen numeric keypad inside the current wizard panel,
- * wires it to the provided input, and triggers #go on Enter.
- *
- * It reuses the same keypad element across renders of the same panel.
+ * One-liner to call after you (re)render each wizard screen.
+ * - Adds compact class on small screens
+ * - Finds the numeric input in the panel
+ * - Attaches a single global keypad in #wiz-body (if not already there)
+ * - Points the keypad to the current input and keeps focus
+ * - Wires Enter to #go
  */
-function attachNumpadTo(panel, input, onEnter) {
-    if (!panel || !input) return;
+function setupCompactAndNumpad(panel) {
+    if (!panel) return;
 
-    // Make sure the browser uses numeric keypad if it shows one
+    // Compact mode on phones
+    if (window.matchMedia('(max-width: 520px)').matches) {
+        panel.classList.add('compact');
+    }
+
+    // Find the primary numeric input on this screen
+    const input =
+        panel.querySelector('input#ans, input#a, .row input[type="number"], .row input[inputmode="numeric"]');
+
+    // Find the 'Enter/Next' button if present
+    const goBtn = panel.querySelector('#go');
+
+    if (!input) return;
+
+    // Ensure numeric keyboard on mobile
     input.setAttribute('inputmode', 'numeric');
     input.setAttribute('pattern', '[0-9]*');
+    input.style.fontSize = '16px';
 
-    // Find or create the keypad container in this panel
-    let pad = panel.querySelector('.wiz-numpad');
+    // Create/reuse ONE keypad inside #wiz-body
+    const body = getWizardBody();
+    let pad = body.querySelector('#wiz-numpad');
     if (!pad) {
         pad = document.createElement('div');
+        pad.id = 'wiz-numpad';
         pad.className = 'wiz-numpad';
         pad.innerHTML = `
       <div class="wiz-numpad-grid">
@@ -1320,85 +1375,52 @@ function attachNumpadTo(panel, input, onEnter) {
         <button data-k="E" class="wide">Enter</button>
       </div>
     `;
-        // Put it at the end of the body area so it stays visible and sticky
-        const body = document.getElementById('wiz-body') || panel.parentElement || panel;
         body.appendChild(pad);
 
-        // Delegate clicks
+        // Single delegated handler (uses dynamic active input)
         pad.addEventListener('click', (e) => {
             const btn = e.target.closest('button[data-k]');
             if (!btn) return;
             const key = btn.getAttribute('data-k');
 
-            // Always keep focus on the current input
-            if (document.activeElement !== input) input.focus();
+            const target = window.__wizActiveNumericInput;
+            if (!target) return;
+
+            if (document.activeElement !== target) target.focus();
 
             if (key === 'C') {
-                input.value = '';
+                target.value = '';
             } else if (key === 'B') {
-                input.value = String(input.value || '').slice(0, -1);
+                target.value = String(target.value || '').slice(0, -1);
             } else if (key === 'E') {
-                // Trigger the provided Enter handler (usually clicks #go)
-                if (typeof onEnter === 'function') onEnter();
+                // Prefer clicking #go if available
+                const btn = target.closest('.card')?.querySelector('#go') ||
+                    getWizardBody().querySelector('.card #go');
+                if (btn && !btn.disabled) btn.click();
+                else target.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
             } else {
                 // digits
-                input.value = (input.value || '') + key;
+                target.value = (target.value || '') + key;
             }
         });
     }
 
-    // Keep focus glued to the input so the system keyboard (if it appears) doesn't fight us.
-    // (Our pad works even if the system keyboard is hidden.)
+    // Point the global keypad at the current input
+    window.__wizActiveNumericInput = input;
+
+    // Keep focus after render and after submits
     setTimeout(() => input.focus(), 0);
-}
 
-/**
- * One-liner to call after you (re)render each wizard screen.
- * - Adds compact class on small screens
- * - Finds the numeric input in the panel
- * - Attaches persistent keypad
- * - Wires Enter to #go
- * - Re-focuses the input after submissions
- */
-function setupCompactAndNumpad(panel) {
-    if (!panel) return;
-
-    // Compact mode on phones
-    if (window.matchMedia('(max-width: 520px)').matches) {
-        panel.classList.add('compact');
-    }
-
-    // Find the primary numeric answer input on this screen
-    const input =
-        panel.querySelector('input#ans, input#a, .row input[type="number"], .row input[inputmode="numeric"]');
-
-    // Find the 'Enter/Next' button if present
-    const goBtn = panel.querySelector('#go');
-
-    if (input) {
-        attachNumpadTo(panel, input, () => {
+    // Also submit on physical Enter
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
             if (goBtn && !goBtn.disabled) {
-                goBtn.click();
-            } else {
-                // Fallback: submit the nearest form or trigger Enter keyup
-                input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
-            }
-            // After submit, the panel usually re-renders; if not, keep focus
-            setTimeout(() => input.focus(), 0);
-        });
-
-        // Also submit on physical Enter
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && goBtn && !goBtn.disabled) {
                 e.preventDefault();
                 goBtn.click();
                 setTimeout(() => input.focus(), 0);
             }
-        }, { once: false });
-
-        // Ensure mobile OS doesn’t zoom because of small font
-        input.style.fontSize = '16px';
-    }
+        }
+    }, { once: false });
 }
 
 

@@ -472,3 +472,35 @@
   .wiz-numpad button { font-size: 17px; padding: 12px 0; }
   .wiz-numpad-grid { grid-template-columns: repeat(3, minmax(56px, 1fr)); }
 }
+
+/* grid */
+.dotgrid {
+  display: grid;
+  grid-template-columns: repeat(5, 28px);
+  gap: 10px;
+  justify-content: center;
+}
+
+/* base dot */
+.dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+/* toggle (off) */
+.dot.toggle {
+  cursor: pointer;
+  background: #eef1f5;              /* faint background so it’s visible */
+  border: 1px dashed var(--line, #c8d0da);
+  opacity: 0.8;
+}
+
+/* toggle (on) */
+.dot.toggle.on {
+  background: var(--accent, #4da3ff);
+  border: 1px solid var(--accent, #4da3ff);
+  opacity: 1;
+  box-shadow: 0 0 0 2px rgba(77,163,255,.15);
+}
