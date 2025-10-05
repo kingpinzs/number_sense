@@ -366,3 +366,109 @@
         .corsi.flash {
             background: var(--accent-2)
         }
+
+        /* ===== Compact wizard UI (phones) ===== */
+@media (max-width: 520px) {
+  .wiz-panel { max-width: 100%; }
+  .wiz-header { padding: 8px 10px; }
+  .wiz-body .card { padding: 10px 12px; }
+
+  /* Make question/prompt a bit smaller while staying readable */
+  #wiz-body .q,
+  #wiz-body #q,
+  #wiz-body .prompt,
+  #wiz-body .muted {
+    font-size: clamp(13px, 3.5vw, 16px);
+    line-height: 1.25;
+  }
+  #wiz-body #q {
+    font-size: clamp(18px, 5.5vw, 22px);
+    min-width: auto;
+  }
+  #wiz-body #t, #wiz-body .timer { font-size: 14px; }
+
+  /* Inputs & buttons: phone-friendly but compact */
+  #wiz-body input,
+  #wiz-body select {
+    font-size: 16px;       /* >=16px prevents iOS zoom */
+    padding: 8px 10px;
+    min-height: 40px;
+  }
+  #wiz-body button {
+    font-size: 15px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    min-height: 40px;
+  }
+  #wiz-body .row { gap: 6px; }
+
+  /* Dot/corsi grids smaller on mobile */
+  .dotgrid { gap: 6px; }
+  .dotgrid .dot { width: 14px; height: 14px; }
+
+  .grid9 { gap: 8px; }
+  .grid9 .corsi {
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+  }
+
+  /* Number line compact */
+  .numline { height: 90px; }
+  .nl-tooltip { font-size: 11px; padding: 3px 6px; }
+  .nl-badge, .nl-ring .pct { font-size: 11px; }
+}
+
+/* Optional: force compact even above 520px by adding .compact on .wiz-panel */
+.wiz-panel.compact #q        { font-size: clamp(18px, 5vw, 22px); }
+.wiz-panel.compact .muted    { font-size: clamp(12px, 3vw, 14px); }
+.wiz-panel.compact input,
+.wiz-panel.compact select    { font-size: 16px; padding: 8px 10px; min-height: 40px; }
+.wiz-panel.compact button    { font-size: 15px; padding: 10px 12px; min-height: 40px; }
+.wiz-panel.compact .dotgrid .dot { width: 14px; height: 14px; }
+.wiz-panel.compact .numline  { height: 90px; }
+
+/* ===== On-screen numeric keypad ===== */
+.wiz-numpad {
+  position: sticky;          /* sticks to bottom of the scrollable wizard body */
+  bottom: 0;
+  margin-top: 12px;
+  padding: 8px;
+  border-top: 1px solid var(--line, #e1e5ea);
+  background: var(--bg, #fff);
+  backdrop-filter: blur(6px);
+  border-radius: 12px;
+}
+
+.wiz-numpad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(66px, 1fr));
+  gap: 8px;
+}
+
+.wiz-numpad button {
+  appearance: none;
+  border: 1px solid var(--line, #d9dde4);
+  background: var(--bg-2, #f8f9fb);
+  border-radius: 12px;
+  font-size: 18px;
+  padding: 14px 0;
+  line-height: 1;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.wiz-numpad button:active {
+  transform: translateY(1px);
+}
+
+/* Wide actions on bottom row */
+.wiz-numpad .wide {
+  grid-column: span 2;
+}
+
+/* Smaller on phones */
+@media (max-width: 520px) {
+  .wiz-numpad button { font-size: 17px; padding: 12px 0; }
+  .wiz-numpad-grid { grid-template-columns: repeat(3, minmax(56px, 1fr)); }
+}

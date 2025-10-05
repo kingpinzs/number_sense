@@ -640,7 +640,8 @@ async function startAssessment() {
                        <div class="dotgrid" id="g"></div>
                        <div class="row"><input id="ans" type="number" placeholder="How many?">
                        <button id="go">Enter</button></div>`);
-            const g = el.querySelector('#g');
+            setupCompactAndNumpad(panel);
+                       const g = el.querySelector('#g');
             for (let k = 0; k < 25; k++) { const d = document.createElement('span'); d.className = 'dot'; g.appendChild(d); }
             const dots = [...g.children];
             const idxs = [...dots.keys()].sort(() => rng() - 0.5).slice(0, n);
@@ -670,7 +671,8 @@ async function startAssessment() {
                 const el = show(`<div><strong>Symbol mapping</strong> — dots → number</div>
                          <div class="dotgrid" id="g"></div>
                          <div class="row"><input id="ans" type="number"><button id="go">Enter</button></div>`);
-                const g = el.querySelector('#g');
+                setupCompactAndNumpad(panel);
+                         const g = el.querySelector('#g');
                 for (let k = 0; k < 25; k++) { const d = document.createElement('span'); d.className = 'dot'; d.style.visibility = 'hidden'; g.appendChild(d); }
                 const dots = [...g.children];
                 const idxs = [...dots.keys()].sort(() => rng() - 0.5).slice(0, n);
@@ -685,7 +687,8 @@ async function startAssessment() {
                 const el = show(`<div><strong>Symbol mapping</strong> — show <b>${n}</b> dots (tap to toggle)</div>
                          <div class="dotgrid" id="g"></div>
                          <div class="row"><button id="go">Done</button></div>`);
-                const g = el.querySelector('#g');
+                setupCompactAndNumpad(panel);
+                         const g = el.querySelector('#g');
                 for (let k = 0; k < 25; k++) {
                     const d = document.createElement('span');
                     d.className = 'dot'; d.style.visibility = 'hidden';
@@ -715,7 +718,8 @@ async function startAssessment() {
             const el = show(`In <strong>${x}</strong>, which digit is in the <strong>${which}</strong> place?
                        <div class="row"><input id="ans" type="number" style="width:100px">
                        <button id="go">Enter</button></div>`);
-            await new Promise(res => {
+            setupCompactAndNumpad(panel);
+                       await new Promise(res => {
                 el.querySelector('#go').onclick = () => {
                     if (+el.querySelector('#ans').value === digit) ok++;
                     res();
@@ -736,7 +740,7 @@ async function startAssessment() {
       <div id="t" class="muted">60</div>
     </div>
     <div id="fb" class="muted"></div>`);
-
+setupCompactAndNumpad(panel);
         const q = el.querySelector('#q'),
             a = el.querySelector('#a'),
             t = el.querySelector('#t'),
@@ -795,6 +799,7 @@ async function startAssessment() {
             const el = show(`Compute: <strong>${item.question}</strong>
    <div class="row"><input id="ans" type="number" style="width:140px">
    <button id="go">Enter</button></div>`);
+   setupCompactAndNumpad(panel);
             await new Promise(res => {
                 el.querySelector('#go').onclick = () => {
                     att++;
@@ -820,6 +825,7 @@ async function startAssessment() {
             const el = show(`Is <strong>${exact}</strong> closer to <strong>${b1}</strong> or <strong>${b2}</strong>?
                        <div class="row"><select id="pick"><option value="${b1}">${b1}</option><option value="${b2}">${b2}</option></select>
                        <button id="go">Choose</button></div>`);
+                       setupCompactAndNumpad(panel);
             await new Promise(res => {
                 el.querySelector('#go').onclick = () => {
                     const pick = +el.querySelector('#pick').value;
@@ -1094,7 +1100,6 @@ async function startCognition() {
     const run = { ts: new Date().toISOString() };
 
     // Digit Span (Forward / Backward)
-    // Digit Span (Forward / Backward)
     run.digit = await (async () => {
         const SHOW_MS_PER_DIGIT = 800;   // how long each digit shows (ms)
         const GAP_MS = 250;              // small gap between flashes
@@ -1276,6 +1281,124 @@ async function startCognition() {
     const d = dbGet(); d.cog_runs.push(run); dbSet(d);
     WIZ.hint.textContent = 'Saved. Close to view the report below.';
     renderCognitionReport(run);
+}
+
+/* ========= Compact + Persistent Numpad Helpers ========= */
+
+/**
+ * Mounts a persistent on-screen numeric keypad inside the current wizard panel,
+ * wires it to the provided input, and triggers #go on Enter.
+ *
+ * It reuses the same keypad element across renders of the same panel.
+ */
+function attachNumpadTo(panel, input, onEnter) {
+  if (!panel || !input) return;
+
+  // Make sure the browser uses numeric keypad if it shows one
+  input.setAttribute('inputmode', 'numeric');
+  input.setAttribute('pattern', '[0-9]*');
+
+  // Find or create the keypad container in this panel
+  let pad = panel.querySelector('.wiz-numpad');
+  if (!pad) {
+    pad = document.createElement('div');
+    pad.className = 'wiz-numpad';
+    pad.innerHTML = `
+      <div class="wiz-numpad-grid">
+        <button data-k="1">1</button>
+        <button data-k="2">2</button>
+        <button data-k="3">3</button>
+        <button data-k="4">4</button>
+        <button data-k="5">5</button>
+        <button data-k="6">6</button>
+        <button data-k="7">7</button>
+        <button data-k="8">8</button>
+        <button data-k="9">9</button>
+        <button data-k="C" class="wide">Clear</button>
+        <button data-k="0">0</button>
+        <button data-k="B">⌫</button>
+        <button data-k="E" class="wide">Enter</button>
+      </div>
+    `;
+    // Put it at the end of the body area so it stays visible and sticky
+    const body = document.getElementById('wiz-body') || panel.parentElement || panel;
+    body.appendChild(pad);
+
+    // Delegate clicks
+    pad.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-k]');
+      if (!btn) return;
+      const key = btn.getAttribute('data-k');
+
+      // Always keep focus on the current input
+      if (document.activeElement !== input) input.focus();
+
+      if (key === 'C') {
+        input.value = '';
+      } else if (key === 'B') {
+        input.value = String(input.value || '').slice(0, -1);
+      } else if (key === 'E') {
+        // Trigger the provided Enter handler (usually clicks #go)
+        if (typeof onEnter === 'function') onEnter();
+      } else {
+        // digits
+        input.value = (input.value || '') + key;
+      }
+    });
+  }
+
+  // Keep focus glued to the input so the system keyboard (if it appears) doesn't fight us.
+  // (Our pad works even if the system keyboard is hidden.)
+  setTimeout(() => input.focus(), 0);
+}
+
+/**
+ * One-liner to call after you (re)render each wizard screen.
+ * - Adds compact class on small screens
+ * - Finds the numeric input in the panel
+ * - Attaches persistent keypad
+ * - Wires Enter to #go
+ * - Re-focuses the input after submissions
+ */
+function setupCompactAndNumpad(panel) {
+  if (!panel) return;
+
+  // Compact mode on phones
+  if (window.matchMedia('(max-width: 520px)').matches) {
+    panel.classList.add('compact');
+  }
+
+  // Find the primary numeric answer input on this screen
+  const input =
+    panel.querySelector('input#ans, input#a, .row input[type="number"], .row input[inputmode="numeric"]');
+
+  // Find the 'Enter/Next' button if present
+  const goBtn = panel.querySelector('#go');
+
+  if (input) {
+    attachNumpadTo(panel, input, () => {
+      if (goBtn && !goBtn.disabled) {
+        goBtn.click();
+      } else {
+        // Fallback: submit the nearest form or trigger Enter keyup
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      }
+      // After submit, the panel usually re-renders; if not, keep focus
+      setTimeout(() => input.focus(), 0);
+    });
+
+    // Also submit on physical Enter
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && goBtn && !goBtn.disabled) {
+        e.preventDefault();
+        goBtn.click();
+        setTimeout(() => input.focus(), 0);
+      }
+    }, { once: false });
+
+    // Ensure mobile OS doesn’t zoom because of small font
+    input.style.fontSize = '16px';
+  }
 }
 
 
