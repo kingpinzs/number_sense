@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@plugin 'tailwindcss-animate';
+
+@custom-variant dark (&:is(.dark *));
+@custom-variant theme-dark (&[data-theme='dark'] *);
+
+:root {
+  color-scheme: light;
+  --background: #fdfbf9;
+  --foreground: #0d0f12;
+  --card: #ffffff;
+  --card-foreground: #111317;
+  --popover: #ffffff;
+  --popover-foreground: #0d0f12;
+  --primary: #e87461;
+  --primary-foreground: #ffffff;
+  --secondary: #a8e6cf;
+  --secondary-foreground: #052e1a;
+  --accent: #ffd56f;
+  --accent-foreground: #3b2b00;
+  --success: #66bb6a;
+  --success-foreground: #042612;
+  --warning: #ffb74d;
+  --warning-foreground: #4a2500;
+  --error: #ef5350;
+  --error-foreground: #3f0402;
+  --muted: #f2f4f7;
+  --muted-foreground: #5f6573;
+  --border: rgba(13, 15, 18, 0.12);
+  --input: rgba(13, 15, 18, 0.12);
+  --ring: rgba(232, 116, 97, 0.45);
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --radius: 0.75rem;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --background: #0d0f12;
+  --foreground: #f4f6fb;
+  --card: #151920;
+  --card-foreground: #f4f6fb;
+  --popover: #151920;
+  --popover-foreground: #f4f6fb;
+  --primary: #ff8a78;
+  --primary-foreground: #1b0a07;
+  --secondary: #6ddfbe;
+  --secondary-foreground: #051311;
+  --accent: #ffd977;
+  --accent-foreground: #241600;
+  --success: #7edc84;
+  --success-foreground: #041d0a;
+  --warning: #ffc47b;
+  --warning-foreground: #261200;
+  --error: #ff6b68;
+  --error-foreground: #270101;
+  --muted: #1d232c;
+  --muted-foreground: #a6b2c5;
+  --border: rgba(244, 246, 251, 0.12);
+  --input: rgba(244, 246, 251, 0.18);
+  --ring: rgba(255, 138, 120, 0.6);
+  --destructive: #ff5c5c;
+  --destructive-foreground: #1b0000;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background-color: rgba(232, 116, 97, 0.35);
+  color: var(--foreground);
+}
