@@ -1,0 +1,91 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1</storyId>
+    <title>Initialize Vite Project with Core Dependencies</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-09T17:38:02.5573578-07:00</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-1-initialize-vite-project-with-core-dependencies.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>As a developer</asA>
+    <iWant>I want a modern Vite + React + TypeScript project initialized with all core dependencies</iWant>
+    <soThat>so that I have a fast, type-safe development environment ready for feature implementation.</soThat>
+    <tasks><![CDATA[- [ ] Scaffold Vite + React + TypeScript project with shared alias (AC: 1)
+      [Source: docs/architecture.md#Project-Initialization]
+  - [ ] Run `npm create vite@latest discalculas -- --template react-ts` and initialize git repository if needed (AC: 1).
+  - [ ] Enable `strict: true`, `baseUrl`, and `paths` for `@/*` in `tsconfig.json`; mirror alias in `vite.config.ts` using `resolve.alias` (AC: 1).
+  - [ ] Import and register `VitePWA({ registerType: "autoUpdate" })` plugin stub in `vite.config.ts` so the build output always includes manifest/service worker files (AC: 1,4).
+- [ ] Install core runtime, styling, and testing dependencies at locked versions (AC: 2)
+      [Source: docs/tech-spec-epic-1.md#Detailed-Design]
+  - [ ] Install runtime libs (vite-plugin-pwa, Dexie, dexie-react-hooks, react-router, recharts, framer-motion, react-hook-form, date-fns) using the versions in the architecture table (AC: 2).
+  - [ ] Install Tailwind CSS v4, PostCSS, Autoprefixer, and run `npx shadcn@latest init` so Story 1.2 can configure them without reinstalling (AC: 2).
+  - [ ] Install Vitest, @testing-library/react, @testing-library/dom, and Playwright dev dependencies; ensure `npm run test` points to `vitest --run` and `npm run test:e2e` points to `playwright test` (AC: 2,5).
+  - [ ] Commit the generated `package-lock.json` and document Node 20.x support in README to align with CI expectations (AC: 2).
+        [Source: docs/tech-spec-epic-1.md#CI/CD-Pipeline-Sequence]
+- [ ] Verify dev server and production build flows (AC: 3,4)
+      [Source: docs/tech-spec-epic-1.md#Story-Level-Traceability]
+  - [ ] Run `npm run dev`, confirm HMR works on http://localhost:5173, and capture the command output for the Dev Notes (AC: 3).
+  - [ ] Run `npm run build`, inspect `dist/` for generated assets (including `manifest.webmanifest` and `sw.js`), and archive logs/screenshots as evidence (AC: 4).
+  - [ ] Document the verified commands in `docs/development-guide.md` so future contributors know the baseline workflow (AC: 3,4).
+- [ ] Validate compiler and test baselines (AC: 5)
+      [Source: docs/tech-spec-epic-1.md#Coverage-Enforcement]
+  - [ ] Run `npx tsc --noEmit` and resolve any typing issues introduced by the scaffold or new alias (AC: 5).
+  - [ ] Run `npm run test -- --passWithNoTests` to confirm Vitest boots with coverage instrumentation enabled even before specs exist (AC: 5).
+  - [ ] Record the strict-mode + coverage expectations inside `docs/development-guide.md` so Story 1.6 can extend them without repeating context (AC: 5).
+        [Source: docs/PRD.md#Success-Criteria]
+]]></tasks>
+  </story>
+
+  <acceptanceCriteria><![CDATA[1. A fresh Vite 7.2 + React 19.2 + TypeScript 5.9 project is scaffolded via `npm create vite@latest discalculas -- --template react-ts`, `tsconfig.json` enables `strict` mode with `baseUrl: "."` and `paths: { "@/*": ["src/*"] }`, and `vite.config.ts` exposes the same alias so future feature folders import via `@/`.
+   [Source: docs/epics.md#Story-11-Initialize-Vite-Project-with-Core-Dependencies]
+2. `package.json` lists all required runtime dependencies (vite-plugin-pwa 1.1.0, Dexie 4.2.1, dexie-react-hooks 4.2.0, react-router 7.9.5, recharts 3.3.0, framer-motion 12.23.24, react-hook-form 7.66.0, date-fns 4.0.0) plus dev dependencies (tailwindcss, postcss, autoprefixer, shadcn/ui CLI, vitest 4.0, @testing-library/react 16.3.0, @testing-library/dom, @playwright/test 1.56.1) exactly as specified, and `npm install` succeeds with lockfile committed.
+   [Source: docs/epics.md#Story-11-Initialize-Vite-Project-with-Core-Dependencies][Source: docs/architecture.md#Project-Initialization][Source: docs/tech-spec-epic-1.md#Detailed-Design]
+3. `npm run dev` launches the Vite dev server on http://localhost:5173 with HMR and no console or TypeScript errors, proving the scaffold is runnable.
+   [Source: docs/epics.md#Story-11-Initialize-Vite-Project-with-Core-Dependencies][Source: docs/tech-spec-epic-1.md#Story-Level-Traceability]
+4. `npm run build` produces an optimized bundle in `dist/` without warnings, including the initialized `vite-plugin-pwa` manifest/service-worker outputs required for later PWA work.
+   [Source: docs/epics.md#Story-11-Initialize-Vite-Project-with-Core-Dependencies][Source: docs/architecture.md#Project-Initialization]
+5. `npx tsc --noEmit` and `npm run test -- --passWithNoTests` both pass under strict mode, confirming the base toolchain is ready for the 100% coverage enforcement mandated in the PRD and tech spec.
+   [Source: docs/epics.md#Story-11-Initialize-Vite-Project-with-Core-Dependencies][Source: docs/PRD.md#Success-Criteria][Source: docs/tech-spec-epic-1.md#Coverage-Enforcement]
+]]></acceptanceCriteria>
+
+  <artifacts>
+    <docs><![CDATA[1. docs/tech-spec-epic-1.md — Epic Technical Specification: Foundation & Core Refactor (Overview): "Epic 1 establishes the modern technical foundation for Discalculas by migrating from a 1,600-line monolithic JavaScript prototype to a production-ready Vite + React 19 + TypeScript architecture. This epic directly supports the PRD's Functional Requirement FR1 (Modular Codebase) and FR6 (Testing Harness), transforming an unmaintainable brownfield prototype into a greenfield codebase with 100% automated test coverage enforcement."
+2. docs/architecture.md — Architecture Specification (Executive Summary): "Discalculas is a mobile-first Progressive Web App (PWA) for dyscalculia self-therapy, built as a Single Page Application using Vite + React 19 + TypeScript. The architecture prioritizes offline-first operation, local-only data privacy, 100% test coverage, and adaptive difficulty across 5 core flows: Assessment, Training, Coach, Cognition, and Progress."
+3. docs/epics.md — Epic 1 / Story 1.1: "**As a** developer, **I want** a modern Vite + React + TypeScript project initialized with all core dependencies, **So that** I have a fast, type-safe development environment ready for feature implementation." The section also lists the dependency versions and dev/build expectations verbatim.
+4. docs/PRD.md — Success Criteria: "Mobile-first UX consistently supports three 20-minute sessions per day with <10 seconds to launch each flow (Assessment, Coach, Cognition, Training) from a phone. Codebase reaches 100% automated test coverage (unit, functional, integration, and end-to-end) for `index.html` + `scripts/main.js`, ensuring regressions are caught before UX experiments."
+5. docs/source-tree-analysis.md — Source Tree Analysis / scripts/: "`main.js` is segmented into comment-delimited regions: tab navigation, persistent storage helpers, wizard utilities, inline training modules, assessment/coach/cognition flows, and progress analytics. There is no module bundler; everything executes in the global scope once the script tag loads."
+6. docs/development-guide.md — Development Guide / Running the App & Data Management: "Because everything is static, you can also open `index.html` directly from disk, but using an HTTP server avoids mixed-content and storage quirks in some browsers. When debugging, open DevTools → Application → Storage → Local Storage to inspect or modify the blob."
+]]></docs>
+    <code><![CDATA[1. {path: "scripts/main.js", kind: "legacy-spa-script", symbol: "activate()/SECTIONS", lines: "1-40", reason: "Global DOM wiring for tabs, storage, and wizard overlays illustrates the monolithic code that Story 1.1 begins replacing with modular React components."}
+2. {path: "index.html", kind: "legacy-entry-point", symbol: "<section id=\"assessment\">", lines: "1-60", reason: "Static section markup and header layout define the flows and semantics the new Vite root must eventually render."}
+]]></code>
+    <dependencies><![CDATA[- Node/Vite stack: vite@7.2, react@19.2, react-dom@19.2, typescript@5.9, @vitejs/plugin-react@latest (per docs/tech-spec-epic-1.md and docs/architecture.md).
+- Runtime libraries: vite-plugin-pwa@1.1.0, dexie@4.2.1, dexie-react-hooks@4.2.0, react-router-dom@7.9.5, recharts@3.3.0, framer-motion@12.23.24, react-hook-form@7.66.0, date-fns@4.0.0.
+- Styling/design system: tailwindcss@latest, postcss@latest, autoprefixer@latest, shadcn/ui CLI (initialized but configured next story).
+- Testing/QA: vitest@4.0.0, @testing-library/react@16.3.0, @testing-library/dom@latest, @playwright/test@1.56.1, c8 coverage provider enforced via Vite test config.
+]]></dependencies>
+  </artifacts>
+
+  <constraints><![CDATA[- Node 20.x is the supported runtime in CI (docs/stories/1-1-initialize-vite-project-with-core-dependencies.md Dev Notes), so document and enforce that toolchain when scaffolding Vite.
+- Keep the generated src/ minimal (default App.tsx/main.tsx + global styles) because Story 1.3 introduces the feature-based folders; avoid pre-creating directories beyond Vite defaults (docs/tech-spec-epic-1.md#Project-Organization-ADR-004).
+- Define the `@/` alias exactly once in both `tsconfig.json` (`baseUrl`, `paths`) and `vite.config.ts` (`resolve.alias`) so every feature path stays consistent (Story 1.1 AC-1 and Project Structure Notes).
+- Register `VitePWA({ registerType: "autoUpdate", devOptions: { enabled: true } })` during scaffolding so manifest/service-worker artifacts exist for Epic 7's offline work (story tasks + architecture Project Initialization).
+- Always run `npm run test --coverage` / `npx tsc --noEmit` under strict mode to maintain the 100% coverage gate mandated by PRD + tech spec (docs/tech-spec-epic-1.md#Coverage-Enforcement).
+- Capture verified dev/build/test commands inside `docs/development-guide.md` to keep downstream stories aligned with the sanctioned workflow (Story 1.1 tasks).
+]]></constraints>
+  <interfaces><![CDATA[1. {name: "TypeScript Path Alias (@/*)", kind: "tsconfig.json mapping", signature: "\"compilerOptions\": { \"baseUrl\": \".\", \"paths\": { \"@/*\": [\"src/*\"] } } (mirrored in vite.config.ts resolve.alias)", path: "docs/stories/1-1-initialize-vite-project-with-core-dependencies.md"}
+2. {name: "VitePWA Registration", kind: "vite.config.ts plugin setup", signature: "import { VitePWA } from 'vite-plugin-pwa'; plugins: [react(), VitePWA({ registerType: 'autoUpdate', devOptions: { enabled: true } })]", path: "docs/stories/1-1-initialize-vite-project-with-core-dependencies.md"}
+]]></interfaces>
+  <tests>
+    <standards><![CDATA[Vitest + React Testing Library handle unit/component coverage while Playwright drives Chromium/Firefox/WebKit E2E checks; tests follow the AAA pattern, live alongside source files, and must hit 100% statements/branches/functions/lines with c8 coverage enforcement that is re-checked in GitHub Actions (docs/tech-spec-epic-1.md#Testing-Strategy and #Coverage-Enforcement).]]></standards>
+    <locations><![CDATA[`src/**/*.test.tsx` for co-located Vitest suites, `tests/e2e/**/*.spec.ts` for Playwright journeys, and `.github/workflows/ci.yml` for the coverage-enforcing pipeline referenced in tech-spec-epic-1.md.]]></locations>
+    <ideas><![CDATA[- AC-1: Verify `npm create vite@latest discalculas -- --template react-ts` plus tsconfig/vite.config alias updates via a smoke test that imports from `@/` inside `src/App.tsx`.
+- AC-2: After installing dependencies, run `npm ls` snapshots or lockfile inspections to prove required versions (vite-plugin-pwa 1.1.0, Dexie 4.2.1, etc.) are present.
+- AC-3: Scripted check that `npm run dev` starts on http://localhost:5173 with HMR logs and zero console errors (capture via Playwright's page console listeners).
+- AC-4: CI job (or local script) that runs `npm run build` and asserts `dist/manifest.webmanifest` and `dist/sw.js` exist alongside hashed JS chunks.
+- AC-5: Pipeline step chaining `npx tsc --noEmit` and `npm run test -- --passWithNoTests --coverage` to confirm strict mode + coverage thresholds hold even before real specs exist.]]></ideas>
+  </tests>
+</story-context>

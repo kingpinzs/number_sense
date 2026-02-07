@@ -1,0 +1,155 @@
+<story-context id="1-8-set-up-cicd-pipeline-with-github-actions" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>8</storyId>
+    <title>Set Up CI/CD Pipeline with GitHub Actions</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-20</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/09-story-18-set-up-cicd-pipeline-with-github-actions.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>automated CI/CD pipeline running tests and builds on every commit</iWant>
+    <soThat>code quality is enforced and broken builds are caught immediately</soThat>
+    <tasks>
+      <task id="T1">Create .github/workflows/ci.yml workflow file</task>
+      <task id="T2">Configure triggers for push to main and all PRs</task>
+      <task id="T3">Set up Node.js 20.x with npm ci</task>
+      <task id="T4">Add lint step (npm run lint)</task>
+      <task id="T5">Add type check step (npx tsc --noEmit)</task>
+      <task id="T6">Add unit/integration test step (npm run test)</task>
+      <task id="T7">Add E2E test step with Playwright browser install</task>
+      <task id="T8">Add build step (npm run build)</task>
+      <task id="T9">Configure coverage upload as artifact</task>
+      <task id="T10">Add dependency caching for faster runs</task>
+      <task id="T11">Add workflow badge to README.md</task>
+      <task id="T12">Write tests for any CI-related utilities if needed</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC1">GitHub Actions workflow file exists at .github/workflows/ci.yml</criterion>
+    <criterion id="AC2">Workflow triggers on push to main branch and all pull requests</criterion>
+    <criterion id="AC3">Uses Node.js version 20.x (matrix can include 22.x)</criterion>
+    <criterion id="AC4">Steps include: checkout, npm ci, lint, type check, test, e2e, build</criterion>
+    <criterion id="AC5">Coverage threshold enforced: Build fails if coverage &lt; 100%</criterion>
+    <criterion id="AC6">Playwright installs browsers in CI environment</criterion>
+    <criterion id="AC7">Build artifacts cached to speed up subsequent runs</criterion>
+    <criterion id="AC8">Workflow badge added to README.md showing build status</criterion>
+    <criterion id="AC9">Coverage report uploaded to artifact storage</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>CI/CD Pipeline</section>
+        <snippet>GitHub Actions CI/CD pipeline running linting, type checking, tests, and builds on every commit. 100% coverage threshold enforced.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document</title>
+        <section>Testing Strategy (ADR-005)</section>
+        <snippet>Vitest for unit/integration, Playwright for E2E. 100% coverage threshold enforced in CI.</snippet>
+      </doc>
+    </docs>
+
+    <code>
+      <file>
+        <path>vite.config.ts</path>
+        <kind>config</kind>
+        <symbol>test.coverage.thresholds</symbol>
+        <lines>46-51</lines>
+        <reason>Coverage thresholds already set to 100% - CI must enforce this</reason>
+      </file>
+      <file>
+        <path>package.json</path>
+        <kind>config</kind>
+        <symbol>scripts</symbol>
+        <lines>10-19</lines>
+        <reason>Defines npm scripts: dev, build, test, test:e2e, lint</reason>
+      </file>
+      <file>
+        <path>playwright.config.ts</path>
+        <kind>config</kind>
+        <symbol>PlaywrightConfig</symbol>
+        <reason>E2E test configuration - CI needs to run with this config</reason>
+      </file>
+      <file>
+        <path>vitest.setup.ts</path>
+        <kind>config</kind>
+        <reason>Test setup file referenced in vite.config.ts</reason>
+      </file>
+    </code>
+
+    <dependencies>
+      <npm>
+        <package name="vite" version="7.2.2" />
+        <package name="vitest" version="^3.2.4" />
+        <package name="@playwright/test" version="1.56.1" />
+        <package name="@vitest/coverage-v8" version="^3.2.4" />
+        <package name="typescript" version="5.9.3" />
+        <package name="eslint" version="9.13.0" />
+      </npm>
+      <actions>
+        <action name="actions/checkout" version="v4" />
+        <action name="actions/setup-node" version="v4" />
+        <action name="actions/cache" version="v4" />
+        <action name="actions/upload-artifact" version="v4" />
+      </actions>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="technical">Node.js 20.x required (engines in package.json)</constraint>
+    <constraint type="coverage">100% coverage threshold must be enforced (build fails otherwise)</constraint>
+    <constraint type="pattern">Use actions/checkout@v4, actions/setup-node@v4, actions/cache@v4</constraint>
+    <constraint type="playwright">Install Playwright browsers with: npx playwright install --with-deps chromium</constraint>
+    <constraint type="artifact">Upload coverage/ directory as GitHub artifact</constraint>
+    <constraint type="caching">Cache node_modules using actions/cache with package-lock.json as key</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>npm scripts</name>
+      <kind>CLI commands</kind>
+      <signature>
+        npm run lint - ESLint with --max-warnings=0
+        npm run build - tsc --noEmit &amp;&amp; vite build
+        npm run test - vitest --run
+        npm run test:e2e - playwright test
+      </signature>
+      <path>package.json:10-19</path>
+    </interface>
+    <interface>
+      <name>Coverage thresholds</name>
+      <kind>Vitest config</kind>
+      <signature>statements: 100, branches: 100, functions: 100, lines: 100</signature>
+      <path>vite.config.ts:46-51</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      This story primarily creates infrastructure (YAML workflow file) which doesn't have unit tests.
+      However, the CI workflow itself acts as the test - it must successfully run all existing tests.
+      Current test suite: 211 tests passing with Vitest.
+      E2E tests use Playwright with Chromium browser.
+    </standards>
+    <locations>
+      <location>src/**/*.test.tsx - Component/unit tests</location>
+      <location>tests/e2e/**/*.spec.ts - Playwright E2E tests</location>
+      <location>coverage/ - Coverage reports output</location>
+    </locations>
+    <ideas>
+      <idea criterion="AC1">Verify ci.yml file exists and is valid YAML</idea>
+      <idea criterion="AC2">Manually test by creating a PR or pushing to main</idea>
+      <idea criterion="AC4">Verify all steps complete successfully in GitHub Actions UI</idea>
+      <idea criterion="AC5">Verify build fails when coverage is below 100%</idea>
+      <idea criterion="AC8">Verify badge displays correctly in README</idea>
+    </ideas>
+  </tests>
+</story-context>

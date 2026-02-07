@@ -92,7 +92,12 @@ async function writeTelemetry(
     try {
       const backupKey = STORAGE_KEYS.TELEMETRY_BACKUP;
       const existing = localStorage.getItem(backupKey);
-      const backupEntries: TelemetryBackupEntry[] = existing ? JSON.parse(existing) : [];
+      let backupEntries: TelemetryBackupEntry[] = [];
+      try {
+        backupEntries = existing ? JSON.parse(existing) : [];
+      } catch {
+        // Corrupted backup — start fresh
+      }
       backupEntries.push(entry);
       localStorage.setItem(backupKey, JSON.stringify(backupEntries));
     } catch (backupError) {
@@ -183,20 +188,37 @@ export async function restoreTelemetryBackup(): Promise<number> {
   }
 
   try {
-    const backupEntries: TelemetryBackupEntry[] = JSON.parse(existing);
-
-    if (backupEntries.length === 0) {
+    let backupEntries: TelemetryBackupEntry[];
+    try {
+      backupEntries = JSON.parse(existing);
+    } catch {
+      // Corrupted backup — clear it
+      localStorage.removeItem(backupKey);
       return 0;
     }
 
-    // Use bulkAdd for performance
-    await db.telemetry_logs.bulkAdd(backupEntries);
+    if (!Array.isArray(backupEntries) || backupEntries.length === 0) {
+      localStorage.removeItem(backupKey);
+      return 0;
+    }
+
+    // Deduplicate by checking existing timestamps in Dexie
+    const timestamps = backupEntries.map(e => e.timestamp);
+    const existingEntries = await db.telemetry_logs
+      .where('timestamp')
+      .anyOf(timestamps)
+      .toArray();
+    const existingTimestamps = new Set(existingEntries.map(e => e.timestamp));
+    const newEntries = backupEntries.filter(e => !existingTimestamps.has(e.timestamp));
+
+    if (newEntries.length > 0) {
+      await db.telemetry_logs.bulkAdd(newEntries);
+    }
 
     // Clear backup after successful restore
     localStorage.removeItem(backupKey);
 
-    console.log(`Restored ${backupEntries.length} telemetry entries from backup`);
-    return backupEntries.length;
+    return newEntries.length;
   } catch (error) {
     console.error('Failed to restore telemetry backup:', error);
     return 0;

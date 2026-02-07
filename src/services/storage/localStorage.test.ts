@@ -15,6 +15,8 @@ import {
   setLastUsedModule,
   getResearchModeEnabled,
   setResearchModeEnabled,
+  getMilestonesShown,
+  addMilestoneShown,
   type UserSettings
 } from './localStorage';
 
@@ -54,7 +56,8 @@ describe('LocalStorage Wrapper', () => {
         reducedMotion: true,
         soundEnabled: false,
         dailyGoalMinutes: 90,
-        researchModeEnabled: true
+        researchModeEnabled: true,
+        showAdaptiveToasts: false
       };
 
       localStorage.setItem(STORAGE_KEYS.USER_SETTINGS, JSON.stringify(customSettings));
@@ -76,7 +79,8 @@ describe('LocalStorage Wrapper', () => {
         reducedMotion: 'not-a-boolean',
         soundEnabled: 1,
         dailyGoalMinutes: 'not-a-number',
-        researchModeEnabled: null
+        researchModeEnabled: null,
+        showAdaptiveToasts: 'invalid'
       };
 
       localStorage.setItem(STORAGE_KEYS.USER_SETTINGS, JSON.stringify(malformed));
@@ -88,6 +92,7 @@ describe('LocalStorage Wrapper', () => {
       expect(typeof settings.soundEnabled).toBe('boolean');
       expect(typeof settings.dailyGoalMinutes).toBe('number');
       expect(typeof settings.researchModeEnabled).toBe('boolean');
+      expect(typeof settings.showAdaptiveToasts).toBe('boolean');
     });
 
     it('handles partial settings object', () => {
@@ -112,7 +117,8 @@ describe('LocalStorage Wrapper', () => {
         reducedMotion: true,
         soundEnabled: false,
         dailyGoalMinutes: 120,
-        researchModeEnabled: true
+        researchModeEnabled: true,
+        showAdaptiveToasts: false
       };
 
       setUserSettings(newSettings);
@@ -130,7 +136,8 @@ describe('LocalStorage Wrapper', () => {
         reducedMotion: false,
         soundEnabled: true,
         dailyGoalMinutes: 60,
-        researchModeEnabled: false
+        researchModeEnabled: false,
+        showAdaptiveToasts: true
       });
 
       // Update only one field
@@ -244,14 +251,76 @@ describe('LocalStorage Wrapper', () => {
     });
   });
 
+  describe('getMilestonesShown / addMilestoneShown', () => {
+    it('returns empty array when not set', () => {
+      expect(getMilestonesShown()).toEqual([]);
+    });
+
+    it('returns stored milestones', () => {
+      localStorage.setItem(STORAGE_KEYS.STREAK_MILESTONES_SHOWN, JSON.stringify([7, 30]));
+      expect(getMilestonesShown()).toEqual([7, 30]);
+    });
+
+    it('returns empty array for invalid JSON', () => {
+      localStorage.setItem(STORAGE_KEYS.STREAK_MILESTONES_SHOWN, 'invalid');
+      expect(getMilestonesShown()).toEqual([]);
+    });
+
+    it('adds a milestone to the shown list', () => {
+      addMilestoneShown(7);
+      expect(getMilestonesShown()).toEqual([7]);
+    });
+
+    it('does not add duplicate milestones', () => {
+      addMilestoneShown(7);
+      addMilestoneShown(7);
+      expect(getMilestonesShown()).toEqual([7]);
+    });
+
+    it('accumulates multiple milestones', () => {
+      addMilestoneShown(7);
+      addMilestoneShown(30);
+      addMilestoneShown(100);
+      expect(getMilestonesShown()).toEqual([7, 30, 100]);
+    });
+  });
+
   describe('DEFAULT_SETTINGS', () => {
     it('has sensible defaults', () => {
       expect(DEFAULT_SETTINGS).toEqual({
         reducedMotion: false,
         soundEnabled: true,
         dailyGoalMinutes: 60,
-        researchModeEnabled: false
+        researchModeEnabled: false,
+        showAdaptiveToasts: true
       });
+    });
+  });
+
+  describe('showAdaptiveToasts setting', () => {
+    it('defaults to true', () => {
+      const settings = getUserSettings();
+      expect(settings.showAdaptiveToasts).toBe(true);
+    });
+
+    it('persists false value', () => {
+      setUserSettings({ showAdaptiveToasts: false });
+      const settings = getUserSettings();
+      expect(settings.showAdaptiveToasts).toBe(false);
+    });
+
+    it('persists true value after setting false', () => {
+      setUserSettings({ showAdaptiveToasts: false });
+      setUserSettings({ showAdaptiveToasts: true });
+      const settings = getUserSettings();
+      expect(settings.showAdaptiveToasts).toBe(true);
+    });
+
+    it('validates missing showAdaptiveToasts uses default', () => {
+      const partial = { reducedMotion: true };
+      localStorage.setItem(STORAGE_KEYS.USER_SETTINGS, JSON.stringify(partial));
+      const settings = getUserSettings();
+      expect(settings.showAdaptiveToasts).toBe(true);
     });
   });
 
@@ -286,7 +355,8 @@ describe('LocalStorage Wrapper', () => {
         reducedMotion: 1,
         soundEnabled: 'true',
         dailyGoalMinutes: 60,
-        researchModeEnabled: null
+        researchModeEnabled: null,
+        showAdaptiveToasts: 0
       };
 
       localStorage.setItem(STORAGE_KEYS.USER_SETTINGS, JSON.stringify(malformed));
@@ -296,6 +366,7 @@ describe('LocalStorage Wrapper', () => {
       expect(typeof settings.reducedMotion).toBe('boolean');
       expect(typeof settings.soundEnabled).toBe('boolean');
       expect(typeof settings.researchModeEnabled).toBe('boolean');
+      expect(typeof settings.showAdaptiveToasts).toBe('boolean');
     });
   });
 
@@ -326,7 +397,8 @@ describe('LocalStorage Wrapper', () => {
         reducedMotion: false,
         soundEnabled: true,
         dailyGoalMinutes: 60,
-        researchModeEnabled: false
+        researchModeEnabled: false,
+        showAdaptiveToasts: true
       });
 
       localStorage.setItem(STORAGE_KEYS.USER_SETTINGS, malicious);

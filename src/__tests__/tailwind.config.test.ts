@@ -4,7 +4,7 @@ import tailwindConfig from '../../tailwind.config';
 const theme = tailwindConfig.theme ?? {};
 const colors = (theme.extend?.colors ?? {}) as Record<string, any>;
 const screens = (theme.screens ?? {}) as Record<string, string>;
-const spacing = (theme.spacing ?? {}) as Record<string, string>;
+const spacing = (theme.extend?.spacing ?? {}) as Record<string, string>;
 
 describe('tailwind config', () => {
   it('defines the Balanced Warmth palette', () => {
@@ -32,7 +32,7 @@ describe('tailwind config', () => {
   });
 
   it('enforces Inter as the sans-serif family', () => {
-    const sans = theme.extend?.fontFamily?.sans;
-    expect(sans?.[0]).toBe('Inter');
+    const fontFamily = theme.extend?.fontFamily as Record<string, string[]> | undefined;
+    expect(fontFamily?.sans?.[0]).toBe('Inter');
   });
 });

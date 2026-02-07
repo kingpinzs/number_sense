@@ -1,0 +1,772 @@
+<story-context id="story-1-4-dexie-database-layer" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1-4</storyId>
+    <title>Implement Dexie Database Layer with Schema v1</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-09</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/05-story-14-implement-dexie-database-layer-with-schema-v1.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>Dexie.js configured with schema v1 for all tables</iWant>
+    <soThat>I can persist sessions, telemetry, and user data locally with type-safe queries</soThat>
+    <tasks>
+      - Create src/services/storage/db.ts with DiscalculasDB class
+      - Define TypeScript interfaces in src/services/storage/schemas.ts
+      - Create src/services/storage/localStorage.ts with STORAGE_KEYS wrappers
+      - Create src/services/storage/migrations.ts (empty for v1, prepared for future)
+      - Write comprehensive tests for database operations
+      - Test useLiveQuery() integration with React component
+      - Verify IndexedDB in browser DevTools
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    **Given** the folder structure is in place (Story 1.3 complete)
+    **When** I implement the Dexie database layer
+    **Then** src/services/storage/db.ts exports a DiscalculasDB class with these tables:
+
+    * sessions (id, timestamp, module, [timestamp+module])
+    * assessments (id, timestamp, status)
+    * drill_results (id, sessionId, timestamp, module)
+    * telemetry_logs (id, timestamp, event, [timestamp+event])
+    * magic_minute_sessions (id, sessionId, timestamp)
+    * difficulty_history (id, sessionId, timestamp, module)
+    * experiments (id, status)
+    * experiment_observations (id, experimentId, variantId, timestamp)
+
+    **And** TypeScript interfaces defined in src/services/storage/schemas.ts for each table
+    **And** src/services/storage/localStorage.ts exports wrappers for STORAGE_KEYS:
+    * STREAK, LAST_SESSION_DATE, USER_SETTINGS, LAST_USED_MODULE, RESEARCH_MODE_ENABLED
+
+    **And** A simple test successfully writes to and reads from sessions table
+    **And** useLiveQuery() from dexie-react-hooks works in a test React component
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      **architecture.md:**
+
+      ## Data Architecture (lines 390-431)
+
+      ### Dexie Schema
+
+      ```typescript
+      class DiscalculasDB extends Dexie {
+        sessions!: Table&lt;Session&gt;;
+        assessments!: Table&lt;Assessment&gt;;
+        drill_results!: Table&lt;DrillResult&gt;;
+        telemetry_logs!: Table&lt;TelemetryLog&gt;;
+        magic_minute_sessions!: Table&lt;MagicMinuteSession&gt;;
+        difficulty_history!: Table&lt;DifficultyHistoryEntry&gt;;
+        experiments!: Table&lt;ExperimentRecord&gt;;
+        experiment_observations!: Table&lt;ExperimentObservation&gt;;
+
+        constructor() {
+          super('DiscalculasDB');
+          this.version(1).stores({
+            sessions: 'id, timestamp, module, [timestamp+module]',
+            assessments: 'id, timestamp, status',
+            drill_results: 'id, sessionId, timestamp, module',
+            telemetry_logs: 'id, timestamp, event, [timestamp+event]',
+            magic_minute_sessions: 'id, sessionId, timestamp',
+            difficulty_history: 'id, sessionId, timestamp, module',
+            experiments: 'id, status',
+            experiment_observations: 'id, experimentId, variantId, timestamp'
+          });
+        }
+      }
+      ```
+
+      ### LocalStorage Keys
+
+      ```typescript
+      const STORAGE_KEYS = {
+        STREAK: 'discalculas:streak',
+        LAST_SESSION_DATE: 'discalculas:lastSessionDate',
+        USER_SETTINGS: 'discalculas:settings',
+        LAST_USED_MODULE: 'discalculas:lastModule',
+        RESEARCH_MODE_ENABLED: 'discalculas:researchMode'
+      };
+      ```
+
+      **tech-spec-epic-1.md:**
+
+      ## Data Models and Contracts (lines 102-284)
+
+      ### Dexie Schema v1 TypeScript Interfaces
+
+      ```typescript
+      // src/services/storage/schemas.ts
+
+      export interface Session {
+        id?: number;           // Primary key (auto-increment)
+        timestamp: string;     // ISO 8601 (indexed)
+        module: string;        // "assessment" | "training" | "cognition" | "coach"
+        duration: number;      // milliseconds
+        completionStatus: "completed" | "abandoned" | "paused";
+        confidencePre?: number;   // 1-10 scale
+        confidencePost?: number;  // 1-10 scale
+        anxietyLevel?: number;    // 1-10 scale
+      }
+
+      export interface Assessment {
+        id?: number;
+        timestamp: string;
+        status: "in-progress" | "completed";
+        totalQuestions: number;
+        correctAnswers: number;
+        weaknesses: string[];     // e.g., ["number-sense", "spatial-rotation"]
+        strengths: string[];
+        recommendations: string[];
+        userId: string;          // Always "local_user"
+      }
+
+      export interface DrillResult {
+        id?: number;
+        sessionId: number;       // Foreign key to sessions table
+        timestamp: string;
+        module: string;          // "number-line" | "spatial-rotation" | "math-operations"
+        drillType: string;
+        correctAnswers: number;
+        totalQuestions: number;
+        averageResponseTime: number;  // milliseconds
+        difficultyLevel: number;      // 1-10
+      }
+
+      export interface TelemetryLog {
+        id?: number;
+        timestamp: string;       // Indexed
+        event: string;          // Indexed (e.g., "drill_completed", "session_started")
+        module: string;
+        data: Record&lt;string, any&gt;;  // JSON payload
+        userId: string;         // Always "local_user"
+      }
+
+      export interface MagicMinuteSession {
+        id?: number;
+        sessionId: number;
+        timestamp: string;
+        targetedMistakes: string[];   // Array of mistake types from session
+        challengesGenerated: number;
+        challengesCompleted: number;
+        successRate: number;          // 0-1
+        duration: number;             // milliseconds (should be ~60000)
+      }
+
+      export interface DifficultyHistory {
+        id?: number;
+        sessionId: number;
+        timestamp: string;
+        module: string;
+        previousDifficulty: number;   // 1-10
+        newDifficulty: number;        // 1-10
+        reason: string;               // "too_easy" | "too_hard" | "optimal"
+        userAccepted: boolean;        // Did user accept adjustment?
+      }
+
+      export interface Experiment {
+        id?: number;
+        name: string;
+        description: string;
+        status: "active" | "paused" | "completed";
+        startDate: string;
+        endDate?: string;
+        variants: string[];           // e.g., ["control", "variant_a", "variant_b"]
+      }
+
+      export interface ExperimentObservation {
+        id?: number;
+        experimentId: number;
+        variantId: string;
+        timestamp: string;
+        metric: string;               // e.g., "completion_rate", "confidence_delta"
+        value: number;
+        userId: string;               // Always "local_user"
+      }
+      ```
+
+      ### LocalStorage Keys and UserSettings Interface
+
+      ```typescript
+      // src/services/storage/localStorage.ts
+      export const STORAGE_KEYS = {
+        STREAK: 'discalculas:streak',
+        LAST_SESSION_DATE: 'discalculas:lastSessionDate',
+        USER_SETTINGS: 'discalculas:userSettings',
+        LAST_USED_MODULE: 'discalculas:lastUsedModule',
+        RESEARCH_MODE_ENABLED: 'discalculas:researchModeEnabled'
+      } as const;
+
+      export interface UserSettings {
+        reducedMotion: boolean;
+        soundEnabled: boolean;
+        dailyGoalMinutes: number;
+        researchModeEnabled: boolean;
+      }
+      ```
+
+      ## Services and Modules (lines 82-101)
+
+      **Dexie Database Service** (src/services/storage/db.ts):
+      - Responsibility: IndexedDB abstraction, type-safe queries, schema versioning
+      - Key Inputs: TypeScript interfaces (schemas.ts)
+      - Key Outputs: Singleton db instance, table accessors, migrations
+      - Owner Story: Story 1.4
+
+      **LocalStorage Service** (src/services/storage/localStorage.ts):
+      - Responsibility: Key-value persistence for settings/streak
+      - Key Inputs: STORAGE_KEYS constants
+      - Key Outputs: Get/set wrappers for typed access
+      - Owner Story: Story 1.4
+
+      ## Security (lines 551-609)
+
+      **Data Handling Pattern:**
+
+      ```typescript
+      // src/services/storage/localStorage.ts
+      export function getUserSettings(): UserSettings {
+        const raw = localStorage.getItem(STORAGE_KEYS.USER_SETTINGS);
+        if (!raw) return DEFAULT_SETTINGS;
+
+        try {
+          const parsed = JSON.parse(raw);
+          // Validate structure to prevent injection
+          return validateUserSettings(parsed);
+        } catch {
+          return DEFAULT_SETTINGS;
+        }
+      }
+
+      function validateUserSettings(obj: any): UserSettings {
+        return {
+          reducedMotion: Boolean(obj.reducedMotion),
+          soundEnabled: Boolean(obj.soundEnabled),
+          dailyGoalMinutes: Number(obj.dailyGoalMinutes) || 60,
+          researchModeEnabled: Boolean(obj.researchModeEnabled)
+        };
+      }
+      ```
+
+      ## Reliability/Availability (lines 610-678)
+
+      **Data Persistence Guarantees:**
+
+      ```typescript
+      // src/services/storage/db.ts
+      export async function ensureDBHealth(): Promise&lt;boolean&gt; {
+        try {
+          // Test write
+          await db.telemetry_logs.add({
+            timestamp: new Date().toISOString(),
+            event: 'health_check',
+            module: 'system',
+            data: {},
+            userId: 'local_user'
+          });
+
+          // Test read
+          const count = await db.telemetry_logs.count();
+
+          return count &gt; 0;
+        } catch (error) {
+          console.error('DB health check failed:', error);
+          return false;
+        }
+      }
+      ```
+
+      ## Observability (lines 679-796)
+
+      **Query Performance Monitoring:**
+
+      ```typescript
+      // src/services/storage/db.ts
+      export async function queryWithTiming&lt;T&gt;(
+        queryFn: () =&gt; Promise&lt;T&gt;,
+        queryName: string
+      ): Promise&lt;T&gt; {
+        const start = performance.now();
+        const result = await queryFn();
+        const duration = performance.now() - start;
+
+        if (duration &gt; 100) {
+          console.warn(`Slow query: ${queryName} took ${duration}ms`);
+        }
+
+        return result;
+      }
+      ```
+
+      ## Naming Conventions (lines 305-323)
+
+      **Database:**
+      - Tables: snake_case, plural
+      - Columns: snake_case
+
+      **Files:**
+      - Services: camelCase.ts (e.g., telemetry.ts)
+      - Types: camelCase.types.ts
+
+      **Data Formats:**
+
+      **Dates:** Always ISO 8601 strings in storage
+
+      **Telemetry:**
+      ```typescript
+      {
+        event: 'drill_completed',  // snake_case
+        timestamp: '2025-11-09T14:30:00.000Z',
+        module: 'number-line',
+        data: { accuracy: 0.8, duration_ms: 45000 }
+      }
+      ```
+    </docs>
+
+    <code>
+      **Completed Stories:**
+
+      Story 1.1: Vite project initialized
+      - package.json with dexie@4.2.1 and dexie-react-hooks@4.2.0
+      - tsconfig.json with strict mode and @/ path alias
+
+      Story 1.2: Tailwind CSS + shadcn/ui configured
+      - Design system ready for UI components
+
+      Story 1.3: Feature-based folder structure created
+      - src/services/storage/ directory exists and ready for implementation
+      - src/__tests__/ directory for test files
+
+      **Existing Relevant Files:**
+
+      tsconfig.json (paths configuration):
+      ```json
+      {
+        "compilerOptions": {
+          "strict": true,
+          "baseUrl": ".",
+          "paths": {
+            "@/*": ["src/*"]
+          }
+        }
+      }
+      ```
+
+      **No existing database files** - This story creates them from scratch
+    </code>
+
+    <dependencies>
+      **Production Dependencies:**
+      - dexie@4.2.1 - IndexedDB wrapper with TypeScript support
+      - dexie-react-hooks@4.2.0 - React hooks for live queries (useLiveQuery)
+
+      **Development Dependencies:**
+      - vitest@4.0.0 - Test framework
+      - @testing-library/react@16.3.0 - React component testing
+
+      **Browser APIs:**
+      - IndexedDB (requires Chrome 90+, Firefox 88+, Safari 14+)
+      - LocalStorage (ubiquitous browser support)
+
+      **Related Future Stories:**
+      - Story 1.5: React Context will consume this database layer
+      - Story 1.6: Testing infrastructure will validate database operations
+      - Stories 2+: All features will persist data using this layer
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    **Technical Constraints:**
+
+    1. **100% Test Coverage Mandatory**
+       - All database operations must have unit tests
+       - Integration test for useLiveQuery() hook
+       - Coverage threshold enforced in CI
+
+    2. **TypeScript Strict Mode**
+       - No 'any' types in production code
+       - All interfaces must match tech-spec exactly
+       - Dexie Table&lt;T&gt; generic types required
+
+    3. **Schema Versioning**
+       - Use this.version(1).stores({ ... }) pattern
+       - Prepare migrations.ts for future schema changes (v2+)
+       - Never modify v1 schema after Epic 1 completion
+
+    4. **Singleton Pattern**
+       - Export singleton: export const db = new DiscalculasDB();
+       - Single database instance across entire app
+       - No new DiscalculasDB() calls in feature code
+
+    5. **IndexedDB Quota Management**
+       - Typical browser limit: 50-100 MB
+       - Story 1.4 does NOT implement quota monitoring (deferred to Epic 5)
+       - Prepare for future telemetry pruning
+
+    6. **Data Privacy**
+       - userId always "local_user" (no unique identifiers)
+       - No external database connections
+       - All data stored locally only
+
+    7. **Error Handling**
+       - Try-catch around all Dexie operations
+       - Graceful fallback if IndexedDB unavailable
+       - LocalStorage validation for malformed JSON
+
+    8. **Naming Conventions**
+       - Tables: snake_case, plural (sessions, telemetry_logs)
+       - Interfaces: PascalCase (Session, TelemetryLog)
+       - Files: camelCase.ts (db.ts, schemas.ts, localStorage.ts)
+
+    9. **Dependencies Version Lock**
+       - dexie@4.2.1 exactly (no ^4.2.1)
+       - dexie-react-hooks@4.2.0 exactly
+       - Verified compatibility 2025-11-09
+
+    10. **Browser Compatibility**
+        - Test on Chrome 90+ (primary target)
+        - IndexedDB required (no graceful degradation in Story 1.4)
+        - Future Story 7.2 will add compatibility warnings
+  </constraints>
+
+  <interfaces>
+    **Dexie Database Interface:**
+
+    ```typescript
+    // src/services/storage/db.ts
+    import Dexie, { Table } from 'dexie';
+    import type {
+      Session, Assessment, DrillResult, TelemetryLog,
+      MagicMinuteSession, DifficultyHistory, Experiment,
+      ExperimentObservation
+    } from './schemas';
+
+    export class DiscalculasDB extends Dexie {
+      sessions!: Table&lt;Session, number&gt;;
+      assessments!: Table&lt;Assessment, number&gt;;
+      drill_results!: Table&lt;DrillResult, number&gt;;
+      telemetry_logs!: Table&lt;TelemetryLog, number&gt;;
+      magic_minute_sessions!: Table&lt;MagicMinuteSession, number&gt;;
+      difficulty_history!: Table&lt;DifficultyHistory, number&gt;;
+      experiments!: Table&lt;Experiment, number&gt;;
+      experiment_observations!: Table&lt;ExperimentObservation, number&gt;;
+
+      constructor() {
+        super('DiscalculasDB');
+
+        this.version(1).stores({
+          sessions: '++id, timestamp, module, [timestamp+module]',
+          assessments: '++id, timestamp, status',
+          drill_results: '++id, sessionId, timestamp, module',
+          telemetry_logs: '++id, timestamp, event, [timestamp+event]',
+          magic_minute_sessions: '++id, sessionId, timestamp',
+          difficulty_history: '++id, sessionId, timestamp, module',
+          experiments: '++id, status',
+          experiment_observations: '++id, experimentId, variantId, timestamp'
+        });
+      }
+    }
+
+    export const db = new DiscalculasDB();
+    ```
+
+    **Schema Interfaces (from tech-spec):**
+
+    See artifacts/docs section for complete TypeScript interfaces:
+    - Session
+    - Assessment
+    - DrillResult
+    - TelemetryLog
+    - MagicMinuteSession
+    - DifficultyHistory
+    - Experiment
+    - ExperimentObservation
+
+    **LocalStorage Interface:**
+
+    ```typescript
+    // src/services/storage/localStorage.ts
+    export const STORAGE_KEYS = {
+      STREAK: 'discalculas:streak',
+      LAST_SESSION_DATE: 'discalculas:lastSessionDate',
+      USER_SETTINGS: 'discalculas:userSettings',
+      LAST_USED_MODULE: 'discalculas:lastUsedModule',
+      RESEARCH_MODE_ENABLED: 'discalculas:researchModeEnabled'
+    } as const;
+
+    export interface UserSettings {
+      reducedMotion: boolean;
+      soundEnabled: boolean;
+      dailyGoalMinutes: number;
+      researchModeEnabled: boolean;
+    }
+
+    export const DEFAULT_SETTINGS: UserSettings = {
+      reducedMotion: false,
+      soundEnabled: true,
+      dailyGoalMinutes: 60,
+      researchModeEnabled: false
+    };
+
+    export function getUserSettings(): UserSettings;
+    export function setUserSettings(settings: Partial&lt;UserSettings&gt;): void;
+    export function getStreak(): number;
+    export function setStreak(streak: number): void;
+    export function getLastSessionDate(): string | null;
+    export function setLastSessionDate(date: string): void;
+    export function getLastUsedModule(): string | null;
+    export function setLastUsedModule(module: string): void;
+    export function getResearchModeEnabled(): boolean;
+    export function setResearchModeEnabled(enabled: boolean): void;
+    ```
+
+    **Migrations Interface (empty for v1):**
+
+    ```typescript
+    // src/services/storage/migrations.ts
+    import { DiscalculasDB } from './db';
+
+    // Placeholder for future schema migrations
+    // Version 2+ will add migration logic here
+
+    export function applyMigrations(db: DiscalculasDB): void {
+      // No migrations for v1
+      // Example for future v2:
+      // db.version(2).stores({
+      //   sessions: '++id, timestamp, module, [timestamp+module], userId'
+      // }).upgrade(tx => {
+      //   return tx.table('sessions').toCollection().modify(session => {
+      //     session.userId = 'local_user';
+      //   });
+      // });
+    }
+    ```
+  </interfaces>
+
+  <tests>
+    <standards>
+      **Testing Standards (from Epic 1 tech-spec):**
+
+      1. **AAA Pattern Mandatory**
+         - Arrange: Set up test data
+         - Act: Execute operation
+         - Assert: Verify results
+
+      2. **100% Coverage Required**
+         - Statements: 100%
+         - Branches: 100%
+         - Functions: 100%
+         - Lines: 100%
+
+      3. **Co-Located Test Files**
+         - db.test.ts next to db.ts
+         - schemas.test.ts next to schemas.ts
+         - localStorage.test.ts next to localStorage.ts
+
+      4. **Test Framework: Vitest**
+         - Use describe() blocks for grouping
+         - Use it() for individual tests
+         - Use beforeEach() for test setup
+         - Use afterEach() for cleanup (close DB)
+
+      5. **Integration Tests**
+         - Test useLiveQuery() with React Testing Library
+         - Create test component that uses Dexie hook
+         - Verify reactive updates
+
+      6. **Browser Verification**
+         - Manual test: Open browser DevTools
+         - Navigate to Application tab → IndexedDB
+         - Verify DiscalculasDB exists with all tables
+         - Verify test records appear after test runs
+    </standards>
+
+    <locations>
+      **Test File Locations:**
+
+      - src/services/storage/db.test.ts (Dexie database tests)
+      - src/services/storage/schemas.test.ts (Schema validation tests)
+      - src/services/storage/localStorage.test.ts (LocalStorage wrapper tests)
+      - src/services/storage/migrations.test.ts (Migration placeholder tests)
+
+      **Integration Test Location:**
+
+      - src/__tests__/database-integration.test.tsx (useLiveQuery hook test)
+    </locations>
+
+    <ideas>
+      **Unit Test Ideas:**
+
+      **db.test.ts:**
+
+      1. Test Database Initialization
+         - Create DiscalculasDB instance
+         - Verify all 8 tables exist
+         - Verify database name is 'DiscalculasDB'
+         - Verify version is 1
+
+      2. Test Sessions Table Write/Read
+         - Write a Session record
+         - Read it back by id
+         - Verify all fields match
+         - Test timestamp index query
+
+      3. Test Compound Index Query
+         - Write multiple sessions with different modules
+         - Query by [timestamp+module] compound index
+         - Verify correct records returned
+
+      4. Test All Tables CRUD
+         - For each of 8 tables: Create, Read, Update, Delete
+         - Verify auto-increment id works
+         - Verify indexed fields support queries
+
+      5. Test Foreign Key Pattern (sessionId)
+         - Create a Session
+         - Create DrillResult with sessionId reference
+         - Query drill_results by sessionId
+         - Verify correct association
+
+      6. Test Error Handling
+         - Attempt to write with missing required field
+         - Verify Dexie throws error
+         - Catch and handle gracefully
+
+      7. Test Database Health Check
+         - Call ensureDBHealth()
+         - Verify returns true
+         - Check telemetry_logs has health_check record
+
+      8. Test Query Performance Monitoring
+         - Call queryWithTiming() with slow query
+         - Verify console.warn called if &gt;100ms
+         - Verify result still returned
+
+      **schemas.test.ts:**
+
+      1. Test Session Interface Validation
+         - Create valid Session object
+         - Verify TypeScript types compile
+         - Verify optional fields work (confidencePre, confidencePost)
+
+      2. Test All Interface Structures
+         - For each interface: Create sample object
+         - Verify required fields
+         - Verify optional fields
+         - Verify TypeScript compilation
+
+      3. Test userId Always "local_user"
+         - Create Assessment with userId
+         - Create TelemetryLog with userId
+         - Create ExperimentObservation with userId
+         - Verify all default to "local_user"
+
+      **localStorage.test.ts:**
+
+      1. Test getUserSettings Default
+         - Clear localStorage
+         - Call getUserSettings()
+         - Verify returns DEFAULT_SETTINGS
+
+      2. Test getUserSettings Persistence
+         - Set user settings
+         - Call getUserSettings()
+         - Verify correct values returned
+
+      3. Test setUserSettings Partial Update
+         - Set initial settings
+         - Update only reducedMotion
+         - Verify other fields unchanged
+
+      4. Test getUserSettings with Invalid JSON
+         - Manually write malformed JSON to localStorage
+         - Call getUserSettings()
+         - Verify returns DEFAULT_SETTINGS (fallback)
+
+      5. Test All STORAGE_KEYS Wrappers
+         - Test getStreak() / setStreak()
+         - Test getLastSessionDate() / setLastSessionDate()
+         - Test getLastUsedModule() / setLastUsedModule()
+         - Test getResearchModeEnabled() / setResearchModeEnabled()
+
+      6. Test Validation Logic
+         - Pass invalid types to validateUserSettings()
+         - Verify Boolean() coercion works
+         - Verify Number() fallback to default
+
+      **Integration Test Ideas:**
+
+      **database-integration.test.tsx:**
+
+      1. Test useLiveQuery Hook
+         - Create test component using useLiveQuery()
+         - Render component
+         - Verify initial query result
+         - Add record to database
+         - Verify component re-renders with new data
+
+      2. Test Reactive Updates
+         - Query sessions table with useLiveQuery()
+         - Add session via db.sessions.add()
+         - Verify hook returns updated list
+         - Delete session
+         - Verify hook returns updated list
+
+      3. Test Multiple Live Queries
+         - Create component with 2 useLiveQuery() hooks
+         - Update one table
+         - Verify only relevant hook re-renders
+
+      **Browser DevTools Test (Manual):**
+
+      1. Open application in browser
+      2. Open DevTools → Application tab → IndexedDB
+      3. Verify DiscalculasDB exists
+      4. Verify all 8 tables visible
+      5. Run tests (npm run test)
+      6. Refresh IndexedDB view
+      7. Verify test records appear in tables
+      8. Manually inspect record structure
+      9. Verify indexes exist (timestamp, module, etc.)
+
+      **Edge Case Test Ideas:**
+
+      1. Test IndexedDB Unavailable
+         - Mock IndexedDB as undefined
+         - Attempt to create db
+         - Verify graceful error handling
+         - (Note: Full implementation deferred to Story 7.2)
+
+      2. Test Concurrent Writes
+         - Write to same table from multiple promises
+         - Verify all writes succeed
+         - Verify no data corruption
+
+      3. Test Large Dataset
+         - Write 1000 sessions
+         - Query with timestamp index
+         - Verify performance &lt;100ms
+
+      4. Test Schema Migration Placeholder
+         - Verify migrations.ts exists
+         - Verify applyMigrations() is callable
+         - Verify no errors thrown (empty implementation)
+
+      **Coverage Verification:**
+
+      After all tests written:
+      1. Run: npm run test -- --coverage
+      2. Verify 100% coverage for:
+         - db.ts
+         - schemas.ts
+         - localStorage.ts
+         - migrations.ts
+      3. Check coverage/index.html for visual report
+      4. Ensure no uncovered lines
+    </ideas>
+  </tests>
+</story-context>

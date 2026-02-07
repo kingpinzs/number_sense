@@ -1,0 +1,448 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>3</epicId>
+    <storyId>2</storyId>
+    <title>Implement Number Line Drill</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-22</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/18-story-32-implement-number-line-drill.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user in a training session</asA>
+    <iWant>number line placement drills that help me visualize quantities</iWant>
+    <soThat>I improve my number sense through repeated practice</soThat>
+    <tasks>
+      <!-- Note: Story file in minimal format - Tasks to be defined during implementation -->
+      <task id="1" description="Create NumberLineDrill component in src/features/training/drills/">
+        <subtask>Implement horizontal number line UI (280px min, 90% viewport max)</subtask>
+        <subtask>Add range indicators (0 and 100/1000 labels)</subtask>
+        <subtask>Implement draggable marker (44px tap target, Framer Motion drag="x")</subtask>
+        <subtask>Add target number display ("Where is 47?")</subtask>
+        <subtask>Implement Submit button with disabled state logic</subtask>
+        <subtask>Add optional timer display</subtask>
+      </task>
+      <task id="2" description="Implement interaction logic and calculation">
+        <subtask>Calculate position percentage: (tapX - lineStartX) / lineWidth * range</subtask>
+        <subtask>Implement ±10% tolerance for correctness</subtask>
+        <subtask>Generate drill result with accuracy, timeToAnswer, correctness</subtask>
+      </task>
+      <task id="3" description="Implement visual feedback system">
+        <subtask>Correct answer: Green flash, success sound (if enabled), +1 animation</subtask>
+        <subtask>Incorrect answer: Show both correct position (gray) and user position (red)</subtask>
+        <subtask>Auto-advance to next drill after 1.5 seconds</subtask>
+      </task>
+      <task id="4" description="Implement difficulty progression within session">
+        <subtask>Easy (0-100 range, multiples of 10 targets) for first 2 drills</subtask>
+        <subtask>Medium (0-100 range, any number) for next 3 drills</subtask>
+        <subtask>Hard (0-1000 range) if user accuracy > 80% on medium</subtask>
+      </task>
+      <task id="5" description="Implement accessibility features">
+        <subtask>Keyboard support: arrow keys move marker, Enter submits</subtask>
+        <subtask>ARIA labels for screen readers</subtask>
+        <subtask>Respect prefers-reduced-motion</subtask>
+      </task>
+      <task id="6" description="Write comprehensive tests">
+        <subtask>Component tests: rendering, user interaction, drag behavior</subtask>
+        <subtask>Unit tests: position calculation, accuracy tolerance, difficulty logic</subtask>
+        <subtask>Integration tests: result persistence to Dexie drill_results table</subtask>
+        <subtask>Accessibility tests: keyboard navigation, screen reader support</subtask>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-1" priority="critical">
+      <given>a training session is active with Number Line drill selected (Story 3.1 complete)</given>
+      <when>the NumberLineDrill component renders</when>
+      <then>
+        The drill displays:
+        - Horizontal number line spanning screen width (280px minimum, 90% viewport max)
+        - Range indicators: "0" on left, "100" on right (or "0" to "1000" for harder levels)
+        - Target number displayed above line: "Where is 47?"
+        - Draggable marker (🔴 red dot, 44px tap target) that user positions
+        - "Submit" button (disabled until marker positioned)
+        - Timer showing elapsed time (optional, can hide for reduced pressure)
+      </then>
+    </criterion>
+
+    <criterion id="AC-2" priority="critical">
+      <description>Interaction flow</description>
+      <steps>
+        1. User taps/drags marker to position on number line
+        2. Position calculates as percentage: (tapX - lineStartX) / lineWidth * range
+        3. User clicks "Submit"
+        4. Visual feedback:
+           - Correct (within ±10% tolerance): Green flash, success sound (if enabled), "+1" animation
+           - Incorrect: Shows correct position briefly (gray marker), shows user's position (red marker)
+        5. Auto-advances to next drill after 1.5 seconds
+      </steps>
+    </criterion>
+
+    <criterion id="AC-3" priority="critical">
+      <description>Drill result recorded to Dexie drill_results table</description>
+      <dataModel>
+        {
+          id: uuid(),
+          sessionId: currentSessionId,
+          timestamp: Date.now(),
+          module: 'number_line',
+          targetNumber: 47,
+          userAnswer: 45,
+          correctAnswer: 47,
+          accuracy: 95.7,  // Percentage (100 - error%)
+          timeToAnswer: 3247,  // milliseconds
+          difficulty: 'medium'
+        }
+      </dataModel>
+    </criterion>
+
+    <criterion id="AC-4" priority="high">
+      <description>Difficulty progression within session</description>
+      <progression>
+        - First 2 drills: Easy (0-100 range, multiples of 10 as targets)
+        - Next 3 drills: Medium (0-100 range, any number)
+        - Remaining: Hard (0-1000 range) IF user accuracy > 80% on medium
+      </progression>
+    </criterion>
+
+    <criterion id="AC-5" priority="high">
+      <description>Accessibility: Keyboard support</description>
+      <requirements>
+        - Arrow keys move marker
+        - Enter key submits answer
+        - Proper ARIA labels
+        - 44px minimum tap target (WCAG 2.1 AA)
+      </requirements>
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/epic-3-tech-spec.md</path>
+        <title>Epic Technical Specification: Training &amp; Drill Engine</title>
+        <section>NumberLineDrill.tsx Design</section>
+        <snippet>Number Line Drill: Visual number placement drill on 0-100 or 0-1000 range. Drill presents challenge, user interacts and submits answer, drill calculates result (accuracy, time, correctness). Marker: Framer Motion motion.div with drag="x" constraint. Tolerance calculation: Math.abs(userAnswer - correctAnswer) / range &lt;= 0.1</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic 3: Training &amp; Drill Engine</title>
+        <section>Story 3.2: Implement Number Line Drill</section>
+        <snippet>Number line placement drills that help visualize quantities. Horizontal number line spanning screen width, draggable marker, ±10% tolerance for correctness, visual and audio feedback.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>Drill Interaction Widgets</section>
+        <snippet>Number line manipulatives for drill interactions. Clean professional design builds trust, bright rounded aesthetics reduce math anxiety, balance credibility with playful stress-reducing visual design.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Specification</title>
+        <section>Feature-Based Organization</section>
+        <snippet>Primary feature module: src/features/training/ with components/, drills/, hooks/, content/ subdirectories. Drill components implement common interface DrillProps.</snippet>
+      </doc>
+    </docs>
+
+    <code>
+      <artifact>
+        <path>src/features/training/components/TrainingSession.tsx</path>
+        <kind>component</kind>
+        <symbol>TrainingSession</symbol>
+        <lines>1-156</lines>
+        <reason>Main session orchestrator - calls individual drill components. NumberLineDrill will be rendered by this component when drill type is 'number_line' from drillQueue.</reason>
+      </artifact>
+      <artifact>
+        <path>src/routes/TrainingRoute.tsx</path>
+        <kind>route</kind>
+        <symbol>TrainingRoute</symbol>
+        <lines>1-157</lines>
+        <reason>Protected route that wraps TrainingSession. Ensures assessment exists before allowing training access.</reason>
+      </artifact>
+      <artifact>
+        <path>src/context/SessionContext.tsx</path>
+        <kind>context</kind>
+        <symbol>SessionContext</symbol>
+        <lines>19-30</lines>
+        <reason>Extended with training state including drillQueue, currentDrillIndex, results. NumberLineDrill will call onComplete() to update results array.</reason>
+      </artifact>
+      <artifact>
+        <path>src/services/training/drillSelector.ts</path>
+        <kind>service</kind>
+        <symbol>selectDrills</symbol>
+        <lines>97-159</lines>
+        <reason>Weighted drill selection algorithm that generates drillQueue including 'number_line' drill types based on training plan weights.</reason>
+      </artifact>
+      <artifact>
+        <path>src/services/storage/schemas.ts</path>
+        <kind>schema</kind>
+        <symbol>Session, DrillResult</symbol>
+        <lines>1-50</lines>
+        <reason>Data model definitions. NumberLineDrill will persist results to DrillResult interface with number line specific fields (targetNumber, userAnswer, correctAnswer).</reason>
+      </artifact>
+      <artifact>
+        <path>src/shared/components/NumberKeypad.tsx</path>
+        <kind>component</kind>
+        <symbol>NumberKeypad</symbol>
+        <lines>1-100</lines>
+        <reason>Reusable keypad component from Epic 2. Can potentially be referenced for input patterns, but NumberLineDrill uses drag interaction instead.</reason>
+      </artifact>
+    </code>
+
+    <dependencies>
+      <runtime>
+        <package name="react" version="19.2.0" usage="Component foundation for NumberLineDrill" />
+        <package name="react-dom" version="19.2.0" usage="Rendering drill UI" />
+        <package name="framer-motion" version="12.23.24" usage="Draggable marker with drag='x' constraint, feedback animations, confetti" critical="true" />
+        <package name="dexie" version="4.2.1" usage="Persist drill results to drill_results table" critical="true" />
+        <package name="tailwindcss" version="4.1.17" usage="Styling number line, marker, visual feedback" critical="true" />
+        <package name="date-fns" version="4.0.0" usage="Timestamp formatting for drill results" />
+        <package name="lucide-react" version="^0.553.0" usage="Optional icons (can use emoji fallback)" />
+      </runtime>
+      <devDependencies>
+        <package name="@testing-library/react" version="16.3.0" usage="Component testing for NumberLineDrill" />
+        <package name="@testing-library/user-event" version="^14.6.1" usage="Simulating drag/click interactions in tests" />
+        <package name="vitest" version="^3.2.4" usage="Unit tests for position calculation, accuracy tolerance" />
+        <package name="fake-indexeddb" version="^6.2.5" usage="Mock Dexie in tests" />
+        <package name="@playwright/test" version="1.56.1" usage="E2E testing (Story 3.8 will test number line drill integration)" />
+      </devDependencies>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="architectural" source="epic-3-tech-spec.md">
+      <rule>NumberLineDrill must implement DrillProps interface: { difficulty: 'easy' | 'medium' | 'hard', sessionId: string, onComplete: (result: DrillResult) => void }</rule>
+    </constraint>
+    <constraint type="architectural" source="architecture.md">
+      <rule>Component location: src/features/training/drills/NumberLineDrill.tsx (feature-based organization)</rule>
+    </constraint>
+    <constraint type="technical" source="epic-3-tech-spec.md">
+      <rule>Use HTML div with click/touch handlers, NOT Canvas (better accessibility)</rule>
+    </constraint>
+    <constraint type="technical" source="epic-3-tech-spec.md">
+      <rule>Marker: Framer Motion &lt;motion.div&gt; with drag="x" constraint, not free 2D dragging</rule>
+    </constraint>
+    <constraint type="technical" source="epic-3-tech-spec.md">
+      <rule>Tolerance calculation: Math.abs(userAnswer - correctAnswer) / range &lt;= 0.1 (±10%)</rule>
+    </constraint>
+    <constraint type="performance" source="epic-3-tech-spec.md">
+      <rule>Drag response must be immediate (&lt;16ms frame time). Use CSS transform, not left/top positioning. No jank during marker dragging.</rule>
+    </constraint>
+    <constraint type="accessibility" source="epic-3-tech-spec.md">
+      <rule>WCAG 2.1 AA compliance: 44px minimum tap target for marker, keyboard navigation support, ARIA labels</rule>
+    </constraint>
+    <constraint type="ux" source="epic-3-tech-spec.md">
+      <rule>Respect prefers-reduced-motion media query - disable animations if user has motion sensitivity</rule>
+    </constraint>
+    <constraint type="data" source="epic-3-tech-spec.md">
+      <rule>All drill results must persist immediately after completion (no batching). Wrap Dexie writes in try-catch with localStorage fallback.</rule>
+    </constraint>
+    <constraint type="testing" source="architecture.md">
+      <rule>100% test coverage required per architecture specification. Manual verification in dev server mandatory before marking story 'done'.</rule>
+    </constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>DrillProps</name>
+      <kind>TypeScript Interface</kind>
+      <signature>
+        interface DrillProps {
+          difficulty: 'easy' | 'medium' | 'hard';
+          sessionId: string;
+          onComplete: (result: DrillResult) => void;
+          onSkip?: () => void;  // Optional skip functionality (deferred to Epic 4)
+        }
+      </signature>
+      <path>docs/epic-3-tech-spec.md</path>
+      <usage>NumberLineDrill must implement this interface. TrainingSession provides props, drill calls onComplete with DrillResult.</usage>
+    </interface>
+
+    <interface>
+      <name>DrillResult (Number Line specific)</name>
+      <kind>TypeScript Interface</kind>
+      <signature>
+        interface DrillResult {
+          id: string;                     // UUID
+          sessionId: string;              // Foreign key to sessions.id
+          timestamp: string;              // ISO 8601 drill completion time
+          module: 'number_line';
+          difficulty: 'easy' | 'medium' | 'hard';
+          isCorrect: boolean;
+          timeToAnswer: number;           // Milliseconds
+          accuracy: number;               // Percentage (0-100)
+
+          // Number Line specific fields
+          targetNumber: number;           // e.g., 47
+          userAnswer: number;             // User's placement (calculated from marker position)
+          correctAnswer: number;          // Same as targetNumber for validation
+        }
+      </signature>
+      <path>src/services/storage/schemas.ts</path>
+      <usage>NumberLineDrill creates this object on Submit and passes to onComplete(). Persisted to Dexie drill_results table.</usage>
+    </interface>
+
+    <interface>
+      <name>SessionContext.startTrainingSession</name>
+      <kind>React Context Action</kind>
+      <signature>startTrainingSession(sessionId: string, sessionType: 'quick' | 'full', drillQueue: DrillType[]): void</signature>
+      <path>src/context/SessionContext.tsx</path>
+      <usage>Called by TrainingSession before drills start. drillQueue includes 'number_line' drill types from weighted selection.</usage>
+    </interface>
+
+    <interface>
+      <name>Dexie drill_results table</name>
+      <kind>Database Table</kind>
+      <signature>
+        db.drill_results.add({
+          id: crypto.randomUUID(),
+          sessionId: string,
+          timestamp: new Date().toISOString(),
+          module: 'number_line',
+          // ... other DrillResult fields
+        })
+      </signature>
+      <path>src/services/storage/db.ts</path>
+      <usage>NumberLineDrill persists results after user submits answer. Query indexed by sessionId for session summary.</usage>
+    </interface>
+
+    <interface>
+      <name>Framer Motion drag constraint</name>
+      <kind>Component API</kind>
+      <signature>
+        &lt;motion.div
+          drag="x"
+          dragConstraints={{ left: 0, right: lineWidth }}
+          dragElastic={0}
+          dragMomentum={false}
+          onDragEnd={(event, info) => updateMarkerPosition(info.point.x)}
+        /&gt;
+      </signature>
+      <path>framer-motion documentation</path>
+      <usage>Marker component uses Framer Motion for smooth, constrained horizontal dragging. dragConstraints prevents marker from leaving number line bounds.</usage>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Testing standards per architecture.md and Epic 3 tech spec:
+      - 100% test coverage required (statements, branches, functions, lines)
+      - Component tests use React Testing Library with accessibility-focused queries
+      - Unit tests for position calculation, accuracy tolerance, difficulty progression logic
+      - Integration tests verify Dexie persistence and SessionContext interaction
+      - Accessibility tests for keyboard navigation and ARIA labels
+      - Visual regression tests optional (deferred)
+      - Manual verification in running dev server MANDATORY before marking 'done' (Epic 2 retrospective lesson)
+    </standards>
+
+    <locations>
+      - src/features/training/drills/NumberLineDrill.test.tsx (component tests)
+      - src/features/training/drills/NumberLineDrill.integration.test.tsx (integration with Dexie)
+      - tests/e2e/training-flow.spec.ts (E2E test in Story 3.8 will include number line drill)
+    </locations>
+
+    <ideas>
+      <testIdea ac="AC-1" type="component">
+        Test NumberLineDrill renders with correct UI elements:
+        - Verify number line element exists with 280px min width
+        - Verify range labels (0 and 100/1000) display correctly based on difficulty
+        - Verify target number displays ("Where is 47?")
+        - Verify marker renders with 44px tap target size
+        - Verify Submit button is disabled initially, enabled after marker positioned
+        - Test different difficulty levels render correct ranges
+      </testIdea>
+
+      <testIdea ac="AC-2" type="component">
+        Test user interaction flow:
+        - Simulate drag marker to position on number line
+        - Verify position calculates correctly: (tapX - lineStartX) / lineWidth * range
+        - Click Submit button
+        - Verify correct answer shows green flash animation
+        - Verify incorrect answer shows both gray (correct) and red (user) markers
+        - Verify auto-advance after 1.5 seconds
+      </testIdea>
+
+      <testIdea ac="AC-2" type="unit">
+        Unit test position calculation logic:
+        - Test edge cases: marker at 0%, 50%, 100% of line width
+        - Test calculation for 0-100 range vs 0-1000 range
+        - Test rounding behavior for calculated answers
+      </testIdea>
+
+      <testIdea ac="AC-3" type="integration">
+        Test drill result persistence:
+        - Complete drill with correct answer
+        - Verify DrillResult object created with all required fields
+        - Verify onComplete() called with correct result
+        - Verify result persisted to Dexie drill_results table
+        - Query Dexie to confirm sessionId, module, accuracy, timeToAnswer stored
+      </testIdea>
+
+      <testIdea ac="AC-3" type="unit">
+        Test accuracy calculation:
+        - Test ±10% tolerance threshold
+        - userAnswer = 47, targetNumber = 47 → accuracy = 100%
+        - userAnswer = 45, targetNumber = 47 → accuracy ~95.7%
+        - userAnswer = 38, targetNumber = 47 → accuracy ~81%
+        - userAnswer = 30, targetNumber = 47 → accuracy = 70%
+      </testIdea>
+
+      <testIdea ac="AC-4" type="integration">
+        Test difficulty progression:
+        - Mock session with first 2 drills at easy difficulty
+        - Verify easy drills use 0-100 range with multiples of 10 targets
+        - Mock drills 3-5 at medium difficulty
+        - Verify medium drills use 0-100 range with any number targets
+        - Mock user achieving >80% accuracy on medium drills
+        - Verify next number_line drill uses hard difficulty (0-1000 range)
+      </testIdea>
+
+      <testIdea ac="AC-5" type="accessibility">
+        Test keyboard navigation:
+        - Focus on marker with Tab key
+        - Press ArrowLeft/ArrowRight to move marker
+        - Verify marker position updates
+        - Press Enter to submit answer
+        - Verify keyboard interaction works identically to mouse/touch
+      </testIdea>
+
+      <testIdea ac="AC-5" type="accessibility">
+        Test ARIA labels and screen reader support:
+        - Verify number line has aria-label describing interaction
+        - Verify marker has aria-valuemin, aria-valuemax, aria-valuenow
+        - Verify target number has aria-live region for screen reader announcement
+        - Test with screen reader simulation (testing-library/jest-dom)
+      </testIdea>
+
+      <testIdea type="visual">
+        Visual regression test (optional):
+        - Screenshot number line on mobile (320px), tablet (768px), desktop (1024px)
+        - Verify responsive layout doesn't break
+        - Test marker appearance at different positions
+      </testIdea>
+
+      <testIdea type="performance">
+        Performance test:
+        - Measure drag response time with performance.now()
+        - Verify dragEnd handler completes in &lt;16ms
+        - Test on simulated low-end device (CPU throttling in DevTools)
+      </testIdea>
+
+      <testIdea type="error-handling">
+        Test error scenarios:
+        - Dexie write failure → verify localStorage fallback
+        - Missing sessionId prop → verify error boundary catches
+        - Invalid difficulty prop → verify component handles gracefully
+      </testIdea>
+
+      <testIdea type="reduced-motion">
+        Test prefers-reduced-motion:
+        - Mock matchMedia('(prefers-reduced-motion: reduce)')
+        - Verify feedback animations are disabled
+        - Verify functionality still works without animations
+      </testIdea>
+    </ideas>
+  </tests>
+</story-context>

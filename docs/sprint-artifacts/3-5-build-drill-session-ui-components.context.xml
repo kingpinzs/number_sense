@@ -1,0 +1,209 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>3</epicId>
+    <storyId>3.5</storyId>
+    <title>Build Drill Session UI Components</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-23</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/21-story-35-build-drill-session-ui-components.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user in a training session</asA>
+    <iWant>clear visual feedback and progress indicators throughout my session</iWant>
+    <soThat>I stay motivated and know how much I've completed</soThat>
+    <tasks>
+- Build SessionProgressBar component (shows "Drill X of Y", horizontal progress bar with coral color, animated fill, positioned at top)
+- Build DrillTransition component (appears between drills for 0.5s, shows next drill type icon + name, fade animations)
+- Build SessionFeedback component (correct/incorrect feedback with animations, streak counter, success sound)
+- Build PauseButton with pause modal (pause/resume/end session options, shows current progress)
+- Ensure all components use Tailwind classes
+- Implement animations with prefers-reduced-motion support
+- Implement Web Audio API sound effects respecting UserSettingsContext.soundEnabled
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+**Given** all three drill types are implemented (Story 3.4 complete)
+**When** I am in an active training session
+**Then** the following UI components are operational:
+
+**SessionProgressBar** (src/features/training/components/SessionProgressBar.tsx):
+- Shows "Drill X of Y" text (e.g., "Drill 3 of 12")
+- Horizontal progress bar (0-100% filled, coral primary color)
+- Animated fill as drills complete (Framer Motion transition)
+- Positioned at top of training session view
+
+**DrillTransition** (src/features/training/components/DrillTransition.tsx):
+- Appears between drills for 0.5 seconds
+- Shows next drill type icon + name: 📏 "Number Line", 🔄 "Spatial Rotation", ➕ "Math Operations"
+- Subtle fade-in/fade-out animation
+- Prevents jarring instant switches between drill types
+
+**SessionFeedback** (src/features/training/components/SessionFeedback.tsx):
+- Correct answer feedback: Green checkmark ✓, "+1" floating animation
+- Incorrect answer feedback: Red X ✗, show correct answer text
+- Streak counter mini-animation: Flame 🔥 pulses when drill correct
+- Success sound (if sound enabled in UserSettingsContext)
+
+**PauseButton** (in session header):
+- Icon button (⏸ pause symbol, 44px tap target)
+- Opens pause modal with options: "Resume" (coral button), "End Session Early" (gray button, shows confirmation)
+- Shows current progress: "7 of 12 drills complete"
+
+**And** All components use Tailwind classes, no inline styles
+**And** All animations respect prefers-reduced-motion media query
+**And** Sound effects use Web Audio API, respect UserSettingsContext.soundEnabled
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/epic-3-tech-spec.md</path>
+        <title>Epic 3: Training & Drill Engine Technical Specification</title>
+        <section>Session UI Components</section>
+        <snippet>Defines SessionProgressBar (shows "Drill X of Y", horizontal progress bar, coral color, animated fill), DrillTransition (0.5s transition between drills with icons), SessionFeedback (correct/incorrect feedback with animations, streak counter), and PauseButton with pause modal functionality.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epic-3-tech-spec.md</path>
+        <title>Epic 3 Technical Specification</title>
+        <section>State Management</section>
+        <snippet>SessionContext extended with training-specific state (sessionType, drillQueue, currentDrillIndex, results). UserSettingsContext provides soundEnabled and reducedMotion preferences.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>System Architecture</title>
+        <section>UI Framework & Component Patterns</section>
+        <snippet>Uses shadcn/ui + Tailwind CSS v4 for mobile-first design. Framer Motion for animations with prefers-reduced-motion support. Feature-based architecture with components in src/features/training/components/.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>Design System Foundation</section>
+        <snippet>shadcn/ui + Tailwind CSS v4 selected for mobile-first responsive design, lightweight performance, and full customization. Headspace-inspired warm colors (coral primary), rounded aesthetic, celebratory animations for progress.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/features/training/components/TrainingSession.tsx</path>
+        <kind>component</kind>
+        <symbol>TrainingSession</symbol>
+        <reason>Main training session container - will integrate the new UI components (SessionProgressBar, DrillTransition, SessionFeedback, PauseButton)</reason>
+      </artifact>
+      <artifact>
+        <path>src/context/SessionContext.tsx</path>
+        <kind>context</kind>
+        <symbol>SessionContext</symbol>
+        <reason>Provides session state (sessionStatus, drillQueue, currentDrillIndex, results) needed by progress bar and pause button</reason>
+      </artifact>
+      <artifact>
+        <path>src/context/UserSettingsContext.tsx</path>
+        <kind>context</kind>
+        <symbol>UserSettingsContext</symbol>
+        <reason>Provides soundEnabled and reducedMotion preferences for SessionFeedback component</reason>
+      </artifact>
+      <artifact>
+        <path>src/features/training/drills/NumberLineDrill.tsx</path>
+        <kind>component</kind>
+        <symbol>NumberLineDrill</symbol>
+        <reason>Example drill component showing DrillProps pattern and onComplete callback</reason>
+      </artifact>
+      <artifact>
+        <path>src/features/training/drills/SpatialRotationDrill.tsx</path>
+        <kind>component</kind>
+        <symbol>SpatialRotationDrill</symbol>
+        <reason>Example drill component with visual feedback implementation pattern</reason>
+      </artifact>
+      <artifact>
+        <path>src/shared/components/ui/progress.tsx</path>
+        <kind>component</kind>
+        <symbol>Progress</symbol>
+        <reason>shadcn/ui Progress component to be used in SessionProgressBar for horizontal progress bar</reason>
+      </artifact>
+      <artifact>
+        <path>src/shared/components/ui/button.tsx</path>
+        <kind>component</kind>
+        <symbol>Button</symbol>
+        <reason>shadcn/ui Button component for pause button and modal actions</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <react version="19.2.0">UI framework with hooks and concurrent rendering</react>
+        <framer-motion version="12.23.24">Animations for transitions, feedback, progress bar fills</framer-motion>
+        <lucide-react version="^0.553.0">Icons for pause button and drill type icons</lucide-react>
+        <radix-ui-react-progress version="^1.1.8">Base for shadcn/ui Progress component</radix-ui-react-progress>
+        <radix-ui-react-dialog version="^1.1.15">Base for shadcn/ui Dialog (pause modal)</radix-ui-react-dialog>
+        <tailwindcss version="4.1.17">CSS framework for styling (mobile-first, coral primary color)</tailwindcss>
+        <sonner version="^2.0.7">Toast notifications (if needed for feedback)</sonner>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+- All components MUST use Tailwind CSS classes only - no inline styles
+- All animations MUST respect prefers-reduced-motion media query (use Framer Motion's reduced motion support)
+- Sound effects MUST use Web Audio API and respect UserSettingsContext.soundEnabled
+- Pause button tap target MUST be minimum 44px for accessibility
+- Progress bar MUST use coral primary color from design system
+- DrillTransition MUST be 0.5 seconds duration
+- SessionFeedback MUST auto-advance after 1.5 seconds (consistent with existing drills)
+- Components MUST be located in src/features/training/components/
+- Sound files MUST be stored in public/sounds/ and be less than 50KB each
+- Components MUST integrate with existing SessionContext state (drillQueue, currentDrillIndex, sessionStatus)
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>SessionProgressBarProps</name>
+      <kind>Component Props</kind>
+      <signature>{ currentIndex: number; totalDrills: number }</signature>
+      <path>src/features/training/components/SessionProgressBar.tsx</path>
+    </interface>
+    <interface>
+      <name>DrillTransitionProps</name>
+      <kind>Component Props</kind>
+      <signature>{ nextDrillType: 'number_line' | 'spatial_rotation' | 'math_operations' }</signature>
+      <path>src/features/training/components/DrillTransition.tsx</path>
+    </interface>
+    <interface>
+      <name>SessionFeedbackProps</name>
+      <kind>Component Props</kind>
+      <signature>{ isCorrect: boolean; correctAnswer?: string | number; showStreakPulse?: boolean }</signature>
+      <path>src/features/training/components/SessionFeedback.tsx</path>
+    </interface>
+    <interface>
+      <name>SessionContext State Shape</name>
+      <kind>Context Interface</kind>
+      <signature>{ sessionStatus: 'idle' | 'active' | 'completed'; drillQueue: string[]; currentDrillIndex: number; results: DrillResult[] }</signature>
+      <path>src/context/SessionContext.tsx</path>
+    </interface>
+    <interface>
+      <name>UserSettingsContext State Shape</name>
+      <kind>Context Interface</kind>
+      <signature>{ soundEnabled: boolean; reducedMotion: boolean }</signature>
+      <path>src/context/UserSettingsContext.tsx</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+Use Vitest with React Testing Library for unit/integration tests. Use Playwright for E2E tests. Test files colocated with components (.test.tsx). Mock Framer Motion animations in tests. Use fake-indexeddb for Dexie mocking. Verify accessibility (ARIA labels, keyboard navigation, 44px tap targets). Test both sound-enabled and sound-disabled modes. Test reduced-motion preferences.
+    </standards>
+    <locations>
+- Unit tests: src/features/training/components/*.test.tsx
+- E2E tests: tests/e2e/training-*.spec.ts
+    </locations>
+    <ideas>
+- AC: SessionProgressBar renders "Drill X of Y" text and progress bar → Test: Render with currentIndex=3, totalDrills=12, verify text shows "Drill 3 of 12" and progress bar shows 25% (3/12)
+- AC: DrillTransition shows drill type icon and name for 0.5s → Test: Render with nextDrillType='number_line', verify icon 📏 and text "Number Line" appear, disappear after 500ms
+- AC: SessionFeedback shows green checkmark for correct answers → Test: Render with isCorrect=true, verify green checkmark ✓ and "+1" animation appear
+- AC: SessionFeedback shows red X and correct answer for incorrect → Test: Render with isCorrect=false, correctAnswer=42, verify red X ✗ and "42" text appear
+- AC: PauseButton opens pause modal with Resume/End options → Test: Click pause button, verify modal opens with "Resume" and "End Session Early" buttons
+- AC: All animations respect prefers-reduced-motion → Test: Set prefers-reduced-motion: reduce, verify animations are disabled or simplified
+- AC: Sound effects respect UserSettingsContext.soundEnabled → Test: Render SessionFeedback with soundEnabled=false, verify no audio plays
+- E2E: Complete training session with all UI components → Test: Start session, verify progress bar updates after each drill, verify transitions between drills, verify feedback after answers, pause and resume session
+    </ideas>
+  </tests>
+</story-context>

@@ -5,7 +5,6 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { DiscalculasDB } from '@/services/storage/db';
-import type { Session } from '@/services/storage/schemas';
 
 describe('Database Integration with React', () => {
   let testDB: DiscalculasDB;

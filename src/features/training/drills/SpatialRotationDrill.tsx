@@ -6,11 +6,12 @@
  * Provides visual feedback, calculates accuracy, and records drill results to Dexie.
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, X } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { db } from '@/services/storage/db';
+import { STORAGE_KEYS } from '@/services/storage/localStorage';
 import type { DrillResult } from '@/services/storage/schemas';
 import {
   SHAPES,
@@ -95,10 +96,10 @@ const generateDrillProblem = (difficulty: 'easy' | 'medium' | 'hard'): DrillProb
 
 export default function SpatialRotationDrill({ difficulty, sessionId, onComplete }: DrillProps) {
   // Generate drill problem on mount
-  const [problem, setProblem] = useState<DrillProblem>(() => generateDrillProblem(difficulty));
+  const [problem] = useState<DrillProblem>(() => generateDrillProblem(difficulty));
 
   // State management
-  const [userAnswer, setUserAnswer] = useState<boolean | null>(null);
+  const [, setUserAnswer] = useState<boolean | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
@@ -145,10 +146,14 @@ export default function SpatialRotationDrill({ difficulty, sessionId, onComplete
     } catch (error) {
       console.error('Failed to persist drill result:', error);
       // Fallback to localStorage backup
-      const backup = localStorage.getItem('DRILL_RESULTS_BACKUP');
-      const results = backup ? JSON.parse(backup) : [];
-      results.push(result);
-      localStorage.setItem('DRILL_RESULTS_BACKUP', JSON.stringify(results));
+      try {
+        const backup = localStorage.getItem(STORAGE_KEYS.DRILL_RESULTS_BACKUP);
+        const results = backup ? JSON.parse(backup) : [];
+        results.push(result);
+        localStorage.setItem(STORAGE_KEYS.DRILL_RESULTS_BACKUP, JSON.stringify(results));
+      } catch {
+        localStorage.setItem(STORAGE_KEYS.DRILL_RESULTS_BACKUP, JSON.stringify([result]));
+      }
     }
 
     // Auto-advance after 1.5 seconds

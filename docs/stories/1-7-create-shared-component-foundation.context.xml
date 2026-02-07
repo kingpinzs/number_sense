@@ -1,0 +1,189 @@
+<story-context id="1-7-create-shared-component-foundation" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>7</storyId>
+    <title>Create Shared Component Foundation</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-20</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/08-story-17-create-shared-component-foundation.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>foundational shared components (BottomNav, StreakCounter, LoadingSpinner, ErrorBoundary)</iWant>
+    <soThat>all features can reuse consistent UI patterns and error handling</soThat>
+    <tasks>
+      <task>Create BottomNav component with 4 tabs (Home, Training, Progress, Profile)</task>
+      <task>Create LoadingSpinner component with 3 size variants</task>
+      <task>Create ErrorBoundary component with fallback UI</task>
+      <task>Update existing StreakCounter to use AppContext</task>
+      <task>Write tests for all components achieving 100% coverage</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC1">BottomNav: Four tabs (Home, Training, Progress, Profile) with icons and labels</criterion>
+    <criterion id="AC2">BottomNav: Active state highlighting using coral primary color (#E87461)</criterion>
+    <criterion id="AC3">BottomNav: Mobile-optimized tap targets (44px minimum)</criterion>
+    <criterion id="AC4">BottomNav: Keyboard accessible (Tab navigation, Enter to select)</criterion>
+    <criterion id="AC5">BottomNav: ARIA roles (navigation, button, aria-current="page" for active)</criterion>
+    <criterion id="AC6">StreakCounter: Displays current streak from AppContext</criterion>
+    <criterion id="AC7">StreakCounter: Flame emoji + number + "Days" text</criterion>
+    <criterion id="AC8">StreakCounter: Tap animation (Framer Motion scale)</criterion>
+    <criterion id="AC9">LoadingSpinner: Circular spinner using Tailwind animate-spin</criterion>
+    <criterion id="AC10">LoadingSpinner: Accessible with role="status", aria-live="polite", screen reader text</criterion>
+    <criterion id="AC11">LoadingSpinner: Size variants (small 24px, medium 40px, large 60px)</criterion>
+    <criterion id="AC12">ErrorBoundary: React error boundary catching component crashes</criterion>
+    <criterion id="AC13">ErrorBoundary: Fallback UI with friendly message and "Retry" button</criterion>
+    <criterion id="AC14">ErrorBoundary: Logs error to telemetry service (stub for now)</criterion>
+    <criterion id="AC15">All components have 100% test coverage</criterion>
+    <criterion id="AC16">All components use Tailwind classes (no inline styles)</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Specification</title>
+        <section>Project Structure, Implementation Patterns, Cross-Cutting Concerns</section>
+        <snippet>Shared components in src/shared/components/. WCAG 2.1 AA mandatory. 100% test coverage required. Co-located test files.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Services and Modules, Component Props Interfaces, Test Strategy</section>
+        <snippet>BottomNav, StreakCounter, LoadingSpinner, ErrorBoundary specs with TypeScript interfaces. AAA pattern mandatory.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <file>
+        <path>src/shared/components/StreakCounter.tsx</path>
+        <kind>component</kind>
+        <symbol>StreakCounter</symbol>
+        <lines>1-47</lines>
+        <reason>Existing component created in Story 1.6 - needs integration with AppContext</reason>
+      </file>
+      <file>
+        <path>src/shared/components/StreakCounter.test.tsx</path>
+        <kind>test</kind>
+        <symbol>StreakCounter tests</symbol>
+        <lines>1-126</lines>
+        <reason>9 existing tests demonstrating RTL patterns - reference for new component tests</reason>
+      </file>
+      <file>
+        <path>src/context/AppContext.tsx</path>
+        <kind>context</kind>
+        <symbol>useApp, AppProvider, AppState</symbol>
+        <lines>1-147</lines>
+        <reason>StreakCounter needs to read streak from useApp().state.streak</reason>
+      </file>
+      <file>
+        <path>src/context/SessionContext.tsx</path>
+        <kind>context</kind>
+        <symbol>useSession, SessionProvider</symbol>
+        <reason>Context provider included in test wrapper</reason>
+      </file>
+      <file>
+        <path>src/context/UserSettingsContext.tsx</path>
+        <kind>context</kind>
+        <symbol>useUserSettings, UserSettingsProvider</symbol>
+        <reason>Context provider included in test wrapper</reason>
+      </file>
+      <file>
+        <path>tests/test-utils.tsx</path>
+        <kind>test-utility</kind>
+        <symbol>render (renderWithProviders)</symbol>
+        <lines>1-61</lines>
+        <reason>Custom render wrapper - use for all component tests</reason>
+      </file>
+      <file>
+        <path>src/shared/components/ui/button.tsx</path>
+        <kind>component</kind>
+        <symbol>Button</symbol>
+        <reason>shadcn/ui Button - reference for Tailwind patterns</reason>
+      </file>
+    </code>
+    <dependencies>
+      <ecosystem name="node">
+        <package name="react" version="19.2.0" />
+        <package name="react-dom" version="19.2.0" />
+        <package name="react-router-dom" version="7.9.5" />
+        <package name="framer-motion" version="12.23.24" />
+        <package name="lucide-react" version="^0.553.0" />
+        <package name="tailwindcss" version="4.1.17" />
+        <package name="vitest" version="^3.2.4" />
+        <package name="@testing-library/react" version="16.3.0" />
+        <package name="@testing-library/user-event" version="^14.6.1" />
+      </ecosystem>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>100% test coverage required (statements, branches, functions, lines)</constraint>
+    <constraint>All components must use Tailwind CSS classes - no inline styles</constraint>
+    <constraint>WCAG 2.1 AA compliance mandatory - proper ARIA labels</constraint>
+    <constraint>Mobile-first design - 44px minimum touch targets</constraint>
+    <constraint>Co-located tests - ComponentName.test.tsx next to ComponentName.tsx</constraint>
+    <constraint>AAA pattern mandatory (Arrange, Act, Assert) for all tests</constraint>
+    <constraint>Use custom render from tests/test-utils.tsx for all component tests</constraint>
+    <constraint>ErrorBoundary must use React 18+ componentDidCatch pattern</constraint>
+    <constraint>LoadingSpinner must respect prefers-reduced-motion (Tailwind handles this)</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>useApp</name>
+      <kind>React Hook</kind>
+      <signature>useApp(): { state: AppState; dispatch: Dispatch&lt;AppAction&gt;; setStreak: (streak: number) =&gt; void; updateOnlineStatus: (isOnline: boolean) =&gt; void; setLastSync: (timestamp: string | null) =&gt; void; }</signature>
+      <path>src/context/AppContext.tsx</path>
+    </interface>
+    <interface>
+      <name>useLocation</name>
+      <kind>React Router Hook</kind>
+      <signature>useLocation(): Location</signature>
+      <path>react-router-dom</path>
+    </interface>
+    <interface>
+      <name>useNavigate</name>
+      <kind>React Router Hook</kind>
+      <signature>useNavigate(): NavigateFunction</signature>
+      <path>react-router-dom</path>
+    </interface>
+    <interface>
+      <name>BottomNavProps</name>
+      <kind>TypeScript Interface</kind>
+      <signature>interface BottomNavProps { className?: string; }</signature>
+      <path>src/shared/components/BottomNav.tsx (to be created)</path>
+    </interface>
+    <interface>
+      <name>LoadingSpinnerProps</name>
+      <kind>TypeScript Interface</kind>
+      <signature>interface LoadingSpinnerProps { size?: 'small' | 'medium' | 'large'; className?: string; label?: string; }</signature>
+      <path>src/shared/components/LoadingSpinner.tsx (to be created)</path>
+    </interface>
+    <interface>
+      <name>ErrorBoundaryProps</name>
+      <kind>TypeScript Interface</kind>
+      <signature>interface ErrorBoundaryProps { children: React.ReactNode; fallback?: React.ComponentType&lt;{ error: Error; resetError: () =&gt; void }&gt;; onError?: (error: Error, errorInfo: React.ErrorInfo) =&gt; void; }</signature>
+      <path>src/shared/components/ErrorBoundary.tsx (to be created)</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Vitest 3.2.4 with React Testing Library 16.3.0. 100% coverage thresholds enforced (statements, branches, functions, lines). AAA pattern mandatory (Arrange, Act, Assert). Use custom render from tests/test-utils.tsx which wraps components with all context providers. Use userEvent for user interactions. Use getByRole, getByLabelText, getByText for accessibility-first queries.
+    </standards>
+    <locations>
+      <pattern>src/shared/components/*.test.tsx</pattern>
+      <pattern>tests/test-utils.tsx</pattern>
+    </locations>
+    <ideas>
+      <idea acId="AC1,AC2,AC3,AC4,AC5">BottomNav: Test renders 4 tabs, active highlighting, keyboard navigation (Tab/Enter), ARIA attributes</idea>
+      <idea acId="AC6,AC7,AC8">StreakCounter: Test reads streak from context, singular/plural "Day(s)", tap animation triggers</idea>
+      <idea acId="AC9,AC10,AC11">LoadingSpinner: Test 3 size variants render correct dimensions, ARIA role="status" present</idea>
+      <idea acId="AC12,AC13,AC14">ErrorBoundary: Test catches thrown error, shows fallback, retry resets boundary, logs error</idea>
+      <idea acId="AC15">All components: Verify 100% coverage via npm run test with coverage report</idea>
+    </ideas>
+  </tests>
+</story-context>

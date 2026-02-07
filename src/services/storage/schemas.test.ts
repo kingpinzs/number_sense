@@ -104,16 +104,15 @@ describe('Schema Interfaces', () => {
         id: 1,
         sessionId: 123,
         timestamp: '2025-11-10T10:05:00.000Z',
-        module: 'number-line',
-        drillType: 'estimation',
-        correctAnswers: 8,
-        totalQuestions: 10,
-        averageResponseTime: 2500,
-        difficultyLevel: 5
+        module: 'number_line',
+        difficulty: 'easy',
+        isCorrect: true,
+        timeToAnswer: 2500,
+        accuracy: 80,
       };
 
       expect(drillResult.sessionId).toBe(123);
-      expect(drillResult.difficultyLevel).toBe(5);
+      expect(drillResult.difficulty).toBe('easy');
     });
 
     it('supports foreign key relationship via sessionId', () => {
@@ -121,12 +120,11 @@ describe('Schema Interfaces', () => {
       const drillResult: DrillResult = {
         sessionId,
         timestamp: '2025-11-10T10:05:00.000Z',
-        module: 'spatial-rotation',
-        drillType: 'rotation',
-        correctAnswers: 7,
-        totalQuestions: 10,
-        averageResponseTime: 3000,
-        difficultyLevel: 6
+        module: 'spatial_rotation',
+        difficulty: 'medium',
+        isCorrect: true,
+        timeToAnswer: 3000,
+        accuracy: 70,
       };
 
       expect(drillResult.sessionId).toBe(sessionId);

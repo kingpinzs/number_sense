@@ -98,7 +98,7 @@ export function PatternMatching({
 }: PatternMatchingProps) {
   const startTimeRef = useRef<number>(performance.now());
   const [answered, setAnswered] = useState(!!initialAnswer);
-  const [selectedOption, setSelectedOption] = useState<'A' | 'B' | 'C' | 'D' | null>(initialAnswer ?? null);
+  const [, setSelectedOption] = useState<'A' | 'B' | 'C' | 'D' | null>(initialAnswer ?? null);
 
   // Reset when question changes
   useEffect(() => {

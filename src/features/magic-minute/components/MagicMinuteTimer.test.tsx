@@ -130,7 +130,7 @@ describe('MagicMinuteTimer', () => {
     // Text is split across elements: <span>0</span> correct
     // Use a function matcher to find text content
     expect(
-      screen.getByText((content, element) => {
+      screen.getByText((_content, element) => {
         return element?.textContent === '0 correct';
       })
     ).toBeInTheDocument();

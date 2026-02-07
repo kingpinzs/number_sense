@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Story Context: 4.1 Implement Mistake Analysis Engine
+  Generated: 2025-12-17
+  Purpose: Comprehensive context for AI-assisted development
+-->
+<story-context>
+  <metadata>
+    <story-id>4-1-implement-mistake-analysis-engine</story-id>
+    <epic>Epic 4: Adaptive Intelligence</epic>
+    <priority>high</priority>
+    <status>ready-for-dev</status>
+    <prerequisites>Epic 3 complete (drill results available)</prerequisites>
+  </metadata>
+
+  <story-details>
+    <title>Implement Mistake Analysis Engine</title>
+    <user-story>
+      As a system analyzing user performance,
+      I want to detect error patterns from drill results in real-time,
+      So that I can identify which specific skills need targeted practice.
+    </user-story>
+
+    <implementation-location>src/services/adaptiveDifficulty/mistakeAnalyzer.ts</implementation-location>
+  </story-details>
+
+  <acceptance-criteria>
+    <criterion id="AC-1" category="error-detection">
+      <title>Number Line Error Patterns</title>
+      <requirements>
+        <item>Consistent overestimation (user always places too high)</item>
+        <item>Consistent underestimation (user always places too low)</item>
+        <item>Magnitude errors (struggles with 100+ range but OK with 0-100)</item>
+        <item>Boundary errors (struggles near 0 or 100)</item>
+      </requirements>
+    </criterion>
+
+    <criterion id="AC-2" category="error-detection">
+      <title>Spatial Rotation Error Patterns</title>
+      <requirements>
+        <item>Rotation confusion (can't distinguish 90 vs 180 degrees)</item>
+        <item>Mirroring confusion (mistakes mirror for rotation)</item>
+        <item>Complexity threshold (struggles with irregular shapes but OK with simple)</item>
+      </requirements>
+    </criterion>
+
+    <criterion id="AC-3" category="error-detection">
+      <title>Math Operations Error Patterns</title>
+      <requirements>
+        <item>Operation-specific weakness (good at addition, struggles with subtraction)</item>
+        <item>Magnitude threshold (OK with single-digit, struggles with double-digit)</item>
+        <item>Speed vs accuracy trade-off (fast but inaccurate vs slow but accurate)</item>
+      </requirements>
+    </criterion>
+
+    <criterion id="AC-4" category="categorization">
+      <title>Mistake Categorization</title>
+      <requirements>
+        <item>Each mistake tagged with: drillId, mistakeType, severity, timestamp, drillContext</item>
+        <item>mistakeType enum: 'overestimation' | 'rotation_confusion' | 'magnitude_error' | etc.</item>
+        <item>severity levels: 'minor' | 'moderate' | 'severe' (based on error magnitude)</item>
+      </requirements>
+    </criterion>
+
+    <criterion id="AC-5" category="real-time">
+      <title>Real-Time Analysis</title>
+      <requirements>
+        <item>Analyzer runs after every 3 drills (sliding window)</item>
+        <item>Maintains session-level mistake buffer (last 10 drills)</item>
+        <item>Pattern detection: 2+ mistakes of same type = pattern detected</item>
+      </requirements>
+    </criterion>
+
+    <criterion id="AC-6" category="integration">
+      <title>Integration Requirements</title>
+      <requirements>
+        <item>Analysis results stored in SessionContext for use by adaptive engine</item>
+        <item>Pure functions for testability: analyzeDrillResult(), detectPattern(), categorizeMistake()</item>
+        <item>Export TypeScript interfaces: MistakePattern, AnalysisResult</item>
+      </requirements>
+    </criterion>
+  </acceptance-criteria>
+
+  <documentation-artifacts>
+    <doc path="docs/architecture.md" title="Project Architecture">
+      <relevant-sections>
+        <section name="Data Models">DrillResult schema with module-specific fields</section>
+        <section name="State Management">SessionContext pattern for session state</section>
+        <section name="Services Layer">Service patterns used in the project</section>
+      </relevant-sections>
+    </doc>
+
+    <doc path="docs/epics.md" title="Epic 4: Adaptive Intelligence">
+      <relevant-sections>
+        <section name="Epic Overview">
+          Introduces smart, responsive learning that adapts to user performance patterns.
+          Key goals: mistake pattern detection, adaptive difficulty, micro-challenges.
+        </section>
+        <section name="Story Dependencies">
+          Story 4.1 is foundational - provides mistake analysis that Stories 4.3 and 4.4 depend on.
+        </section>
+      </relevant-sections>
+    </doc>
+  </documentation-artifacts>
+
+  <code-artifacts>
+    <artifact path="src/services/storage/schemas.ts" type="interface">
+      <title>DrillResult Interface</title>
+      <description>Core data structure that mistake analyzer will process</description>
+      <key-fields>
+        <field name="sessionId" type="number">Links result to session</field>
+        <field name="module" type="string">Drill type: 'number_line' | 'spatial_rotation' | 'math_operations'</field>
+        <field name="difficulty" type="string">'easy' | 'medium' | 'hard'</field>
+        <field name="isCorrect" type="boolean">Whether answer was correct</field>
+        <field name="timeToAnswer" type="number">Milliseconds to respond</field>
+        <field name="accuracy" type="number">0-100 score</field>
+        <field name="userAnswer" type="varies">User's actual answer</field>
+        <field name="correctAnswer" type="varies">Expected answer</field>
+        <field name="confidence" type="string">User's self-reported confidence</field>
+      </key-fields>
+      <module-specific-fields>
+        <number-line>
+          <field name="targetValue">The target number to place</field>
+          <field name="rangeMin">Minimum of number line range</field>
+          <field name="rangeMax">Maximum of number line range</field>
+          <field name="userValue">Where user placed marker</field>
+        </number-line>
+        <spatial-rotation>
+          <field name="baseShape">Shape identifier</field>
+          <field name="comparisonShape">Rotated/mirrored shape</field>
+          <field name="rotation">Rotation degrees applied</field>
+          <field name="isMirrored">Whether shape was mirrored</field>
+        </spatial-rotation>
+        <math-operations>
+          <field name="operation">'addition' | 'subtraction' | 'multiplication'</field>
+          <field name="problem">String representation like "5 + 3"</field>
+        </math-operations>
+      </module-specific-fields>
+    </artifact>
+
+    <artifact path="src/context/SessionContext.tsx" type="context">
+      <title>Session State Management</title>
+      <description>React context managing training session state including drill results</description>
+      <relevant-state>
+        <field name="results" type="DrillResult[]">Array of completed drill results - INPUT for analyzer</field>
+        <field name="currentDrill" type="number">Current drill index in session</field>
+        <field name="sessionActive" type="boolean">Whether session is active</field>
+      </relevant-state>
+      <integration-point>
+        Analysis results should be added to SessionContext state for adaptive engine consumption.
+        Consider adding: mistakePatterns: MistakePattern[], analysisResults: AnalysisResult[]
+      </integration-point>
+    </artifact>
+
+    <artifact path="src/services/adaptiveDifficulty/" type="directory">
+      <title>Target Service Directory</title>
+      <description>Empty directory with .gitkeep - create mistakeAnalyzer.ts here</description>
+    </artifact>
+
+    <artifact path="src/features/training/drills/NumberLineDrill.tsx" type="component">
+      <title>Number Line Drill Reference</title>
+      <description>Shows how drill results are structured for number line module</description>
+    </artifact>
+
+    <artifact path="src/features/training/drills/SpatialRotationDrill.tsx" type="component">
+      <title>Spatial Rotation Drill Reference</title>
+      <description>Shows how drill results are structured for spatial rotation module</description>
+    </artifact>
+
+    <artifact path="src/features/training/drills/MathOperationsDrill.tsx" type="component">
+      <title>Math Operations Drill Reference</title>
+      <description>Shows how drill results are structured for math operations module</description>
+    </artifact>
+  </code-artifacts>
+
+  <interfaces-to-create>
+    <interface name="MistakeType">
+      <description>Enum/union of all possible mistake types</description>
+      <values>
+        <!-- Number Line -->
+        <value>overestimation</value>
+        <value>underestimation</value>
+        <value>magnitude_error</value>
+        <value>boundary_error</value>
+        <!-- Spatial Rotation -->
+        <value>rotation_confusion</value>
+        <value>mirror_confusion</value>
+        <value>complexity_threshold</value>
+        <!-- Math Operations -->
+        <value>operation_weakness</value>
+        <value>magnitude_threshold</value>
+        <value>speed_accuracy_tradeoff</value>
+      </values>
+    </interface>
+
+    <interface name="CategorizedMistake">
+      <description>Single categorized mistake entry</description>
+      <fields>
+        <field name="drillId" type="string">uuid()</field>
+        <field name="mistakeType" type="MistakeType">Type of mistake detected</field>
+        <field name="severity" type="'minor' | 'moderate' | 'severe'">Based on error magnitude</field>
+        <field name="timestamp" type="number">Date.now()</field>
+        <field name="drillContext" type="object">{ module, difficulty, ... }</field>
+      </fields>
+    </interface>
+
+    <interface name="MistakePattern">
+      <description>Detected pattern from multiple mistakes</description>
+      <fields>
+        <field name="patternType" type="MistakeType">Type of pattern</field>
+        <field name="occurrences" type="number">Count of this mistake type</field>
+        <field name="recentDrills" type="number">Window size analyzed (e.g., last 5)</field>
+        <field name="confidence" type="number">0-1 confidence in pattern</field>
+        <field name="detectedAt" type="number">Timestamp of detection</field>
+      </fields>
+    </interface>
+
+    <interface name="AnalysisResult">
+      <description>Complete analysis output for a session</description>
+      <fields>
+        <field name="sessionId" type="number">Session analyzed</field>
+        <field name="analyzedAt" type="number">Timestamp</field>
+        <field name="mistakes" type="CategorizedMistake[]">All categorized mistakes</field>
+        <field name="patterns" type="MistakePattern[]">Detected patterns</field>
+        <field name="recommendations" type="string[]">Suggested focus areas</field>
+      </fields>
+    </interface>
+  </interfaces-to-create>
+
+  <severity-calculation>
+    <module name="number_line">
+      <rule severity="severe">Error greater than 20% of range</rule>
+      <rule severity="moderate">Error between 5% and 20% of range</rule>
+      <rule severity="minor">Error less than 5% of range</rule>
+    </module>
+
+    <module name="spatial_rotation">
+      <rule severity="severe">Wrong on simple shapes (circle, square, triangle)</rule>
+      <rule severity="moderate">Wrong on medium complexity shapes</rule>
+      <rule severity="minor">Wrong only on complex/irregular shapes</rule>
+    </module>
+
+    <module name="math_operations">
+      <rule severity="severe">Basic facts wrong (single digit, addition)</rule>
+      <rule severity="moderate">Medium difficulty wrong (double digit, subtraction)</rule>
+      <rule severity="minor">Only hard problems wrong (multiplication, large numbers)</rule>
+    </module>
+  </severity-calculation>
+
+  <functions-to-implement>
+    <function name="analyzeDrillResult">
+      <signature>(result: DrillResult) => CategorizedMistake | null</signature>
+      <description>Analyze single drill result, return categorized mistake if incorrect</description>
+      <pure>true</pure>
+    </function>
+
+    <function name="categorizeMistake">
+      <signature>(result: DrillResult) => { type: MistakeType; severity: Severity }</signature>
+      <description>Determine mistake type and severity from drill result</description>
+      <pure>true</pure>
+    </function>
+
+    <function name="detectPattern">
+      <signature>(mistakes: CategorizedMistake[], windowSize?: number) => MistakePattern[]</signature>
+      <description>Find patterns in mistake history (default window: 5 drills)</description>
+      <algorithm>2+ mistakes of same type within window = pattern</algorithm>
+      <pure>true</pure>
+    </function>
+
+    <function name="analyzeSession">
+      <signature>(results: DrillResult[]) => AnalysisResult</signature>
+      <description>Full session analysis combining all functions</description>
+      <pure>true</pure>
+    </function>
+  </functions-to-implement>
+
+  <constraints>
+    <constraint type="performance">
+      Analyzer runs after every 3 drills - must be fast (&lt;50ms)
+    </constraint>
+    <constraint type="memory">
+      Maintain sliding window of last 10 drills max to limit memory
+    </constraint>
+    <constraint type="testability">
+      All functions must be pure for easy unit testing
+    </constraint>
+    <constraint type="browser">
+      Must work in browser environment (no Node.js APIs)
+    </constraint>
+  </constraints>
+
+  <dependencies>
+    <runtime>
+      <dep name="uuid" version="*">For generating unique drillId values</dep>
+    </runtime>
+    <dev>
+      <dep name="vitest" version="*">Unit testing framework</dep>
+      <dep name="@testing-library/react" version="*">If testing integration with context</dep>
+    </dev>
+  </dependencies>
+
+  <testing-guidance>
+    <unit-tests>
+      <test name="analyzeDrillResult returns null for correct answers">
+        Mock correct DrillResult, expect null return
+      </test>
+      <test name="analyzeDrillResult categorizes number line overestimation">
+        Mock DrillResult where userValue > targetValue, verify mistakeType
+      </test>
+      <test name="categorizeMistake calculates severity correctly">
+        Test edge cases: 4.9% error (minor), 5.1% (moderate), 20.1% (severe)
+      </test>
+      <test name="detectPattern finds 2+ same type mistakes">
+        Create array with 2 overestimation mistakes, verify pattern detected
+      </test>
+      <test name="detectPattern respects window size">
+        Create mistakes outside window, verify not counted
+      </test>
+      <test name="analyzeSession produces complete AnalysisResult">
+        Full integration test with mixed drill results
+      </test>
+    </unit-tests>
+
+    <test-file-location>src/services/adaptiveDifficulty/mistakeAnalyzer.test.ts</test-file-location>
+
+    <mock-data>
+      <example name="Number line overestimation">
+        {
+          module: 'number_line',
+          isCorrect: false,
+          targetValue: 50,
+          userValue: 75,
+          rangeMin: 0,
+          rangeMax: 100,
+          difficulty: 'medium'
+        }
+      </example>
+      <example name="Spatial rotation confusion">
+        {
+          module: 'spatial_rotation',
+          isCorrect: false,
+          rotation: 90,
+          userAnswer: 'same',
+          correctAnswer: 'different',
+          difficulty: 'easy'
+        }
+      </example>
+      <example name="Math operation weakness">
+        {
+          module: 'math_operations',
+          isCorrect: false,
+          operation: 'subtraction',
+          problem: '15 - 8',
+          userAnswer: 6,
+          correctAnswer: 7,
+          difficulty: 'easy'
+        }
+      </example>
+    </mock-data>
+  </testing-guidance>
+
+  <implementation-notes>
+    <note priority="high">
+      Start with the pure utility functions (categorizeMistake, detectPattern) before
+      building the full analyzer. This enables TDD workflow.
+    </note>
+    <note priority="medium">
+      Consider creating a helper to extract module-specific fields from DrillResult
+      since the interface is polymorphic based on module type.
+    </note>
+    <note priority="medium">
+      The sliding window of 10 drills should be configurable for future tuning.
+    </note>
+    <note priority="low">
+      Future stories (4.3, 4.4) will consume this output - design interfaces
+      to be extensible.
+    </note>
+  </implementation-notes>
+</story-context>

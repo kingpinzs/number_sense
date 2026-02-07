@@ -95,7 +95,7 @@ const confettiVariants = {
     y: [0, -100 - Math.random() * 100],
     transition: {
       duration: 1.5 + Math.random() * 0.5,
-      ease: 'easeOut',
+      ease: 'easeOut' as const,
       delay: i * 0.05,
     },
   }),
@@ -175,7 +175,7 @@ export function ResultsSummary({ domainScores, completionTime, onStartTraining }
   if (isSaving) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <LoadingSpinner size="lg" />
+        <LoadingSpinner size="large" />
       </div>
     );
   }
@@ -258,9 +258,8 @@ export function ResultsSummary({ domainScores, completionTime, onStartTraining }
                       value={scorePercentage}
                       className="h-3"
                       style={{
-                        //@ts-expect-error - CSS custom property
                         '--progress-background': config.bgColor,
-                      }}
+                      } as React.CSSProperties}
                       aria-label={`${config.name} score progress bar, ${Math.round(scorePercentage)}% filled`}
                     />
                   </div>

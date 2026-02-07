@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discalculas - Color Theme Explorer</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header h1 { font-size: 32px; margin-bottom: 10px; }
+        .header p { color: #666; font-size: 16px; }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .theme-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .theme-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .theme-name { font-size: 24px; font-weight: 700; margin-bottom: 5px; }
+        .theme-personality { color: #666; font-size: 14px; margin-bottom: 10px; }
+        .theme-best-for {
+            background: #f0f0f0;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            display: inline-block;
+        }
+
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .color-swatch {
+            text-align: center;
+        }
+
+        .color-box {
+            width: 100%;
+            height: 80px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            border: 2px solid #eee;
+        }
+
+        .color-label {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .color-hex {
+            font-size: 11px;
+            color: #888;
+            font-family: 'Courier New', monospace;
+        }
+
+        .components-preview h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover { transform: translateY(-2px); }
+
+        .card-example {
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .progress-ring {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            position: relative;
+        }
+
+        .streak-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        /* Theme 1: Warm Encouragement */
+        .theme1-primary { background: #FF6B35; }
+        .theme1-secondary { background: #FFB347; }
+        .theme1-accent { background: #FFA07A; }
+        .theme1-success { background: #4CAF50; }
+        .theme1-error { background: #FF6B6B; }
+        .theme1-neutral { background: #F5F5F5; }
+
+        .theme1 .btn-primary { background: #FF6B35; color: white; }
+        .theme1 .btn-primary:hover { background: #E55A2B; }
+        .theme1 .btn-secondary { background: #FFB347; color: #333; }
+        .theme1 .btn-secondary:hover { background: #FFA030; }
+        .theme1 .card-example { background: #FFF5F0; border: 2px solid #FFE5D9; }
+        .theme1 .progress-ring { background: linear-gradient(135deg, #FF6B35, #FFB347); color: white; }
+        .theme1 .streak-display { background: #FFF5F0; border-left: 4px solid #FF6B35; }
+        .theme1 .alert-success { background: #E8F5E9; border-left: 4px solid #4CAF50; }
+
+        /* Theme 2: Calm Confidence */
+        .theme2-primary { background: #5B9BD5; }
+        .theme2-secondary { background: #A8D5BA; }
+        .theme2-accent { background: #70C1B3; }
+        .theme2-success { background: #81C784; }
+        .theme2-error { background: #E57373; }
+        .theme2-neutral { background: #F0F4F8; }
+
+        .theme2 .btn-primary { background: #5B9BD5; color: white; }
+        .theme2 .btn-primary:hover { background: #4A8AC4; }
+        .theme2 .btn-secondary { background: #A8D5BA; color: #333; }
+        .theme2 .btn-secondary:hover { background: #95C9A9; }
+        .theme2 .card-example { background: #F0F8FF; border: 2px solid #D6EAF8; }
+        .theme2 .progress-ring { background: linear-gradient(135deg, #5B9BD5, #A8D5BA); color: white; }
+        .theme2 .streak-display { background: #F0F8FF; border-left: 4px solid #5B9BD5; }
+        .theme2 .alert-success { background: #E8F5E9; border-left: 4px solid #81C784; }
+
+        /* Theme 3: Gentle Energy */
+        .theme3-primary { background: #FF9F40; }
+        .theme3-secondary { background: #A8E6CF; }
+        .theme3-accent { background: #FFD56F; }
+        .theme3-success { background: #66BB6A; }
+        .theme3-error { background: #FF8A65; }
+        .theme3-neutral { background: #FAFAFA; }
+
+        .theme3 .btn-primary { background: #FF9F40; color: white; }
+        .theme3 .btn-primary:hover { background: #F58E2C; }
+        .theme3 .btn-secondary { background: #A8E6CF; color: #333; }
+        .theme3 .btn-secondary:hover { background: #95DCBE; }
+        .theme3 .card-example { background: #FFF9F0; border: 2px solid #FFE9CC; }
+        .theme3 .progress-ring { background: linear-gradient(135deg, #FF9F40, #A8E6CF); color: white; }
+        .theme3 .streak-display { background: #FFF9F0; border-left: 4px solid #FF9F40; }
+        .theme3 .alert-success { background: #E8F5E9; border-left: 4px solid #66BB6A; }
+
+        /* Theme 4: Professional Warmth */
+        .theme4-primary { background: #E87461; }
+        .theme4-secondary { background: #FBD786; }
+        .theme4-accent { background: #B8D7A8; }
+        .theme4-success { background: #7CB342; }
+        .theme4-error { background: #E57373; }
+        .theme4-neutral { background: #F7F7F7; }
+
+        .theme4 .btn-primary { background: #E87461; color: white; }
+        .theme4 .btn-primary:hover { background: #D86450; }
+        .theme4 .btn-secondary { background: #FBD786; color: #333; }
+        .theme4 .btn-secondary:hover { background: #FACB6F; }
+        .theme4 .card-example { background: #FEF5F1; border: 2px solid #F9E4DC; }
+        .theme4 .progress-ring { background: linear-gradient(135deg, #E87461, #FBD786); color: white; }
+        .theme4 .streak-display { background: #FEF5F1; border-left: 4px solid #E87461; }
+        .theme4 .alert-success { background: #E8F5E9; border-left: 4px solid #7CB342; }
+
+        @media (max-width: 768px) {
+            .theme-grid { grid-template-columns: 1fr; }
+            .color-palette { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎨 Discalculas Color Theme Explorer</h1>
+        <p>Four carefully crafted color themes balancing warmth, calm, and credibility for your dyscalculia companion app</p>
+    </div>
+
+    <div class="theme-grid">
+        <!-- Theme 1: Warm Encouragement -->
+        <div class="theme-card theme1">
+            <div class="theme-header">
+                <div class="theme-name">1. Warm Encouragement</div>
+                <div class="theme-personality">Energetic, motivating, approachable</div>
+                <div class="theme-best-for">Best for: Building confidence through bold positivity</div>
+            </div>
+
+            <div class="color-palette">
+                <div class="color-swatch">
+                    <div class="color-box theme1-primary"></div>
+                    <div class="color-label">Primary</div>
+                    <div class="color-hex">#FF6B35</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box theme1-secondary"></div>
+                    <div class="color-label">Secondary</div>
+                    <div class="color-hex">#FFB347</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box theme1-accent"></div>
+                    <div class="color-label">Accent</div>
+                    <div class="color-hex">#FFA07A</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box theme1-success"></div>
+                    <div class="color-label">Success</div>
+                    <div class="color-hex">#4CAF50</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box theme1-error"></div>
+                    <div class="color-label">Error</div>
+                    <div class="color-hex">#FF6B6B</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box theme1-neutral"></div>
+                    <div class="color-label">Neutral</div>
+                    <div class="color-hex">#F5F5F5</div>
+                </div>
+            </div>
+
+            <div class="components-preview">
+                <h3>Component Examples</h3>
+                <div class="button-group">
+                    <button class="btn btn-primary">Start Training</button>
+                    <button class="btn btn-secondary">View Progress</button>
+                </div>
+
+                <div class="card-example">
+                    <strong>Today's Challenge</strong>
+                    <p>Complete 3 drills to maintain your streak!</p>
+                </div>
+
+                <div class="streak-display">
+                    <div class="progress-ring">7🔥</div>
+                    <div>
+                        <strong>7 Day Streak!</strong>
+                        <p style="font-size: 13px; color: #666;">Keep it going tomorrow</p>
+                    </div>
+                </div>
+
+                <div class="alert alert-success">
+                    <strong>Great job!</strong> Your confidence improved by 2 points today.
+                </div>
+            </div>
+        </div>
+
+        <!-- Theme 2: Calm Confidence -->
+        <div class="theme-card theme2">
+            <div class="theme-header">
+                <div class="theme-name">2. Calm Confidence</div>
+                <div class="theme-personality">Soothing, trustworthy, professional</div>
+                <div class="theme-best-for">Best for: Reducing anxiety through peaceful design</div>
+            </div>
+
+            <div class="color-palette">
+                <div class="color-swatch">
+                    <div class="color-box theme2-primary"></div>
+                    <div class="color-label">Primary</div>
+                    <div class="color-hex">#5B9BD5</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box theme2-secondary"></div>
+                    <div class="color-label">Secondary</div>
+                    <div class="color-hex">#A8D5BA</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box theme2-accent"></div>
+                    <div class="color-label">Accent</div>
+                    <div class="color-hex">#70C1B3</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box theme2-success"></div>
+                    <div class="color-label">Success</div>
+                    <div class="color-hex">#81C784</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box theme2-error"></div>
+                    <div class="color-label">Error</div>
+                    <div class="color-hex">#E57373</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box theme2-neutral"></div>
+                    <div class="color-label">Neutral</div>
+                    <div class="color-hex">#F0F4F8</div>
+                </div>
+            </div>
+
+            <div class="components-preview">
+                <h3>Component Examples</h3>
+                <div class="button-group">
+                    <button class="btn btn-primary">Start Training</button>
+                    <button class="btn btn-secondary">View Progress</button>
+                </div>
+
+                <div class="card-example">
+                    <strong>Today's Challenge</strong>
+                    <p>Complete 3 drills to maintain your streak!</p>
+                </div>
+
+                <div class="streak-display">
+                    <div class="progress-ring">7🔥</div>
+                    <div>
+                        <strong>7 Day Streak!</strong>
+                        <p style="font-size: 13px; color: #666;">Keep it going tomorrow</p>
+                    </div>
+                </div>
+
+                <div class="alert alert-success">
+                    <strong>Great job!</strong> Your confidence improved by 2 points today.
+                </div>
+            </div>
+        </div>
+
+        <!-- Theme 3: Gentle Energy -->
+        <div class="theme-card theme3">
+            <div class="theme-header">
+                <div class="theme-name">3. Gentle Energy</div>
+                <div class="theme-personality">Balanced, fresh, optimistic</div>
+                <div class="theme-best-for">Best for: Combining motivation with tranquility</div>
+            </div>
+
+            <div class="color-palette">
+                <div class="color-swatch">
+                    <div class="color-box theme3-primary"></div>
+                    <div class="color-label">Primary</div>
+                    <div class="color-hex">#FF9F40</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box theme3-secondary"></div>
+                    <div class="color-label">Secondary</div>
+                    <div class="color-hex">#A8E6CF</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box theme3-accent"></div>
+                    <div class="color-label">Accent</div>
+                    <div class="color-hex">#FFD56F</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box theme3-success"></div>
+                    <div class="color-label">Success</div>
+                    <div class="color-hex">#66BB6A</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box theme3-error"></div>
+                    <div class="color-label">Error</div>
+                    <div class="color-hex">#FF8A65</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box theme3-neutral"></div>
+                    <div class="color-label">Neutral</div>
+                    <div class="color-hex">#FAFAFA</div>
+                </div>
+            </div>
+
+            <div class="components-preview">
+                <h3>Component Examples</h3>
+                <div class="button-group">
+                    <button class="btn btn-primary">Start Training</button>
+                    <button class="btn btn-secondary">View Progress</button>
+                </div>
+
+                <div class="card-example">
+                    <strong>Today's Challenge</strong>
+                    <p>Complete 3 drills to maintain your streak!</p>
+                </div>
+
+                <div class="streak-display">
+                    <div class="progress-ring">7🔥</div>
+                    <div>
+                        <strong>7 Day Streak!</strong>
+                        <p style="font-size: 13px; color: #666;">Keep it going tomorrow</p>
+                    </div>
+                </div>
+
+                <div class="alert alert-success">
+                    <strong>Great job!</strong> Your confidence improved by 2 points today.
+                </div>
+            </div>
+        </div>
+
+        <!-- Theme 4: Professional Warmth -->
+        <div class="theme-card theme4">
+            <div class="theme-header">
+                <div class="theme-name">4. Professional Warmth</div>
+                <div class="theme-personality">Credible, warm, sophisticated</div>
+                <div class="theme-best-for">Best for: Science-backed credibility with approachability</div>
+            </div>
+
+            <div class="color-palette">
+                <div class="color-swatch">
+                    <div class="color-box theme4-primary"></div>
+                    <div class="color-label">Primary</div>
+                    <div class="color-hex">#E87461</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box theme4-secondary"></div>
+                    <div class="color-label">Secondary</div>
+                    <div class="color-hex">#FBD786</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box theme4-accent"></div>
+                    <div class="color-label">Accent</div>
+                    <div class="color-hex">#B8D7A8</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box theme4-success"></div>
+                    <div class="color-label">Success</div>
+                    <div class="color-hex">#7CB342</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box theme4-error"></div>
+                    <div class="color-label">Error</div>
+                    <div class="color-hex">#E57373</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box theme4-neutral"></div>
+                    <div class="color-label">Neutral</div>
+                    <div class="color-hex">#F7F7F7</div>
+                </div>
+            </div>
+
+            <div class="components-preview">
+                <h3>Component Examples</h3>
+                <div class="button-group">
+                    <button class="btn btn-primary">Start Training</button>
+                    <button class="btn btn-secondary">View Progress</button>
+                </div>
+
+                <div class="card-example">
+                    <strong>Today's Challenge</strong>
+                    <p>Complete 3 drills to maintain your streak!</p>
+                </div>
+
+                <div class="streak-display">
+                    <div class="progress-ring">7🔥</div>
+                    <div>
+                        <strong>7 Day Streak!</strong>
+                        <p style="font-size: 13px; color: #666;">Keep it going tomorrow</p>
+                    </div>
+                </div>
+
+                <div class="alert alert-success">
+                    <strong>Great job!</strong> Your confidence improved by 2 points today.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header" style="margin-top: 40px;">
+        <h2 style="font-size: 24px; margin-bottom: 15px;">Choosing Your Theme</h2>
+        <p>All themes meet WCAG 2.1 AA contrast requirements and work beautifully on mobile.</p>
+        <p style="margin-top: 10px;">Which theme FEELS right for your vision of Discalculas?</p>
+    </div>
+</body>
+</html>

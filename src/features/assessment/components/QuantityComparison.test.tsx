@@ -4,7 +4,8 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '../../../../tests/test-utils';
-import { QuantityComparison, QuantityComparisonResult } from './QuantityComparison';
+import { QuantityComparison } from './QuantityComparison';
+import type { QuantityComparisonResult } from './QuantityComparison';
 
 describe('QuantityComparison', () => {
   const mockOnAnswer = vi.fn();

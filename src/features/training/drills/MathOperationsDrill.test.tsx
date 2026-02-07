@@ -9,6 +9,7 @@
  * - AC-4: Confidence prompt after feedback
  * - AC-5: Drill result persistence to Dexie
  * - AC-6: Accessibility (ARIA labels, keyboard nav)
+ * - AC-7: Duplicate problem prevention
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -17,8 +18,6 @@ import userEvent from '@testing-library/user-event';
 import MathOperationsDrill from './MathOperationsDrill';
 import { db } from '@/services/storage/db';
 import * as problemGenerator from '@/services/training/problemGenerator';
-import type { DrillResult } from '@/services/storage/schemas';
-import React from 'react';
 
 // Mock Framer Motion to simplify testing
 vi.mock('framer-motion', async () => {
@@ -433,7 +432,7 @@ describe('MathOperationsDrill', () => {
 
       await waitFor(() => {
         expect(localStorageSpy).toHaveBeenCalledWith(
-          'DRILL_RESULTS_BACKUP',
+          'discalculas:drillResultsBackup',
           expect.any(String)
         );
       });
@@ -506,7 +505,7 @@ describe('MathOperationsDrill', () => {
         />
       );
 
-      expect(problemGenerator.generateProblem).toHaveBeenCalledWith('easy');
+      expect(problemGenerator.generateProblem).toHaveBeenCalledWith('easy', undefined, undefined);
       expect(screen.getByText('3 + 4 = ?')).toBeInTheDocument();
     });
 
@@ -525,7 +524,7 @@ describe('MathOperationsDrill', () => {
         />
       );
 
-      expect(problemGenerator.generateProblem).toHaveBeenCalledWith('medium');
+      expect(problemGenerator.generateProblem).toHaveBeenCalledWith('medium', undefined, undefined);
       expect(screen.getByText('15 + 7 = ?')).toBeInTheDocument();
     });
 
@@ -544,8 +543,37 @@ describe('MathOperationsDrill', () => {
         />
       );
 
-      expect(problemGenerator.generateProblem).toHaveBeenCalledWith('hard');
+      expect(problemGenerator.generateProblem).toHaveBeenCalledWith('hard', undefined, undefined);
       expect(screen.getByText('8 × 9 = ?')).toBeInTheDocument();
+    });
+  });
+
+  describe('AC-7: Duplicate problem prevention', () => {
+    it('should pass usedProblems to generateProblem', () => {
+      const usedProblems = new Set<string>();
+
+      render(
+        <MathOperationsDrill
+          difficulty="easy"
+          sessionId={mockSessionId}
+          onComplete={mockOnComplete}
+          usedProblems={usedProblems}
+        />
+      );
+
+      expect(problemGenerator.generateProblem).toHaveBeenCalledWith('easy', undefined, usedProblems);
+    });
+
+    it('should work without usedProblems prop (backward compatible)', () => {
+      render(
+        <MathOperationsDrill
+          difficulty="easy"
+          sessionId={mockSessionId}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      expect(problemGenerator.generateProblem).toHaveBeenCalledWith('easy', undefined, undefined);
     });
   });
 });

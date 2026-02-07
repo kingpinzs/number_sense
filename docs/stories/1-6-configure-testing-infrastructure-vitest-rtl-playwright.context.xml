@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Story Context: Configure Testing Infrastructure (Vitest + RTL + Playwright) -->
+<!-- Generated: 2025-11-11 -->
+<!-- Story: 1.6 - Configure Testing Infrastructure (Vitest + RTL + Playwright) -->
+
+<story-context>
+  <story>
+    <epic_id>1</epic_id>
+    <story_id>6</story_id>
+    <story_key>1-6-configure-testing-infrastructure-vitest-rtl-playwright</story_key>
+    <title>Configure Testing Infrastructure (Vitest + RTL + Playwright)</title>
+    <status>drafted</status>
+
+    <user_story>
+      <as_a>developer</as_a>
+      <i_want>complete testing infrastructure with 100% coverage enforcement</i_want>
+      <so_that>every feature I build has automated tests preventing regressions</so_that>
+    </user_story>
+
+    <acceptance_criteria>
+      <criterion id="AC1">
+        <description>Vitest Configuration - vite.config.ts includes Vitest setup with coverage provider (c8/v8), coverage thresholds enforced: 100% (statements, branches, functions, lines), browser mode disabled initially, test command: npm run test runs all unit/integration tests, UI mode: npm run test:ui launches Vitest UI</description>
+      </criterion>
+      <criterion id="AC2">
+        <description>React Testing Library - @testing-library/react@16.3.0 and @testing-library/dom installed, custom render function in tests/test-utils.tsx wraps components with providers, example test: src/shared/components/StreakCounter.test.tsx (create placeholder component first), screen reader queries work: getByRole, getByLabelText, getByText</description>
+      </criterion>
+      <criterion id="AC3">
+        <description>Playwright E2E - playwright.config.ts configured for Chromium, Firefox, WebKit, mobile viewport: 375×667 (iPhone SE), base URL: http://localhost:5173, test command: npm run test:e2e runs E2E tests, trace on first retry enabled for debugging</description>
+      </criterion>
+      <criterion id="AC4">
+        <description>CI script runs: npm run test &amp;&amp; npm run test:e2e &amp;&amp; npm run build</description>
+      </criterion>
+      <criterion id="AC5">
+        <description>Coverage report generated in coverage/ directory (HTML + lcov)</description>
+      </criterion>
+      <criterion id="AC6">
+        <description>Example test passes for all three frameworks</description>
+      </criterion>
+    </acceptance_criteria>
+
+    <tasks>
+      <task id="T1">Configure Vitest with 100% coverage thresholds in vite.config.ts</task>
+      <task id="T2">Install and configure React Testing Library with custom render wrapper</task>
+      <task id="T3">Create placeholder StreakCounter component and example test</task>
+      <task id="T4">Configure Playwright for E2E tests (Chromium, Firefox, WebKit)</task>
+      <task id="T5">Add test scripts to package.json (test, test:ui, test:e2e)</task>
+      <task id="T6">Create example E2E test that passes</task>
+      <task id="T7">Verify coverage report generation (HTML + lcov)</task>
+      <task id="T8">Test complete CI pipeline: test → E2E → build</task>
+    </tasks>
+  </story>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Testing Infrastructure (Story 1.6)</section>
+        <snippet>Story 1.6 establishes comprehensive testing infrastructure: Vitest for unit/integration tests (fast, Vite-native), React Testing Library for component tests (user-centric queries), Playwright for E2E tests (Chromium, Firefox, WebKit; mobile viewport 375×667), 100% coverage threshold enforced in CI (c8 coverage provider), Co-located test files (Component.test.tsx next to Component.tsx), AAA pattern mandatory (Arrange, Act, Assert)</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Test Strategy Summary - Testing Philosophy</section>
+        <snippet>Epic 1 establishes a test-first, coverage-enforced culture where every line of code must be covered by automated tests. Core Principles: 100% Coverage Mandatory, AAA Pattern, Co-Located Tests, Test Pyramid (many unit tests, fewer integration tests, minimal E2E tests), Accessibility First (test with screen reader queries)</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Test Strategy Summary - Coverage Enforcement</section>
+        <snippet>Vitest configuration enforces 100% coverage thresholds for statements, branches, functions, and lines. Coverage reporter: text, html, lcov. Exclusions: tests/**, **/*.test.tsx, **/*.config.ts, **/index.ts (re-export files). CI enforcement: Build fails if any coverage threshold &lt; 100%, coverage report uploaded as GitHub artifact, PR comments show coverage diff, merge blocked until all tests pass.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Specification</title>
+        <section>Testing Strategy (ADR-005)</section>
+        <snippet>Vitest for unit/integration tests (fast, Vite-native), React Testing Library for component tests (user-centric queries), Playwright for E2E tests (Chromium, Firefox, WebKit; mobile viewport 375×667), 100% coverage threshold enforced in CI (c8 coverage provider), Co-located test files (Component.test.tsx next to Component.tsx), AAA pattern mandatory (Arrange, Act, Assert)</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Specification</title>
+        <section>Cross-Cutting Concerns - Testing</section>
+        <snippet>Co-located test files, AAA pattern (Arrange, Act, Assert), 100% coverage required</snippet>
+      </doc>
+    </docs>
+
+    <code>
+      <artifact>
+        <path>vite.config.ts</path>
+        <kind>config</kind>
+        <symbol>defineConfig</symbol>
+        <lines>36-53</lines>
+        <reason>PARTIALLY IMPLEMENTED: Vitest configuration already exists with 100% coverage thresholds (statements, branches, functions, lines), v8 coverage provider, jsdom environment, vitest.setup.ts setupFiles, and exclusions configured. This is the main config file to verify/enhance for Story 1.6.</reason>
+      </artifact>
+      <artifact>
+        <path>vitest.setup.ts</path>
+        <kind>config</kind>
+        <symbol>N/A</symbol>
+        <lines>1-6</lines>
+        <reason>ALREADY IMPLEMENTED: Vitest setup file configuring fake-indexeddb and @testing-library/jest-dom matchers. This provides the test environment needed for Story 1.6.</reason>
+      </artifact>
+      <artifact>
+        <path>src/__tests__/folder-structure.test.ts</path>
+        <kind>test</kind>
+        <symbol>N/A</symbol>
+        <lines>N/A</lines>
+        <reason>EXISTING TEST: Example unit test demonstrating Vitest test structure and AAA pattern. Can be used as reference for writing new tests.</reason>
+      </artifact>
+      <artifact>
+        <path>src/__tests__/module-exports.test.ts</path>
+        <kind>test</kind>
+        <symbol>N/A</symbol>
+        <lines>N/A</lines>
+        <reason>EXISTING TEST: Example unit test validating module exports. Demonstrates test organization and assertions.</reason>
+      </artifact>
+      <artifact>
+        <path>src/__tests__/path-alias.test.ts</path>
+        <kind>test</kind>
+        <symbol>N/A</symbol>
+        <lines>N/A</lines>
+        <reason>EXISTING TEST: Example unit test validating path alias configuration. Shows how to test configuration correctness.</reason>
+      </artifact>
+      <artifact>
+        <path>src/__tests__/database-integration.test.tsx</path>
+        <kind>test</kind>
+        <symbol>N/A</symbol>
+        <lines>N/A</lines>
+        <reason>EXISTING TEST: Integration test demonstrating Dexie database testing with fake-indexeddb. Shows integration test patterns for database operations.</reason>
+      </artifact>
+      <artifact>
+        <path>src/context/AppContext.test.tsx</path>
+        <kind>test</kind>
+        <symbol>N/A</symbol>
+        <lines>N/A</lines>
+        <reason>EXISTING TEST: React component test using React Testing Library. Demonstrates component testing patterns, context testing, and RTL queries (getByRole, getByText, etc.).</reason>
+      </artifact>
+      <artifact>
+        <path>src/context/SessionContext.test.tsx</path>
+        <kind>test</kind>
+        <symbol>N/A</symbol>
+        <lines>N/A</lines>
+        <reason>EXISTING TEST: React component test demonstrating context provider testing patterns with RTL.</reason>
+      </artifact>
+      <artifact>
+        <path>src/context/UserSettingsContext.test.tsx</path>
+        <kind>test</kind>
+        <symbol>N/A</symbol>
+        <lines>N/A</lines>
+        <reason>EXISTING TEST: React component test showing localStorage integration testing patterns.</reason>
+      </artifact>
+      <artifact>
+        <path>src/services/storage/db.test.ts</path>
+        <kind>test</kind>
+        <symbol>N/A</symbol>
+        <lines>N/A</lines>
+        <reason>EXISTING TEST: Dexie database service test demonstrating service layer testing patterns.</reason>
+      </artifact>
+      <artifact>
+        <path>src/services/storage/localStorage.test.ts</path>
+        <kind>test</kind>
+        <symbol>N/A</symbol>
+        <lines>N/A</lines>
+        <reason>EXISTING TEST: LocalStorage service test showing storage testing patterns with mocking.</reason>
+      </artifact>
+    </code>
+
+    <dependencies>
+      <node>
+        <testing>
+          <package name="vitest" version="4.0.0" scope="devDependencies" />
+          <package name="@testing-library/react" version="16.3.0" scope="devDependencies" />
+          <package name="@testing-library/dom" version="10.4.1" scope="devDependencies" />
+          <package name="@testing-library/jest-dom" version="^6.9.1" scope="devDependencies" />
+          <package name="@playwright/test" version="1.56.1" scope="devDependencies" />
+          <package name="jsdom" version="27.1.0" scope="devDependencies" />
+          <package name="fake-indexeddb" version="^6.2.5" scope="devDependencies" />
+        </testing>
+        <build>
+          <package name="vite" version="7.2.2" scope="devDependencies" />
+          <package name="@vitejs/plugin-react" version="5.1.0" scope="devDependencies" />
+          <package name="typescript" version="5.9.3" scope="devDependencies" />
+        </build>
+        <runtime>
+          <package name="react" version="19.2.0" scope="dependencies" />
+          <package name="react-dom" version="19.2.0" scope="dependencies" />
+        </runtime>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <interfaces>
+    <interface>
+      <name>Vitest Configuration</name>
+      <kind>config</kind>
+      <signature>test: { pool: 'forks', environment: 'jsdom', globals: true, passWithNoTests: true, setupFiles: ['./vitest.setup.ts'], coverage: { provider: 'v8', reporter: ['text', 'html', 'lcov'], thresholds: { statements: 100, branches: 100, functions: 100, lines: 100 }, exclude: [...] } }</signature>
+      <path>vite.config.ts</path>
+    </interface>
+    <interface>
+      <name>Test Scripts</name>
+      <kind>npm scripts</kind>
+      <signature>"test": "vitest --run", "test:watch": "vitest", "test:e2e": "playwright test"</signature>
+      <path>package.json</path>
+    </interface>
+  </interfaces>
+
+  <constraints>
+    <constraint>MANDATORY: 100% test coverage threshold enforced (statements, branches, functions, lines)</constraint>
+    <constraint>MANDATORY: Co-locate test files next to source files (Component.test.tsx next to Component.tsx)</constraint>
+    <constraint>MANDATORY: Follow AAA pattern (Arrange, Act, Assert) in all tests</constraint>
+    <constraint>MANDATORY: Use React Testing Library user-centric queries (getByRole, getByLabelText, getByText) over implementation details</constraint>
+    <constraint>MANDATORY: Configure Playwright for mobile viewport 375×667 (iPhone SE)</constraint>
+    <constraint>MANDATORY: Coverage reports generated in HTML and lcov formats</constraint>
+    <constraint>Test execution: Unit/integration tests must run in &lt;10 seconds</constraint>
+    <constraint>E2E tests should cover critical paths only (not exhaustive)</constraint>
+    <constraint>Exclude test files, config files, and index.ts re-exports from coverage</constraint>
+    <constraint>Use fake-indexeddb for Dexie database testing (already configured in vitest.setup.ts)</constraint>
+    <constraint>Playwright base URL: http://localhost:5173 (Vite dev server)</constraint>
+    <constraint>Test browsers: Chromium, Firefox, WebKit (Playwright)</constraint>
+    <constraint>Enable trace on first retry for debugging E2E failures</constraint>
+  </constraints>
+
+  <tests>
+    <standards>
+      Epic 1 establishes test-first, coverage-enforced culture. All code requires automated tests with 100% coverage. Testing frameworks: Vitest 4.0 (unit/integration), React Testing Library 16.3.0 (component tests), Playwright 1.56.1 (E2E tests). Test files co-located with source. AAA pattern mandatory. Accessibility-first with screen reader queries. Test pyramid: many unit tests, fewer integration tests, minimal E2E tests. Test environment: jsdom with fake-indexeddb support.
+    </standards>
+
+    <locations>
+      <location>src/**/*.test.{ts,tsx}</location>
+      <location>tests/e2e/**/*.spec.ts</location>
+      <location>vitest.setup.ts</location>
+    </locations>
+
+    <ideas>
+      <idea criterion="AC1">
+        Unit test: Verify vite.config.ts contains test configuration with coverage thresholds set to 100% for all metrics. Verify coverage provider is 'v8'. Verify setupFiles includes vitest.setup.ts.
+      </idea>
+      <idea criterion="AC2">
+        Integration test: Create tests/test-utils.tsx with custom render function that wraps components with all context providers (UserSettingsProvider, AppProvider, SessionProvider). Verify it works by creating a simple test component that uses contexts.
+      </idea>
+      <idea criterion="AC2">
+        Component test: Create placeholder StreakCounter component (if not exists) and StreakCounter.test.tsx demonstrating RTL queries (getByRole, getByText, getByLabelText). Test should render component with props and verify output.
+      </idea>
+      <idea criterion="AC3">
+        Config test: Verify playwright.config.ts exists and contains configuration for Chromium, Firefox, WebKit browsers. Verify mobile viewport 375×667. Verify base URL http://localhost:5173. Verify trace on first retry enabled.
+      </idea>
+      <idea criterion="AC4">
+        Integration test: Create script or test that runs npm run test &amp;&amp; npm run test:e2e &amp;&amp; npm run build sequentially and verifies all commands exit with code 0.
+      </idea>
+      <idea criterion="AC5">
+        Unit test: After running coverage, verify coverage/ directory exists and contains index.html and lcov.info files. Verify lcov.info is parseable.
+      </idea>
+      <idea criterion="AC6">
+        E2E test: Create simple Playwright test (e.g., tests/e2e/smoke.spec.ts) that navigates to homepage, verifies page loaded, clicks a navigation element, verifies route change. Should pass on all three browsers.
+      </idea>
+    </ideas>
+  </tests>
+</story-context>

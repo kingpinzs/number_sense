@@ -125,15 +125,15 @@ describe('ResultsSummary', () => {
 
       // Number Sense: 3.5 / 5.0 = 70%
       const numberSenseCard = screen.getByText('Number Sense').closest('[role="listitem"]');
-      expect(within(numberSenseCard!).getByText('3.5 / 5.0')).toBeInTheDocument();
+      expect(within(numberSenseCard! as HTMLElement).getByText('3.5 / 5.0')).toBeInTheDocument();
 
       // Spatial: 2.0 / 5.0 = 40%
       const spatialCard = screen.getByText('Spatial Awareness').closest('[role="listitem"]');
-      expect(within(spatialCard!).getByText('2.0 / 5.0')).toBeInTheDocument();
+      expect(within(spatialCard! as HTMLElement).getByText('2.0 / 5.0')).toBeInTheDocument();
 
       // Operations: 4.5 / 5.0 = 90%
       const operationsCard = screen.getByText('Operations').closest('[role="listitem"]');
-      expect(within(operationsCard!).getByText('4.5 / 5.0')).toBeInTheDocument();
+      expect(within(operationsCard! as HTMLElement).getByText('4.5 / 5.0')).toBeInTheDocument();
     });
 
     it('displays progress bars with correct ARIA labels (AC6)', async () => {
@@ -218,9 +218,9 @@ describe('ResultsSummary', () => {
       const spatialCard = screen.getByText('Spatial Awareness').closest('[role="listitem"]');
       const operationsCard = screen.getByText('Operations').closest('[role="listitem"]');
 
-      expect(within(numberSenseCard!).getByText('Needs Focus')).toBeInTheDocument();
-      expect(within(spatialCard!).getByText('Growing')).toBeInTheDocument();
-      expect(within(operationsCard!).getByText('Strength')).toBeInTheDocument();
+      expect(within(numberSenseCard! as HTMLElement).getByText('Needs Focus')).toBeInTheDocument();
+      expect(within(spatialCard! as HTMLElement).getByText('Growing')).toBeInTheDocument();
+      expect(within(operationsCard! as HTMLElement).getByText('Strength')).toBeInTheDocument();
     });
   });
 
@@ -380,9 +380,9 @@ describe('ResultsSummary', () => {
       const spatialCard = screen.getByText('Spatial Awareness').closest('[role="listitem"]');
       const operationsCard = screen.getByText('Operations').closest('[role="listitem"]');
 
-      expect(within(numberSenseCard!).getByText('Needs Focus')).toBeInTheDocument(); // ≤2.5 is weak
-      expect(within(spatialCard!).getByText('Growing')).toBeInTheDocument(); // 2.6-3.5 is moderate
-      expect(within(operationsCard!).getByText('Strength')).toBeInTheDocument(); // >3.5 is strong
+      expect(within(numberSenseCard! as HTMLElement).getByText('Needs Focus')).toBeInTheDocument(); // ≤2.5 is weak
+      expect(within(spatialCard! as HTMLElement).getByText('Growing')).toBeInTheDocument(); // 2.6-3.5 is moderate
+      expect(within(operationsCard! as HTMLElement).getByText('Strength')).toBeInTheDocument(); // >3.5 is strong
     });
   });
 

@@ -3,7 +3,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import 'fake-indexeddb/auto';
-import { subDays, format } from 'date-fns';
+import { subDays } from 'date-fns';
 import { db, cleanOldSessions, getDatabaseStats } from './db';
 
 describe('Database Maintenance', () => {

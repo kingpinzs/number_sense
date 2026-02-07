@@ -13,7 +13,9 @@ export const STORAGE_KEYS = {
   // Story 3.7: Session telemetry backup keys
   SESSION_BACKUP: 'discalculas:sessionBackup',
   TELEMETRY_BACKUP: 'discalculas:telemetryBackup',
-  DRILL_RESULTS_BACKUP: 'discalculas:drillResultsBackup'
+  DRILL_RESULTS_BACKUP: 'discalculas:drillResultsBackup',
+  // Story 5.3: Streak milestone tracking
+  STREAK_MILESTONES_SHOWN: 'discalculas:streakMilestonesShown'
 } as const;
 
 /**
@@ -24,6 +26,7 @@ export interface UserSettings {
   soundEnabled: boolean;
   dailyGoalMinutes: number;
   researchModeEnabled: boolean;
+  showAdaptiveToasts: boolean;
 }
 
 /**
@@ -33,7 +36,8 @@ export const DEFAULT_SETTINGS: UserSettings = {
   reducedMotion: false,
   soundEnabled: true,
   dailyGoalMinutes: 60,
-  researchModeEnabled: false
+  researchModeEnabled: false,
+  showAdaptiveToasts: true
 };
 
 /**
@@ -48,7 +52,8 @@ function validateUserSettings(obj: any): UserSettings {
     reducedMotion: Boolean(obj?.reducedMotion ?? DEFAULT_SETTINGS.reducedMotion),
     soundEnabled: Boolean(obj?.soundEnabled ?? DEFAULT_SETTINGS.soundEnabled),
     dailyGoalMinutes: Number(obj?.dailyGoalMinutes) || DEFAULT_SETTINGS.dailyGoalMinutes,
-    researchModeEnabled: Boolean(obj?.researchModeEnabled ?? DEFAULT_SETTINGS.researchModeEnabled)
+    researchModeEnabled: Boolean(obj?.researchModeEnabled ?? DEFAULT_SETTINGS.researchModeEnabled),
+    showAdaptiveToasts: Boolean(obj?.showAdaptiveToasts ?? DEFAULT_SETTINGS.showAdaptiveToasts)
   };
 }
 
@@ -151,6 +156,34 @@ export function getResearchModeEnabled(): boolean {
   }
   // Fallback to UserSettings
   return getUserSettings().researchModeEnabled;
+}
+
+/**
+ * Get list of streak milestones already shown to user
+ *
+ * @returns Array of milestone streak values that have been shown
+ */
+export function getMilestonesShown(): number[] {
+  const raw = localStorage.getItem(STORAGE_KEYS.STREAK_MILESTONES_SHOWN);
+  if (!raw) return [];
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Record a milestone as shown so it won't trigger again
+ *
+ * @param streak - The milestone streak value to mark as shown
+ */
+export function addMilestoneShown(streak: number): void {
+  const shown = getMilestonesShown();
+  if (!shown.includes(streak)) {
+    shown.push(streak);
+    localStorage.setItem(STORAGE_KEYS.STREAK_MILESTONES_SHOWN, JSON.stringify(shown));
+  }
 }
 
 /**

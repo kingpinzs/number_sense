@@ -3,6 +3,7 @@
 // Handles daily training streak tracking with date comparison logic
 
 import { startOfDay, differenceInDays, parseISO } from 'date-fns';
+import { getMilestonesShown } from '@/services/storage/localStorage';
 
 /**
  * localStorage keys for streak data
@@ -72,6 +73,67 @@ export function updateStreak(): number {
     const currentStreak = getStreak();
     return currentStreak || 1;
   }
+}
+
+/**
+ * Get current streak for DISPLAY (read-only, considers elapsed time)
+ * Different from getStreak() which returns raw stored value.
+ * - Last session today or yesterday → return stored streak
+ * - Last session > 1 day ago → return 0 (streak broken)
+ * - No last session date → return 0
+ *
+ * @returns Current display streak value
+ */
+export function getCurrentStreak(): number {
+  try {
+    const lastSessionDateStr = localStorage.getItem(LAST_SESSION_DATE_KEY);
+    if (!lastSessionDateStr) return 0;
+
+    const today = startOfDay(new Date());
+    const lastSessionDate = startOfDay(parseISO(lastSessionDateStr));
+    const daysDifference = differenceInDays(today, lastSessionDate);
+
+    if (daysDifference <= 1) {
+      return getStreak();
+    }
+    return 0;
+  } catch (error) {
+    console.error('Failed to get current streak:', error);
+    return 0;
+  }
+}
+
+/**
+ * Milestone definition for streak celebrations
+ */
+export interface Milestone {
+  streak: number;
+  title: string;
+  emoji: string;
+  message: string;
+}
+
+const MILESTONES: Milestone[] = [
+  { streak: 7, title: 'One Week Streak!', emoji: '🎉', message: 'Amazing consistency! Keep it up!' },
+  { streak: 30, title: 'One Month Streak!', emoji: '🔥', message: 'Incredible dedication!' },
+  { streak: 100, title: 'Century Streak!', emoji: '💯', message: 'Legendary! 100 days of practice!' },
+];
+
+/**
+ * Check if current streak triggers a milestone celebration
+ * Returns null if not a milestone or already shown
+ *
+ * @param streak - Current streak value to check
+ * @returns Milestone object or null
+ */
+export function checkMilestone(streak: number): Milestone | null {
+  const milestone = MILESTONES.find(m => m.streak === streak);
+  if (!milestone) return null;
+
+  const shown = getMilestonesShown();
+  if (shown.includes(streak)) return null;
+
+  return milestone;
 }
 
 /**

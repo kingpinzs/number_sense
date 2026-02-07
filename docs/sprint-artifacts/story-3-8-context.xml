@@ -1,0 +1,295 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/story-3-8" v="1.0">
+  <metadata>
+    <epicId>3</epicId>
+    <storyId>8</storyId>
+    <title>E2E Test - Complete Training Session Journey</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-12-16</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/24-story-38-e2e-test-complete-training-session-journey.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>comprehensive E2E test covering the full training session flow</iWant>
+    <soThat>I can confidently deploy knowing the core training experience works end-to-end</soThat>
+    <tasks>
+      <task id="1">Create tests/e2e/training-flow.spec.ts test file</task>
+      <task id="2">Implement shared assessment completion helper (from assessment-flow.spec.ts patterns)</task>
+      <task id="3">Test training session shell renders with "Start Training" button</task>
+      <task id="4">Test ConfidencePromptBefore modal appears and can be dismissed by selection</task>
+      <task id="5">Complete 6 drills (2 of each type: number_line, spatial_rotation, math_operations)</task>
+      <task id="6">Verify progress bar updates after each drill</task>
+      <task id="7">Test ConfidencePromptAfter modal appears after final drill</task>
+      <task id="8">Verify session completion summary displays with stats</task>
+      <task id="9">Verify IndexedDB persistence (sessions, drill_results, telemetry_logs)</task>
+      <task id="10">Test "View Progress" navigation to /progress</task>
+      <task id="11">Add error scenarios: pause/resume, end session early</task>
+      <task id="12">Add screenshots at key points</task>
+      <task id="13">Ensure test completes in &lt;60 seconds</task>
+      <task id="14">Verify cross-browser compatibility (Chromium, Firefox, WebKit)</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="1">Playwright test exists at tests/e2e/training-flow.spec.ts</criterion>
+    <criterion id="2">Test completes assessment (reuse assessment flow, fast-forward through questions)</criterion>
+    <criterion id="3">Test navigates to /training and verifies training session shell renders with "Start Training" button</criterion>
+    <criterion id="4">Test clicks "Start Training" and verifies ConfidencePromptBefore modal appears</criterion>
+    <criterion id="5">Test selects confidence level (😊 "Pretty good") and verifies first drill renders</criterion>
+    <criterion id="6">Test completes 6 drills (2 of each type: number_line, spatial_rotation, math_operations)</criterion>
+    <criterion id="7">Test verifies progress bar updates after each drill (e.g., "Drill 3 of 6")</criterion>
+    <criterion id="8">Test verifies ConfidencePromptAfter modal appears after final drill</criterion>
+    <criterion id="9">Test selects confidence level and verifies session completion summary shows stats</criterion>
+    <criterion id="10">Test verifies IndexedDB contains: Session record, 6 drill_results, telemetry_logs</criterion>
+    <criterion id="11">Test clicks "View Progress" and verifies navigation to /progress</criterion>
+    <criterion id="12">Test includes error scenarios: pause/resume, end session early</criterion>
+    <criterion id="13">Test runs in mobile viewport (375×667)</criterion>
+    <criterion id="14">Test takes screenshots at: Session start, Mid-session, Confidence prompt, Completion</criterion>
+    <criterion id="15">Test completes in &lt;60 seconds</criterion>
+    <criterion id="16">Test passes on Chromium, Firefox, WebKit</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/epic-3-tech-spec.md">Epic 3 Technical Specification - Training drill flow, data models, APIs</doc>
+      <doc path="docs/architecture.md">Architecture specification with E2E testing philosophy</doc>
+    </docs>
+    <code>
+      <file path="tests/e2e/assessment-flow.spec.ts" purpose="reference">
+        Assessment E2E test with reusable patterns:
+        - IndexedDB clearing: await page.evaluate(() => indexedDB.deleteDatabase('DiscalculasDB'))
+        - Step-by-step assessment completion
+        - Screenshots at key points
+        - Wait for results summary pattern
+      </file>
+      <file path="tests/e2e/training-drill-flow.spec.ts" purpose="reference">
+        Training drill E2E tests with patterns:
+        - Quick assessment completion loop
+        - Drill type detection (number_line, spatial_rotation)
+        - Drill interaction patterns (mouse.click for number line, button click for spatial)
+        - Feedback verification
+        - IndexedDB drill_results verification
+      </file>
+      <file path="src/features/training/components/TrainingSession.tsx" purpose="implementation">
+        Main training session orchestrator with:
+        - handleStartTraining() - Starts session, shows ConfidencePromptBefore
+        - handleDrillComplete() - Shows feedback, advances to next drill
+        - handleConfidenceBeforeSelect() / handleConfidenceAfterSelect() - Confidence modal handlers
+        - handlePauseResume() / handlePauseEndSession() - Pause functionality
+        - data-testid="start-training-button" for locator
+      </file>
+      <file path="src/features/training/components/ConfidencePromptBefore.tsx" purpose="implementation">
+        Pre-session confidence modal with:
+        - data-testid="confidence-before-{1-5}" for locators
+        - 5 emoji options (1-5 scale)
+        - Dialog prevents outside clicks and ESC dismiss
+      </file>
+      <file path="src/features/training/components/ConfidencePromptAfter.tsx" purpose="implementation">
+        Post-session confidence modal (similar pattern to ConfidencePromptBefore)
+      </file>
+      <file path="src/features/training/components/SessionCompletionSummary.tsx" purpose="implementation">
+        Session completion summary with:
+        - data-testid="drills-completed", "accuracy", "confidence-change"
+        - data-testid="view-progress-button", "done-button"
+        - Shows confetti for positive confidence change
+      </file>
+      <file path="src/features/training/drills/NumberLineDrill.tsx" purpose="implementation">
+        Number line drill with:
+        - role="slider" for marker interaction
+        - h2 with "Where is X?" prompt
+        - Submit button pattern
+        - Feedback display (Correct!/Try again)
+      </file>
+      <file path="src/features/training/drills/SpatialRotationDrill.tsx" purpose="implementation">
+        Spatial rotation drill with:
+        - h2 with "Are these the same shape?" prompt
+        - Yes/No answer buttons
+        - Keyboard shortcuts (1/Y for Yes, 2/N for No)
+      </file>
+      <file path="src/features/training/drills/MathOperationsDrill.tsx" purpose="implementation">
+        Math operations drill with:
+        - Keypad for answer input
+        - Submit button for answer confirmation
+      </file>
+      <file path="src/features/training/components/SessionProgressBar.tsx" purpose="implementation">
+        Progress bar showing drill progression (e.g., "Drill 3 of 6")
+      </file>
+      <file path="src/features/training/components/PauseButton.tsx" purpose="implementation">
+        Pause functionality with resume and end session options
+      </file>
+      <file path="src/services/storage/db.ts" purpose="implementation">
+        Dexie database with tables:
+        - sessions: Training session records
+        - drill_results: Individual drill performance
+        - telemetry_logs: Event telemetry
+        Database name: 'DiscalculasDB'
+      </file>
+      <file path="src/services/storage/schemas.ts" purpose="reference">
+        TypeScript interfaces for:
+        - Session, DrillResult, TelemetryLog
+        - Field definitions and types
+      </file>
+    </code>
+    <dependencies>
+      <dependency name="@playwright/test" purpose="E2E testing framework"/>
+      <dependency name="dexie" purpose="IndexedDB wrapper for verification"/>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint id="1">Test must complete in &lt;60 seconds (Playwright timeout: 30s)</constraint>
+    <constraint id="2">Mobile viewport: 375×667 (configured in playwright.config.ts)</constraint>
+    <constraint id="3">Cross-browser: Chromium, Firefox, WebKit (all configured)</constraint>
+    <constraint id="4">IndexedDB verification uses native indexedDB API (not Dexie) in page.evaluate()</constraint>
+    <constraint id="5">Screenshots stored in test-results/training-flow/ directory</constraint>
+    <constraint id="6">Test should be deterministic (avoid timing-dependent assertions)</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="IndexedDB Query Pattern">
+      <code><![CDATA[
+// Query sessions table
+const sessions = await page.evaluate(async () => {
+  const request = indexedDB.open('DiscalculasDB');
+  return new Promise((resolve) => {
+    request.onsuccess = () => {
+      const db = request.result;
+      const transaction = db.transaction(['sessions'], 'readonly');
+      const store = transaction.objectStore('sessions');
+      const getAllRequest = store.getAll();
+      getAllRequest.onsuccess = () => resolve(getAllRequest.result);
+    };
+  });
+});
+
+// Query drill_results table
+const drillResults = await page.evaluate(async () => {
+  const request = indexedDB.open('DiscalculasDB');
+  return new Promise((resolve) => {
+    request.onsuccess = () => {
+      const db = request.result;
+      const transaction = db.transaction(['drill_results'], 'readonly');
+      const store = transaction.objectStore('drill_results');
+      const getAllRequest = store.getAll();
+      getAllRequest.onsuccess = () => resolve(getAllRequest.result);
+    };
+  });
+});
+
+// Clear IndexedDB before test
+await page.evaluate(() => indexedDB.deleteDatabase('DiscalculasDB'));
+      ]]></code>
+    </interface>
+    <interface name="Assessment Completion Helper Pattern">
+      <code><![CDATA[
+// Quick assessment completion loop (from training-drill-flow.spec.ts)
+const nextButton = page.getByTestId('next-button');
+for (let i = 1; i <= 10; i++) {
+  await expect(page.getByTestId('step-indicator')).toContainText(`Question ${i} of 10`);
+  if (i <= 2) {
+    await page.getByTestId('answer-left').click();  // QuantityComparison
+  } else if (i <= 4) {
+    const numberLine = page.getByTestId('number-line');
+    const lineBox = await numberLine.boundingBox();
+    if (lineBox) {
+      await page.mouse.click(lineBox.x + lineBox.width * 0.5, lineBox.y + lineBox.height * 0.5);
+    }
+  } else if (i <= 6) {
+    await page.getByTestId('answer-yes').click();  // MentalRotation
+  } else if (i === 7) {
+    await page.getByTestId('option-A').click();  // PatternMatching
+  } else {
+    await page.getByTestId('digit-5').click();  // BasicOperations/WordProblem
+    await page.getByTestId('submit').click();
+  }
+  await page.waitForTimeout(100);
+  await nextButton.click();
+}
+await expect(page.getByText(/Your Number Sense Profile/i)).toBeVisible({ timeout: 10000 });
+      ]]></code>
+    </interface>
+    <interface name="Drill Interaction Patterns">
+      <code><![CDATA[
+// Number Line Drill
+const numberLineDrill = page.locator('[role="slider"]');
+const drillBox = await numberLineDrill.boundingBox();
+if (drillBox) {
+  await page.mouse.click(drillBox.x + drillBox.width * 0.5, drillBox.y + drillBox.height * 0.5);
+}
+const submitButton = page.getByRole('button', { name: /Submit/i });
+await submitButton.click();
+
+// Spatial Rotation Drill
+const yesButton = page.getByRole('button', { name: /Yes, these are the same shape/i });
+await yesButton.click();
+
+// Math Operations Drill
+await page.getByTestId('digit-5').click();
+await page.getByTestId('submit').click();
+      ]]></code>
+    </interface>
+    <interface name="Test Data IDs">
+      <dataTestIds>
+        <id element="Start Training Button">start-training-button</id>
+        <id element="Confidence Before Options">confidence-before-{1-5}</id>
+        <id element="Drills Completed Stat">drills-completed</id>
+        <id element="Accuracy Stat">accuracy</id>
+        <id element="Confidence Change Stat">confidence-change</id>
+        <id element="View Progress Button">view-progress-button</id>
+        <id element="Done Button">done-button</id>
+      </dataTestIds>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      <standard>Use Playwright test framework (@playwright/test)</standard>
+      <standard>Follow AAA pattern (Arrange/Act/Assert) with section comments</standard>
+      <standard>Use data-testid attributes for element selection when available</standard>
+      <standard>Include screenshots at key points for debugging</standard>
+      <standard>Use page.waitForTimeout() sparingly, prefer explicit waits</standard>
+      <standard>Verify UI state before and after interactions</standard>
+      <standard>Test should be deterministic and pass on first run</standard>
+    </standards>
+    <locations>
+      <location>tests/e2e/training-flow.spec.ts (new file to create)</location>
+      <location>tests/e2e/assessment-flow.spec.ts (reference for patterns)</location>
+      <location>tests/e2e/training-drill-flow.spec.ts (reference for patterns)</location>
+    </locations>
+    <ideas>
+      <idea priority="high">Create completeAssessment() shared helper function to reduce duplication</idea>
+      <idea priority="high">Test full 6-drill flow with 2 of each drill type</idea>
+      <idea priority="high">Verify IndexedDB contains correct records after session completion</idea>
+      <idea priority="medium">Test pause/resume maintains session state</idea>
+      <idea priority="medium">Test end session early saves partial data</idea>
+      <idea priority="medium">Test confidence prompts cannot be dismissed without selection</idea>
+      <idea priority="low">Test keyboard navigation for drill interactions</idea>
+      <idea priority="low">Test session stats accuracy calculation</idea>
+    </ideas>
+  </tests>
+
+  <learningsFromPreviousStory>
+    <previousStory key="3-7-implement-session-telemetry-and-data-persistence">
+      <filesCreated>
+        <file>src/services/telemetry/logger.ts - Telemetry logging functions</file>
+        <file>src/services/storage/exportData.ts - Data export utility</file>
+      </filesCreated>
+      <filesModified>
+        <file>src/services/storage/db.ts - Added cleanOldSessions(), getDatabaseStats()</file>
+        <file>src/services/storage/localStorage.ts - Added STORAGE_KEYS.SESSION_BACKUP, TELEMETRY_BACKUP</file>
+        <file>src/features/training/components/TrainingSession.tsx - Integrated telemetry logging</file>
+      </filesModified>
+      <architecturalDecisions>
+        <decision>Telemetry uses localStorage backup for resilience</decision>
+        <decision>Session completion uses Dexie transactions for atomic updates</decision>
+        <decision>Old sessions auto-cleaned after 365 days retention</decision>
+      </architecturalDecisions>
+      <patterns>
+        <pattern>Use logSessionStart/logDrillComplete/logSessionEnd from logger.ts for telemetry</pattern>
+        <pattern>Use db.transaction() for atomic multi-table updates</pattern>
+        <pattern>Use page.evaluate() with native IndexedDB API for E2E verification</pattern>
+      </patterns>
+    </previousStory>
+  </learningsFromPreviousStory>
+</story-context>

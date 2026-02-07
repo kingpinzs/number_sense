@@ -1,0 +1,225 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>3</epicId>
+    <storyId>3.4</storyId>
+    <title>Implement Math Operations Drill</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-23</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/20-story-34-implement-math-operations-drill.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user in a training session</asA>
+    <iWant>math operations drills that reinforce basic arithmetic</iWant>
+    <soThat>I build automaticity with addition, subtraction, and multiplication</soThat>
+    <tasks>
+- Create MathOperationsDrill component (src/features/training/drills/MathOperationsDrill.tsx)
+- Implement DrillProps interface (drill, onComplete callback)
+- Reuse NumberKeypad from src/shared/components/NumberKeypad.tsx
+- Create problem generator service (src/services/training/problemGenerator.ts)
+- Implement difficulty-based problem generation (easy: single-digit, medium: double-digit + multiplication, hard: 12×12 times tables)
+- Add visual feedback for correct/incorrect answers (green checkmark/red X)
+- Implement answer validation (max 4 digits, non-negative)
+- Add confidence prompt after each answer
+- Add accessibility features (aria-labels, screen reader announcements)
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+**Given** a training session is active with Math Operations drill selected (Story 3.3 complete)
+**When** the MathOperationsDrill component renders
+**Then** the following behavior is observed:
+
+**Problem Display:**
+- Math problem displayed prominently (e.g., "7 + 5 = ?", "12 × 8 = ?")
+- Font size: Large, readable (minimum 24px)
+- Problem type shown: "Addition", "Subtraction", or "Multiplication"
+
+**Number Keypad:**
+- Reuse NumberKeypad component from Epic 2
+- Buttons: 0-9, Clear, Submit
+- Clear button: Removes last digit
+- Submit button: Validates answer, triggers onComplete
+
+**Difficulty Progression:**
+- Easy: Single-digit addition/subtraction (e.g., 3 + 4, 9 - 2)
+- Medium: Double-digit addition/subtraction + single-digit multiplication (e.g., 15 + 7, 18 - 5, 6 × 7)
+- Hard: 12×12 times tables only (e.g., 8 × 9, 12 × 7)
+
+**Visual Feedback:**
+- Correct answer: Green checkmark ✓ animation, 1 second delay before next problem
+- Incorrect answer: Red X ✗ animation, show correct answer, 1.5 second delay
+
+**Confidence Prompt:**
+- After each answer (correct or incorrect), show: "How confident were you?" with buttons: "Guessed", "Unsure", "Confident"
+- onComplete callback receives: { isCorrect, userAnswer, correctAnswer, confidence, timeSpent }
+
+**And** Component integrates with TrainingSession drill queue
+**And** All buttons have 44px minimum tap target
+**And** Accessibility: aria-labels on keypad, screen reader announcements for correct/incorrect
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/epic-3-tech-spec.md</path>
+        <title>Epic 3: Training & Drill Engine Technical Specification</title>
+        <section>Math Operations Drill</section>
+        <snippet>Defines MathOperationsDrill.tsx implementing DrillProps interface with basic arithmetic (addition, subtraction, multiplication). Difficulty progression: easy (single-digit), medium (double-digit + multiplication), hard (12×12 times tables). Reuses NumberKeypad from Epic 2. Includes confidence prompts and telemetry recording.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epic-3-tech-spec.md</path>
+        <title>Epic 3 Technical Specification</title>
+        <section>Drill Interface & Architecture Patterns</section>
+        <snippet>All drills implement DrillProps interface { difficulty, sessionId, onComplete }. Each drill calls onComplete(result: DrillResult) to persist via telemetry service. Progressive difficulty tracks accuracy within session, escalates when >80% threshold met.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epic-3-tech-spec.md</path>
+        <title>Epic 3 Technical Specification</title>
+        <section>Performance Requirements</section>
+        <snippet>Math Operations Drill: Keypad button press feedback <50ms. Reuse NumberKeypad component from Epic 2 (already optimized). Input validation: max 4 digits, non-negative integers only.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>System Architecture</title>
+        <section>UI Framework & Component Patterns</section>
+        <snippet>Uses shadcn/ui + Tailwind CSS v4 for mobile-first design. Feature-based architecture with drills in src/features/training/drills/. Shared components in src/shared/components/.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>Design Foundation</section>
+        <snippet>Headspace-inspired warm colors, circular comfort elements, delightful animations. Clean professional design with bright rounded aesthetics reduces math anxiety. WCAG 2.1 AA accessibility compliance required.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/shared/components/NumberKeypad.tsx</path>
+        <kind>component</kind>
+        <symbol>NumberKeypad</symbol>
+        <reason>Reusable numeric input component from Epic 2. Provides 0-9 digits, backspace, submit functionality with 60px+ touch targets. Must be reused in MathOperationsDrill per tech spec.</reason>
+      </artifact>
+      <artifact>
+        <path>src/features/training/drills/NumberLineDrill.tsx</path>
+        <kind>component</kind>
+        <symbol>NumberLineDrill</symbol>
+        <reason>Reference drill implementation showing DrillProps pattern, visual feedback animations, onComplete callback, and Dexie result persistence pattern.</reason>
+      </artifact>
+      <artifact>
+        <path>src/features/training/drills/SpatialRotationDrill.tsx</path>
+        <kind>component</kind>
+        <symbol>SpatialRotationDrill</symbol>
+        <reason>Reference drill showing confidence prompt implementation, difficulty-based problem generation, and Framer Motion feedback animations.</reason>
+      </artifact>
+      <artifact>
+        <path>src/features/training/components/TrainingSession.tsx</path>
+        <kind>component</kind>
+        <symbol>TrainingSession</symbol>
+        <reason>Session container that manages drill queue and renders individual drill components. Shows integration pattern for MathOperationsDrill.</reason>
+      </artifact>
+      <artifact>
+        <path>src/context/SessionContext.tsx</path>
+        <kind>context</kind>
+        <symbol>SessionContext</symbol>
+        <reason>Provides session state (sessionId, drillQueue, currentDrillIndex, results) consumed by all drill components.</reason>
+      </artifact>
+      <artifact>
+        <path>src/context/UserSettingsContext.tsx</path>
+        <kind>context</kind>
+        <symbol>UserSettingsContext</symbol>
+        <reason>Provides user preferences (soundEnabled, reducedMotion) for accessibility and feedback customization.</reason>
+      </artifact>
+      <artifact>
+        <path>src/services/storage/db.ts</path>
+        <kind>service</kind>
+        <symbol>db</symbol>
+        <reason>Dexie database instance for persisting drill results. DrillResult records stored in drillResults table.</reason>
+      </artifact>
+      <artifact>
+        <path>src/services/storage/schemas.ts</path>
+        <kind>interface</kind>
+        <symbol>DrillResult</symbol>
+        <reason>TypeScript interface for drill result data shape. Includes operation type, problem string for Math Operations drill.</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <react version="19.2.0">UI framework with hooks and concurrent rendering</react>
+        <framer-motion version="12.23.24">Animations for correct/incorrect feedback, confidence prompt transitions</framer-motion>
+        <lucide-react version="^0.553.0">Icons for visual feedback (checkmark, X)</lucide-react>
+        <dexie version="4.2.1">IndexedDB wrapper for persisting drill results</dexie>
+        <dexie-react-hooks version="4.2.0">React hooks for Dexie queries</dexie-react-hooks>
+        <tailwindcss version="4.1.17">CSS framework for styling (mobile-first, warm colors)</tailwindcss>
+        <date-fns version="4.0.0">Date utilities for timestamp handling</date-fns>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+- MUST implement DrillProps interface { difficulty, sessionId, onComplete }
+- MUST reuse NumberKeypad component from src/shared/components/NumberKeypad.tsx (do not create new keypad)
+- Problem generator MUST be created as separate service: src/services/training/problemGenerator.ts
+- Difficulty progression MUST follow spec: easy (single-digit), medium (double-digit + multiplication), hard (12×12 times tables)
+- Visual feedback MUST use Framer Motion animations (green checkmark for correct, red X for incorrect)
+- MUST include confidence prompt after each answer with 3 options: "Guessed", "Unsure", "Confident"
+- Input validation: max 4 digits, non-negative integers only
+- Keypad button press feedback MUST be <50ms per performance requirements
+- All buttons MUST have minimum 44px tap target for accessibility
+- MUST add aria-labels to keypad buttons and screen reader announcements for correct/incorrect
+- Component MUST be located at src/features/training/drills/MathOperationsDrill.tsx
+- MUST respect UserSettingsContext.reducedMotion for animations
+- MUST call onComplete with DrillResult including operation type and problem string
+- Auto-advance timing: 1s delay after correct, 1.5s delay after incorrect (show correct answer)
+  </constraints>
+  <interfaces>
+    <interface>
+      <name>DrillProps</name>
+      <kind>Component Props</kind>
+      <signature>{ difficulty: 'easy' | 'medium' | 'hard'; sessionId: number; onComplete: (result: DrillResult) => void; onSkip?: () => void }</signature>
+      <path>src/features/training/drills/NumberLineDrill.tsx</path>
+    </interface>
+    <interface>
+      <name>NumberKeypadProps</name>
+      <kind>Component Props</kind>
+      <signature>{ value: string; onChange: (value: string) => void; onSubmit: () => void; maxDigits?: number; disabled?: boolean }</signature>
+      <path>src/shared/components/NumberKeypad.tsx</path>
+    </interface>
+    <interface>
+      <name>DrillResult</name>
+      <kind>Database Schema</kind>
+      <signature>{ sessionId: number; drillType: 'number_line' | 'spatial_rotation' | 'math_operations'; difficulty: string; isCorrect: boolean; userAnswer: number | null; correctAnswer: number; confidence: string; timeSpent: number; operation?: 'addition' | 'subtraction' | 'multiplication'; problem?: string }</signature>
+      <path>src/services/storage/schemas.ts</path>
+    </interface>
+    <interface>
+      <name>Problem Generator Functions</name>
+      <kind>Service Functions</kind>
+      <signature>generateAddition(difficulty: 'easy' | 'medium' | 'hard'): { problem: string; answer: number }; generateSubtraction(difficulty: 'easy' | 'medium' | 'hard'): { problem: string; answer: number }; generateMultiplication(difficulty: 'easy' | 'medium' | 'hard'): { problem: string; answer: number }</signature>
+      <path>src/services/training/problemGenerator.ts</path>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+Use Vitest with React Testing Library for unit/integration tests. Use Playwright for E2E tests. Test files colocated with components (.test.tsx). Mock Framer Motion animations in tests. Use fake-indexeddb for Dexie mocking. Verify accessibility (ARIA labels, keyboard navigation, 44px tap targets). Test all three difficulty levels. Mock problem generator for deterministic testing.
+    </standards>
+    <locations>
+- Unit tests: src/features/training/drills/MathOperationsDrill.test.tsx
+- Service tests: src/services/training/problemGenerator.test.ts
+- E2E tests: tests/e2e/training-drill-flow.spec.ts
+    </locations>
+    <ideas>
+- AC: Component renders with problem display → Test: Render with difficulty='easy', verify problem text appears (e.g., "3 + 4 = ?")
+- AC: NumberKeypad reused from Epic 2 → Test: Verify NumberKeypad component is imported and rendered with correct props
+- AC: Easy difficulty generates single-digit problems → Test: Mock problemGenerator, verify generateAddition('easy') returns problems like "3 + 4"
+- AC: Medium difficulty includes double-digit and multiplication → Test: Verify generateAddition('medium') returns "15 + 7", generateMultiplication('medium') returns "6 × 7"
+- AC: Hard difficulty only 12×12 times tables → Test: Verify generateMultiplication('hard') only returns problems with factors 1-12
+- AC: Correct answer shows green checkmark animation → Test: Enter correct answer, submit, verify green checkmark appears with Framer Motion animation
+- AC: Incorrect answer shows red X and correct answer → Test: Enter wrong answer, submit, verify red X appears and correct answer displays for 1.5s
+- AC: Confidence prompt appears after answer → Test: Submit answer, verify "How confident were you?" prompt with 3 buttons appears
+- AC: onComplete receives result with operation type → Test: Complete drill, verify onComplete called with { operation: 'addition', problem: '3 + 4', isCorrect: true, ... }
+- AC: Input validation max 4 digits → Test: Try entering 5th digit, verify NumberKeypad maxDigits=4 constraint enforced
+- AC: Accessibility aria-labels → Test: Verify keypad buttons have aria-label, screen reader announcements for feedback
+- E2E: Complete math drill in training session → Test: Start session, complete math operations drill, verify result recorded to Dexie drillResults table
+    </ideas>
+  </tests>
+</story-context>

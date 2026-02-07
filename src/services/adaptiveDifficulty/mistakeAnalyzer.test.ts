@@ -7,10 +7,8 @@ import { describe, it, expect } from 'vitest';
 import type { DrillResult } from '../storage/schemas';
 import {
   type MistakeType,
-  type Severity,
   type CategorizedMistake,
   type MistakePattern,
-  type AnalysisResult,
   categorizeMistake,
   analyzeDrillResult,
   detectPattern,
@@ -128,8 +126,8 @@ describe('Mistake Analyzer', () => {
           shapeType: 'triangle',
           rotationDegrees: 90,
           isMirrored: false,
-          userAnswer: 'same',
-          correctAnswer: 'different',
+          userAnswer: 0 as any,  // represents same
+          correctAnswer: 1 as any,  // represents different
         };
 
         const categorized = categorizeMistake(result);
@@ -148,8 +146,8 @@ describe('Mistake Analyzer', () => {
           shapeType: 'square',
           rotationDegrees: 0,
           isMirrored: true,
-          userAnswer: 'same',
-          correctAnswer: 'different',
+          userAnswer: 0 as any,  // represents same
+          correctAnswer: 1 as any,  // represents different
         };
 
         const categorized = categorizeMistake(result);
@@ -594,8 +592,8 @@ describe('Mistake Analyzer', () => {
         shapeType: 'irregular_polygon',  // Complex shape
         rotationDegrees: 180,
         isMirrored: false,
-        userAnswer: 'same',
-        correctAnswer: 'different',
+        userAnswer: 0 as any,  // represents same
+        correctAnswer: 1 as any,  // represents different
       };
 
       const categorized = categorizeMistake(result);
@@ -614,8 +612,8 @@ describe('Mistake Analyzer', () => {
         shapeType: 'star',  // Complex shape
         rotationDegrees: 90,
         isMirrored: false,
-        userAnswer: 'different',
-        correctAnswer: 'same',
+        userAnswer: 1 as any,  // represents different
+        correctAnswer: 0 as any,  // represents same
       };
 
       const categorized = categorizeMistake(result);
@@ -634,8 +632,8 @@ describe('Mistake Analyzer', () => {
         shapeType: 'hexagon',  // Medium complexity
         rotationDegrees: 90,
         isMirrored: false,
-        userAnswer: 'same',
-        correctAnswer: 'different',
+        userAnswer: 0 as any,  // represents same
+        correctAnswer: 1 as any,  // represents different
       };
 
       const categorized = categorizeMistake(result);

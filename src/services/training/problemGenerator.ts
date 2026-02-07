@@ -107,10 +107,12 @@ export function generateMultiplication(difficulty: Difficulty): Problem {
  * Generate a random problem of any operation type based on difficulty
  * @param difficulty - Determines problem complexity
  * @param operationType - Optional: force specific operation, otherwise random
+ * @param usedProblems - Optional: set of previously used problem strings to avoid duplicates
  */
 export function generateProblem(
   difficulty: Difficulty,
-  operationType?: 'addition' | 'subtraction' | 'multiplication'
+  operationType?: 'addition' | 'subtraction' | 'multiplication',
+  usedProblems?: Set<string>
 ): Problem & { operation: 'addition' | 'subtraction' | 'multiplication' } {
   let operation: 'addition' | 'subtraction' | 'multiplication';
 
@@ -137,16 +139,45 @@ export function generateProblem(
   }
 
   let result: Problem;
-  switch (operation) {
-    case 'addition':
-      result = generateAddition(difficulty);
-      break;
-    case 'subtraction':
-      result = generateSubtraction(difficulty);
-      break;
-    case 'multiplication':
-      result = generateMultiplication(difficulty);
-      break;
+  let attempts = 0;
+  const maxAttempts = 10;
+  let currentOperation = operation;
+
+  // Available operations to try if current operation's problems are exhausted
+  const allOperations: Array<'addition' | 'subtraction' | 'multiplication'> =
+    difficulty === 'easy'
+      ? ['addition', 'subtraction']
+      : ['addition', 'subtraction', 'multiplication'];
+
+  do {
+    switch (currentOperation) {
+      case 'addition':
+        result = generateAddition(difficulty);
+        break;
+      case 'subtraction':
+        result = generateSubtraction(difficulty);
+        break;
+      case 'multiplication':
+        result = generateMultiplication(difficulty);
+        break;
+    }
+    attempts++;
+
+    // After half the retries, try alternative operations to find unique problems
+    if (usedProblems && usedProblems.has(result.problem) && attempts === Math.ceil(maxAttempts / 2)) {
+      const alternatives = allOperations.filter(op => op !== operation);
+      if (alternatives.length > 0) {
+        currentOperation = alternatives[Math.floor(Math.random() * alternatives.length)];
+      }
+    }
+  } while (usedProblems && usedProblems.has(result.problem) && attempts < maxAttempts);
+
+  // Use the actual operation that was used for generation
+  operation = currentOperation;
+
+  // Track this problem as used
+  if (usedProblems) {
+    usedProblems.add(result.problem);
   }
 
   return { ...result, operation };

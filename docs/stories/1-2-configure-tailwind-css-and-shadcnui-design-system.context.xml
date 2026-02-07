@@ -1,0 +1,172 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>2</storyId>
+    <title>Configure Tailwind CSS and shadcn/ui Design System</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-09</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/03-story-12-configure-tailwind-css-and-shadcnui-design-system.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>Tailwind CSS v4 and shadcn/ui configured with the Balanced Warmth color theme</iWant>
+    <soThat>I can build mobile-first, accessible UI components matching the UX specification</soThat>
+    <tasks>
+- Follow ux-design-specification.md color palette section
+- Configure Tailwind with 8px spacing scale (spacing: { 1: '8px', 2: '16px', ... })
+- Set up Inter font family as primary typography
+- shadcn/ui components should use @/components/ui/ path
+- Verify mobile-first responsive classes work (sm:, md:, lg: breakpoints)</tasks>
+  </story>
+
+  <acceptanceCriteria>
+Given the Vite project is initialized (Story 1.1 complete)
+When I configure Tailwind and shadcn/ui
+Then the following are successfully set up:
+- Tailwind CSS v4 installed and PostCSS configured
+- tailwind.config.js includes Balanced Warmth color palette:
+  - Primary: #E87461 (coral)
+  - Secondary: #A8E6CF (mint)
+  - Accent: #FFD56F (yellow)
+  - Success: #66BB6A
+  - Warning: #FFB74D
+  - Error: #EF5350
+- Responsive breakpoints configured: mobile (320px), tablet (768px), desktop (1024px)
+- shadcn/ui initialized with npx shadcn@latest init
+- Base components installed: button, card, sheet, toast, progress, form
+
+And src/styles/globals.css includes Tailwind directives and custom theme variables
+And A test component using className="bg-primary text-white" renders with coral background
+And Dark mode setup prepared (CSS variables defined, implementation deferred)
+
+Prerequisites: Story 1.1 (Vite project initialized)</acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>3.1 Color System - Balanced Warmth Theme</section>
+        <snippet>Chosen Theme: Balanced Warmth (Hybrid of Theme 3 "Gentle Energy" + Theme 4 "Professional Warmth"). Primary #E87461 (coral), Secondary #A8E6CF (mint), Accent #FFD56F (yellow), Success #66BB6A, Warning #FFB74D, Error #EF5350. All combinations verified WCAG 2.1 AA compliant.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>7.2 Button Hierarchy</section>
+        <snippet>Primary Actions use Coral #E87461 with white text. Secondary actions use Mint #A8E6CF. Typography: Inter font family. Spacing scale: 8px base unit.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document</title>
+        <section>ADR-001: Technology Stack - Design System</section>
+        <snippet>Design System: shadcn/ui + Tailwind CSS v4. Rationale: Mobile-first, customizable, accessible, lightweight. Configure tailwind.config.js with UX spec colors. Initialize shadcn/ui components with @/components/ui/ path.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Services and Modules - Tailwind + shadcn/ui</section>
+        <snippet>Story 1.2 delivers design system with responsive utilities and accessible components. Key inputs: theme config (tailwind.config.js), UX spec colors. Key outputs: CSS classes, UI components (Button, Card, Sheet, Toast, Progress, Form).</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Dependencies - Story 1.2 Packages</section>
+        <snippet>Production: clsx (latest), tailwind-merge (latest), class-variance-authority (latest). Development: tailwindcss (^4.0.0), postcss (latest), autoprefixer (latest).</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>tailwind.config.ts</path>
+        <kind>config</kind>
+        <symbol>Config</symbol>
+        <lines>1-16</lines>
+        <reason>Existing basic Tailwind config with partial color palette (coral, mint, sun). Needs expansion to include full Balanced Warmth theme, responsive breakpoints, spacing scale, and Inter font configuration.</reason>
+      </artifact>
+      <artifact>
+        <path>package.json</path>
+        <kind>manifest</kind>
+        <symbol>dependencies</symbol>
+        <lines>19-36</lines>
+        <reason>All required dependencies already installed: tailwindcss 4.1.17, postcss, autoprefixer, clsx, tailwind-merge, class-variance-authority, shadcn. Story 1.2 configures these packages.</reason>
+      </artifact>
+      <artifact>
+        <path>postcss.config.cjs</path>
+        <kind>config</kind>
+        <symbol>module.exports</symbol>
+        <lines>all</lines>
+        <reason>PostCSS configuration for Tailwind CSS processing.</reason>
+      </artifact>
+      <artifact>
+        <path>vite.config.ts</path>
+        <kind>config</kind>
+        <symbol>defineConfig</symbol>
+        <lines>all</lines>
+        <reason>Vite configuration includes path alias (@/) for shadcn/ui component imports.</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <package name="tailwindcss" version="4.1.17" scope="dev" />
+        <package name="@tailwindcss/cli" version="4.1.17" scope="dev" />
+        <package name="@tailwindcss/postcss" version="4.1.17" scope="dev" />
+        <package name="postcss" version="8.5.6" scope="dev" />
+        <package name="autoprefixer" version="10.4.21" scope="dev" />
+        <package name="clsx" version="^2.1.1" scope="prod" />
+        <package name="tailwind-merge" version="^3.4.0" scope="prod" />
+        <package name="class-variance-authority" version="^0.7.1" scope="prod" />
+        <package name="shadcn" version="3.5.0" scope="dev" />
+        <package name="tailwindcss-animate" version="^1.0.7" scope="prod" />
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+- Must use exact color hex codes from UX spec (Primary #E87461, Secondary #A8E6CF, Accent #FFD56F)
+- Responsive breakpoints: mobile 320px, tablet 768px, desktop 1024px
+- Spacing scale must be 8px base unit (1: '8px', 2: '16px', etc.)
+- shadcn/ui components must use @/components/ui/ path
+- All color combinations must meet WCAG 2.1 AA (4.5:1 text contrast, 3:1 interactive elements)
+- Tailwind CSS v4 required (not v3)
+- Inter font family as primary typography
+- 100% test coverage threshold enforced (from Epic 1 testing infrastructure)
+- Co-located tests: Component.test.tsx pattern
+- Dark mode CSS variables must be prepared but implementation deferred
+- Prerequisites: Story 1.1 (Vite project) must be completed first</constraints>
+  <interfaces>
+    <interface>
+      <name>Tailwind Config Theme</name>
+      <kind>TypeScript configuration object</kind>
+      <signature>theme.extend.colors: { primary, secondary, accent, success, warning, error }; theme.extend.spacing: { 1-20 with 8px increments }; theme.extend.fontFamily: { sans: Inter }</signature>
+      <path>tailwind.config.ts</path>
+    </interface>
+    <interface>
+      <name>shadcn/ui Components</name>
+      <kind>CLI initialized components</kind>
+      <signature>npx shadcn@latest init; npx shadcn@latest add button card sheet toast progress form</signature>
+      <path>src/components/ui/</path>
+    </interface>
+    <interface>
+      <name>Global Styles</name>
+      <kind>CSS file</kind>
+      <signature>@tailwind base; @tailwind components; @tailwind utilities; :root { --primary: #E87461; ... }</signature>
+      <path>src/styles/globals.css</path>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>Epic 1 establishes 100% test coverage requirement using Vitest + React Testing Library for unit/integration tests. All configuration changes must have accompanying tests. AAA pattern (Arrange-Act-Assert) mandatory. Co-located test files (*.test.tsx) required. Tests must verify: 1) Tailwind config exports valid Config type, 2) Color classes render with correct hex values, 3) Responsive breakpoints apply at specified widths, 4) shadcn/ui components render without errors.</standards>
+    <locations>
+- Configuration tests: tailwind.config.test.ts (verify theme object structure)
+- Component tests: src/components/ui/*.test.tsx (test each shadcn component)
+- Integration test: src/App.test.tsx (verify Tailwind classes apply correctly)
+- E2E test: tests/e2e/design-system.spec.ts (verify visual rendering)</locations>
+    <ideas>
+- AC 1 (Tailwind v4 installed): Verify package.json contains tailwindcss@^4.0.0, postcss, autoprefixer
+- AC 2 (Color palette): Render test component with bg-primary className, assert computed background-color equals rgb(232, 116, 97) [#E87461]
+- AC 3 (Responsive breakpoints): Use React Testing Library with window.matchMedia mock, verify sm: class applies at 320px, md: at 768px, lg: at 1024px
+- AC 4 (shadcn/ui init): Verify src/components/ui/ directory exists with button.tsx, card.tsx, sheet.tsx, toast.tsx, progress.tsx, form.tsx
+- AC 5 (globals.css): Read file content, assert contains @tailwind base, @tailwind components, @tailwind utilities
+- AC 6 (Dark mode prep): Verify CSS variables defined in :root and [data-theme="dark"] selectors (implementation deferred)</ideas>
+  </tests>
+</story-context>

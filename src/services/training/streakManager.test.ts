@@ -2,7 +2,8 @@
 // Story 3.6: Comprehensive tests for AC-6 streak update logic
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { getStreak, updateStreak, resetStreak } from './streakManager';
+import { getStreak, updateStreak, resetStreak, getCurrentStreak, checkMilestone } from './streakManager';
+import { addMilestoneShown } from '@/services/storage/localStorage';
 import { subDays, startOfDay } from 'date-fns';
 
 const STREAK_KEY = 'discalculas:streak';
@@ -99,6 +100,79 @@ describe('streakManager', () => {
 
       const streak = updateStreak();
       expect(streak).toBe(1); // Fallback value
+    });
+  });
+
+  describe('getCurrentStreak - AC-2 display logic', () => {
+    it('should return stored streak when last session is today', () => {
+      const today = startOfDay(new Date());
+      localStorage.setItem(STREAK_KEY, '5');
+      localStorage.setItem(LAST_SESSION_DATE_KEY, today.toISOString());
+
+      expect(getCurrentStreak()).toBe(5);
+    });
+
+    it('should return stored streak when last session was yesterday', () => {
+      const yesterday = startOfDay(subDays(new Date(), 1));
+      localStorage.setItem(STREAK_KEY, '7');
+      localStorage.setItem(LAST_SESSION_DATE_KEY, yesterday.toISOString());
+
+      expect(getCurrentStreak()).toBe(7);
+    });
+
+    it('should return 0 when last session was more than 1 day ago', () => {
+      const threeDaysAgo = startOfDay(subDays(new Date(), 3));
+      localStorage.setItem(STREAK_KEY, '10');
+      localStorage.setItem(LAST_SESSION_DATE_KEY, threeDaysAgo.toISOString());
+
+      expect(getCurrentStreak()).toBe(0);
+    });
+
+    it('should return 0 when no last session date exists', () => {
+      localStorage.setItem(STREAK_KEY, '3');
+      // No LAST_SESSION_DATE_KEY set
+
+      expect(getCurrentStreak()).toBe(0);
+    });
+  });
+
+  describe('checkMilestone - AC-3', () => {
+    it('should return milestone object for streak of 7', () => {
+      const milestone = checkMilestone(7);
+      expect(milestone).not.toBeNull();
+      expect(milestone!.streak).toBe(7);
+      expect(milestone!.title).toBe('One Week Streak!');
+      expect(milestone!.emoji).toBe('🎉');
+    });
+
+    it('should return milestone object for streak of 30', () => {
+      const milestone = checkMilestone(30);
+      expect(milestone).not.toBeNull();
+      expect(milestone!.title).toBe('One Month Streak!');
+    });
+
+    it('should return milestone object for streak of 100', () => {
+      const milestone = checkMilestone(100);
+      expect(milestone).not.toBeNull();
+      expect(milestone!.title).toBe('Century Streak!');
+    });
+
+    it('should return null for non-milestone streak', () => {
+      expect(checkMilestone(8)).toBeNull();
+      expect(checkMilestone(15)).toBeNull();
+      expect(checkMilestone(99)).toBeNull();
+    });
+
+    it('should return null when milestone already shown', () => {
+      addMilestoneShown(7);
+      expect(checkMilestone(7)).toBeNull();
+    });
+
+    it('should return milestone when different milestone was shown', () => {
+      addMilestoneShown(7);
+      const milestone = checkMilestone(30);
+      expect(milestone).not.toBeNull();
+      expect(milestone!.streak).toBe(30);
     });
   });
 

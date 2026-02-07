@@ -3,7 +3,6 @@
 // Task 4: Implement Drill Selection Service
 
 import { db } from '@/services/storage/db';
-import type { Assessment } from '@/services/storage/schemas';
 
 /**
  * Training plan weights from assessment

@@ -172,7 +172,6 @@ describe('NumberLineDrill', () => {
       );
 
       const marker = screen.getByRole('button', { name: /Marker at position/i });
-      const styles = window.getComputedStyle(marker);
 
       // Check that marker container has h-11 w-11 classes (44px x 44px)
       expect(marker.className).toContain('h-11');
@@ -374,7 +373,7 @@ describe('NumberLineDrill', () => {
           expect.any(Error)
         );
         expect(localStorageMock.setItem).toHaveBeenCalledWith(
-          'DRILL_RESULTS_BACKUP',
+          'discalculas:drillResultsBackup',
           expect.any(String)
         );
       });

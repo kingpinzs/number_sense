@@ -1,0 +1,509 @@
+Title: Understanding Dyscalculia: Symptoms, Diagnosis, and Treatment
+
+URL Source: https://www.healthline.com/health/dyscalculia
+
+Published Time: 2019-12-19T14:09:01.000Z
+
+Markdown Content:
+Understanding Dyscalculia: Symptoms, Diagnosis, and Treatment
+
+===============
+
+[](https://www.healthline.com/)
+
+*   Health Conditions
+
+### Health Conditions
+
+[All](https://www.healthline.com/directory/topics)
+    *   [Breast Cancer](https://www.healthline.com/breast-cancer)
+    *   [Cancer Care](https://www.healthline.com/cancer-care)
+    *   [Caregiving for Alzheimer's Disease](https://www.healthline.com/alzheimers-disease)
+    *   [Chronic Kidney Disease](https://www.healthline.com/ckd)
+    *   [Chronic Obstructive Pulmonary Disease (COPD)](https://www.healthline.com/copd)
+    *   [Digestive Health](https://www.healthline.com/digestive-health)
+    *   [Eye Health](https://www.healthline.com/eye-health)
+    *   [Heart Health](https://www.healthline.com/heart-health)
+    *   [Menopause](https://www.healthline.com/menopause)
+    *   [Mental Health](https://www.healthline.com/mental-health)
+    *   [Migraine](https://www.healthline.com/migraine)
+    *   [Multiple Sclerosis (MS)](https://www.healthline.com/multiple-sclerosis)
+    *   [Parkinson’s Disease](https://www.healthline.com/parkinsons-disease)
+    *   [Psoriasis](https://www.healthline.com/psoriasis)
+    *   [Rheumatoid Arthritis (RA)](https://www.healthline.com/rheumatoid-arthritis)
+    *   [Sleep Health](https://www.healthline.com/sleep)
+    *   [Type 2 Diabetes](https://www.healthline.com/type-2-diabetes)
+    *   [Weight Management](https://www.healthline.com/weight-management)
+
+### Condition Spotlight
+
+[All](https://www.healthline.com/sponsored-topics)
+    *   [![Image 11](https://media.post.rvohealth.io/wp-content/uploads/2024/12/navigation-icons-_controlling-ulcerative-colitis-236x236_360.png) Controlling Ulcerative Colitis](https://www.healthline.com/program/controlling-uc)
+    *   [![Image 12](https://media.post.rvohealth.io/wp-content/uploads/2024/12/navigation-icons_navigating-life-with-biopolar-236x236-1.png) Navigating Life with Bipolar Disorder](https://www.healthline.com/program/navigating-life-with-bipolar-disorder)
+    *   [![Image 13](https://media.post.rvohealth.io/wp-content/uploads/2024/12/navigation-icons-_mastering-your-geographic-atrophy-236x236_360.png) Mastering Geographic Atrophy](https://www.healthline.com/program/mastering-your-geographic-atrophy-care)
+    *   [![Image 14](https://media.post.rvohealth.io/wp-content/uploads/2024/12/navigation-icons_managing-type-2-diabetes-236x236-1.png) Managing Type 2 Diabetes](https://www.healthline.com/program/managing-type-2-diabetes-with-food-and-fitness)
+
+*   Wellness
+
+### Wellness Topics
+
+[All](https://www.healthline.com/wellness)
+    *   [CBD](https://www.healthline.com/cbd)
+    *   [Fitness](https://www.healthline.com/fitness)
+    *   [Healthy Aging](https://www.healthline.com/healthy-aging)
+    *   [Hearing](https://www.healthline.com/hearing-health)
+    *   [Mental Well-Being](https://www.healthline.com/mental-health)
+    *   [Nutrition](https://www.healthline.com/nutrition)
+    *   [Parenthood](https://www.healthline.com/parenthood)
+    *   [Recipes](https://www.healthline.com/recipes)
+    *   [Sexual Health](https://www.healthline.com/sexual-health)
+    *   [Skin Care](https://www.healthline.com/skincare)
+    *   [Sleep Health](https://www.healthline.com/sleep)
+    *   [Vitamins and Supplements](https://www.healthline.com/vitamins-supplements)
+    *   [Women's Wellness](https://www.healthline.com/program/womens-wellness)
+
+### Product Reviews
+
+[All](https://www.healthline.com/reviews)
+    *   [At-Home Testing](https://www.healthline.com/reviews/at-home-tests)
+    *   [Men's Health](https://www.healthline.com/reviews/mens-health-products)
+    *   [Mental Health](https://www.healthline.com/reviews/mental-health-services-and-products)
+    *   [Nutrition](https://www.healthline.com/reviews/nutrition-products)
+    *   [Sleep](https://www.healthline.com/reviews/sleep-products)
+    *   [Vitamins and Supplements](https://www.healthline.com/reviews/vitamin-and-supplement-products)
+    *   [Women's Health](https://www.healthline.com/reviews/womens-health-products)
+
+### Featured Programs
+
+[All](https://www.healthline.com/sponsored-topics)
+    *   [![Image 15](https://media.post.rvohealth.io/wp-content/uploads/2025/02/HL_Dexcom-Stelo_Key-Art_Circular-Thumbnail_236x236.png) Your Guide to Glucose Health](https://www.healthline.com/program/your-guide-to-glucose-health)
+    *   [![Image 16](https://media.post.rvohealth.io/wp-content/uploads/2024/12/navigation-icons-_understanding-inflammation-and-aging-236x236_360.png) Inflammation and Aging](https://www.healthline.com/program/understanding-inflammation-and-aging)
+    *   [![Image 17](https://media.post.rvohealth.io/wp-content/uploads/2024/12/navigation-icons-_cold-and-flu-236x236_360.png) Cold & Flu Season Survival Guide](https://www.healthline.com/program/cold-flu-survival-guide)
+    *   [![Image 18](https://media.post.rvohealth.io/wp-content/uploads/2024/12/navigation-icons_shes-good-for-real-236x236-1.png) She’s Good for Real](https://www.healthline.com/program/shes-good-for-real)
+
+*   Tools
+
+### Featured
+
+    *   [Video Series](https://www.healthline.com/video)
+    *   [Pill Identifier](https://www.healthline.com/pill-identifier)
+    *   [FindCare](https://care.healthline.com/find-care)
+    *   [Drugs A-Z](https://www.healthline.com/drugs)
+    *   [Medicare Plans by State](https://www.healthline.com/about/health-medicare-state-coverage)
+
+### Lessons
+
+[All](https://learn.healthline.com/)
+    *   [Crohn’s and Ulcerative Colitis Essentials](https://www.healthline.com/app/inflammatory-bowel-disease?utm_source=lessonshome)
+    *   [Diabetes Nutrition](https://www.healthline.com/app/type-2-diabetes?utm_source=lessonshome)
+    *   [High Cholesterol](https://www.healthline.com/app/high-cholesterol?utm_source=lessonshome)
+    *   [Taming Inflammation in Psoriasis](https://www.healthline.com/app/pso-inflammation?utm_source=lessonshome)
+    *   [Taming Inflammation in Psoriatic Arthritis](https://www.healthline.com/app/psa-inflammation?utm_source=lessonshome)
+
+### Newsletters
+
+[All](https://www.healthline.com/newsletter-signup)
+    *   [Anxiety and Depression](https://www.healthline.com/newsletter-signup/anxiety-and-depression)
+    *   [Digestive Health](https://www.healthline.com/newsletter-signup/ibd)
+    *   [Heart Health](https://www.healthline.com/newsletter-signup/heart-health)
+    *   [Migraine](https://www.healthline.com/newsletter-signup/migraine)
+    *   [Nutrition Edition](https://www.healthline.com/newsletter-signup/nutrition)
+    *   [Type 2 Diabetes](https://www.healthline.com/newsletter-signup/type-2-diabetes)
+    *   [Wellness Wire](https://www.healthline.com/newsletter-signup/wellness-wire)
+
+### Lifestyle Quizzes
+
+    *   [Find a Diet](https://activation.healthline.com/assessment/assessment/diets/prompt/1?v=1&tc=120226&subid=hl_dietfinder_1_)
+    *   [Find Healthy Snacks](https://activation.healthline.com/assessment/assessment/pregnancy-snacks/prompt/1?v=1)
+    *   [Weight Management](https://www.healthline.com/nutrition/weight-management-quiz)
+    *   [How Well Do You Sleep?](https://www.healthline.com/health/healthy-sleep/quiz-how-well-do-you-sleep#1)
+    *   [Are You a Workaholic?](https://www.healthline.com/health/mental-health/quiz-are-you-a-workaholic#quiz-are-you-a-workaholic)
+
+*   Featured
+
+### Health News
+
+[All](https://www.healthline.com/health-news)
+    *   [Medicare 2026 Changes](https://www.healthline.com/health-news/medicare-open-enrollment-2026-key-changes)
+    *   [Can 6-6-6 Walking Workout Help You Lose Weight?](https://www.healthline.com/health-news/666-walking-trend-weight-loss)
+    *   [This Couple Lost 118 Pounds Together Without Medication](https://www.healthline.com/health-news/married-couple-loses-119-pounds-together-without-meds)
+    *   [5 Science-Backed Ways to Live a Longer Life](https://www.healthline.com/health-news/healthy-ways-to-improve-longevity)
+    *   [Morning Coffee May Help You Live Longer](https://www.healthline.com/health-news/morning-coffee-heart-health-benefits)
+
+### This Just In
+
+    *   [5 Tips for a Healthy Lifestyle](https://www.healthline.com/health/fitness-nutrition/healthy-lifestyle-benefits)
+    *   [How to Disinfect Your House After the Flu](https://www.healthline.com/health/flu/how-to-disinfect-house-after-flu)
+    *   [Best Vegan and Plant-Based Meal Delivery for 2025](https://www.healthline.com/nutrition/plant-based-meal-delivery)
+    *   [Does Medicare Cover Pneumonia Shots?](https://www.healthline.com/health/medicare/does-medicare-cover-pneumonia-shots)
+    *   [Chromosomes, Genetics, and Your Health](https://www.healthline.com/health/chromosomes-and-genetics)
+
+### Top Reads
+
+    *   [Best Multivitamins for Women](https://www.healthline.com/nutrition/multivitamins-womens-health)
+    *   [Best Multivitamins for Men](https://www.healthline.com/nutrition/best-multivitamins-for-men)
+    *   [Best Online Therapy Services](https://www.healthline.com/health/our-top-10-online-therapy-picks)
+    *   [Online Therapy That Takes Insurance](https://www.healthline.com/health/mental-health/online-therapy-that-takes-insurance)
+    *   [Buy Ozempic Online](https://www.healthline.com/nutrition/buy-ozempic-online)
+    *   [Mounjaro Overview](https://www.healthline.com/health/drugs/mounjaro)
+
+### Video Series
+
+    *   [Youth in Focus](https://www.healthline.com/health/video/youth-in-focus)
+    *   [Healthy Harvest](https://www.healthline.com/health/nutrition/video/healthy-harvest#1)
+    *   [Through an Artist's Eye](https://www.healthline.com/health/breast-cancer/metastatic-breast-cancer-artist-eye)
+    *   [Future of Health](https://www.healthline.com/health/video/future-of-health)
+
+*   Connect
+
+### Find Your Bezzy Community
+
+Bezzy communities provide meaningful connections with others living with chronic conditions. Join Bezzy on the web or mobile app.
+
+[All](https://www.bezzy.com/?utm_source=healthline&utm_medium=nav-bar-connections)
+    *   [![Image 19](https://media.post.rvohealth.io/wp-content/uploads/2022/01/Bezzy-Breast-Cancer.png) Breast Cancer](https://www.bezzybc.com/lp/2/?utm_source=healthline&utm_medium=hl-nav-bar-connections)
+    *   [![Image 20](https://media.post.rvohealth.io/wp-content/uploads/2022/01/Bezzy-Multiple-Sclerosis.png) Multiple Sclerosis](https://www.bezzyms.com/?utm_source=healthline&utm_medium=hl-nav-bar-connections)
+    *   [![Image 21](https://media.post.rvohealth.io/wp-content/uploads/2024/11/Bezzy-DEP-Icon-Circle.png) Depression](https://www.bezzydepression.com/?utm_source=healthline&utm_medium=hl-nav-bar-connections)
+    *   [![Image 22](https://media.post.rvohealth.io/wp-content/uploads/2025/01/Bezzy-MIG-Icon-Circle.png) Migraine](https://www.bezzymigraine.com/?utm_source=healthline&utm_medium=hl-nav-bar-connections)
+    *   [![Image 23](https://media.post.rvohealth.io/wp-content/uploads/2024/12/Bezzy-T2D-Icon-Circle.png) Type 2 Diabetes](https://www.bezzyt2d.com/?utm_source=healthline&utm_medium=hl-nav-bar-connections)
+    *   [![Image 24](https://media.post.rvohealth.io/wp-content/uploads/2022/04/Bezzy-PsO.png) Psoriasis](https://www.bezzypsoriasis.com/?utm_source=healthline&utm_medium=hl-nav-bar-connections)
+
+### Follow us on social media
+
+Can't get enough? Connect with us for all things health.
+
+[](http://www.facebook.com/pages/Healthline/173263326992)[](https://twitter.com/healthline)[](http://www.instagram.com/healthline)[](https://www.linkedin.com/company/healthline-media/)[](https://www.youtube.com/channel/UC7snF15Idi7px6XujWe_h9A)[](https://flipboard.com/@healthline)
+
+Subscribe
+
+Dyscalculia: Know the Signs
+===========================
+
+![Image 25](https://i0.wp.com/post.healthline.com/wp-content/uploads/2018/09/TimothyLegg.png?w=105&h=105)
+
+[Medically reviewed](https://www.healthline.com/health/dyscalculia) by [Timothy J. Legg, PhD, PsyD](https://www.healthline.com/health/dyscalculia) — Written by [Kathryn Watson](https://www.healthline.com/health/dyscalculia) on December 19, 2019
+
+*   [Symptoms](https://www.healthline.com/health/dyscalculia#symptoms)
+*   [Causes](https://www.healthline.com/health/dyscalculia#causes)
+*   [Diagnosis](https://www.healthline.com/health/dyscalculia#diagnosis)
+*   [Treatment](https://www.healthline.com/health/dyscalculia#treatment)
+*   [Outlook](https://www.healthline.com/health/dyscalculia#outlook)
+*   [Takeaway](https://www.healthline.com/health/dyscalculia#takeaway)
+
+![Image 26](https://i0.wp.com/post.healthline.com/wp-content/uploads/2019/12/Father_Son_Homework_1296x728-header-1296x728.jpg?w=1155&h=1528)[Share on Pinterest](https://www.pinterest.com/pin/create/button/?url=https%3A%2F%2Fwww.healthline.com%2Fhealth%2Fdyscalculia&media=https%3A%2F%2Fpost.healthline.com%2Fwp-content%2Fuploads%2F2019%2F12%2FFather_Son_Homework_1296x728-header-1296x728.jpg&description=Understanding%20Dyscalculia%3A%20Symptoms%2C%20Diagnosis%2C%20and%20Treatment "Share on Pinterest")
+
+Dyscalculia is a diagnosis used to describe learning difficulties related to math concepts.
+
+It’s sometimes called “numbers dyslexia,” which is a bit misleading. Dyslexia refers to difficulty reading and writing, while dyscalculia is specifically related to mathematics.
+
+At least [one study Trusted Source](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6440373/) estimates that 3 to 7 percent of adults and children have dyscalculia, based on data collected from German primary school-aged students.
+
+Dyscalculia goes beyond having a hard time understanding math. It’s bigger than making mistakes when you add numbers or reversing digits when you write something down.
+
+If you have dyscalculia, it’s difficult to understand the wider concepts that govern the rules of math, like whether one amount is greater than another or how algebra works.
+
+This article will cover the dyscalculia diagnosis process, as well as symptoms, causes, and treatment.
+
+[How to spot dyscalculia](https://www.healthline.com/health/dyscalculia)
+------------------------------------------------------------------------
+
+Dyscalculia symptoms might look different depending on age and developmental stage. Common symptoms of dyscalculia include:
+
+*   difficulty understanding or remembering mathematical concepts such as multiplication, division, fractions, carrying, and borrowing 
+*   difficulty reconciling verbal or written cues (such as the word “two”) and their math symbols and signifiers (the number 2)
+*   trouble explaining math processes or showing work when asked to complete a mathematical task 
+*   difficulty describing the sequence of events or remembering the steps in a math process
+
+[![Image 27: SHOP NOW](https://media.post.rvohealth.io/2kLEJX4A3LDe7GGDNr31WST2A26/2024/11/01/2oGGgnnTWrmgOA76O13rsJ2EYYc.jpeg)](https://now.optum.com/hsa-fsa-shop?utm_campaign=spenddownuseitorloseit&utm_medium=driver&utm_source=hl&utm_term=generalhealth&correlationId=b5b803ff-56b8-4582-bec5-51c47e4f1343&rvo_subid2=%2Fhealth%2Fdyscalculia&rvo_subid=e%3Ahw_s%3Ahl_p%3Aoptumnow_n%3Ageneral_l%3Afirst_v%3Aspenddown_useitorloseit_52452&rvo_sys=mar&noFollowParam=1)
+
+Use it or lose it: FSA edition
+
+Stock up on all your favorite wellness products before your funds expire.
+
+**Free gift with a purchase of $150 or more**
+
+[SHOP NOW](https://now.optum.com/hsa-fsa-shop?utm_campaign=spenddownuseitorloseit&utm_medium=driver&utm_source=hl&utm_term=generalhealth&correlationId=b5b803ff-56b8-4582-bec5-51c47e4f1343&rvo_subid2=%2Fhealth%2Fdyscalculia&rvo_subid=e%3Ahw_s%3Ahl_p%3Aoptumnow_n%3Ageneral_l%3Afirst_v%3Aspenddown_useitorloseit_52452&rvo_sys=mar&noFollowParam=1)
+
+Free shipping over $35
+
+* * *
+
+Brands you trust
+
+* * *
+
+Up to 40% off
+
+![Image 28: Footer Logo](https://media.post.rvohealth.io/2kLEJX4A3LDe7GGDNr31WST2A26/2025/06/17/2yePtPsuk4u7ZTatfI5hN5ucNEF.png)
+
+[What causes dyscalculia?](https://www.healthline.com/health/dyscalculia)
+-------------------------------------------------------------------------
+
+We need more research to understand what causes dyscalculia, but there are some prevalent theories about why it happens.
+
+Some [researchers](https://www.dyscalculia.org/dyscalculia/math-ld-causes) believe that dyscalculia is the result of a lack of [concrete early instruction](https://www.healthline.com/health/synaptic-pruning) in mathematics.
+
+Children who are taught that math concepts are simply a series of conceptual rules to follow, instead of being instructed in the hands-on reasoning behind those rules, may not develop the neural pathways they need to understand more complicated mathematical frameworks.
+
+Under this strain of logic, a child who has never been taught to count using an abacus, or never shown multiplication using items that increase in tangible amounts, might be more likely to develop dyscalculia.
+
+Dyscalculia may occur by itself, or it may occur alongside other [developmental delays](https://www.healthline.com/health/developmental-delay) and neurological conditions.
+
+Children and adults may be more likely to receive a diagnosis of dyscalculia if they have:
+
+*   [dyslexia](https://www.healthline.com/health/how-to-help-a-child-with-dyslexia-at-home)
+*   [attention deficit hyperactivity disorder](https://www.healthline.com/health/adhd)
+*   [depression](https://www.healthline.com/health/mental-health/childhood-depression)
+*   [anxiety](https://www.healthline.com/health-news/treating-anxiety-disorder-in-a-child-or-adolescent)
+
+Dyscalculia may also have a genetic component. Mathematical aptitude tends to run in families, as do learning disabilities. It’s hard to tell how much of aptitude is hereditary and how much is the result of your family culture.
+
+For example, if you grew up with a mother who regularly said that she was just “useless” at math and as a result, couldn’t help you to learn math, chances are that you will struggle with math, too. More research is needed to understand how genetic factors play into learning disabilities.
+
+[How is dyscalculia diagnosed?](https://www.healthline.com/health/dyscalculia)
+------------------------------------------------------------------------------
+
+Dyscalculia is diagnosed in several steps.
+
+First, your doctor will take information about the medical and family history. These questions are meant to rule out other possible diagnoses and to make sure that there’s not a pressing physical condition that needs to be addressed.
+
+For the next step, adults may be referred to a psychologist and children may be referred to a team of learning specialists including a psychologist and a special education expert. They’ll administer further testing to figure out if a diagnosis of dyscalculia makes sense.
+
+[How is dyscalculia treated?](https://www.healthline.com/health/dyscalculia)
+----------------------------------------------------------------------------
+
+Dyscalculia can be managed with treatment strategies. If left untreated, dyscalculia in adults can result in difficulties at work and trouble managing finances. Fortunately, there are strategies available for children and adults.
+
+### For children
+
+A special education specialist may suggest treatment options for your child to use in school and at home. These may include:
+
+*   repeated practice of basic math concepts, such as counting and addition 
+*   segmenting subject material into smaller units to make it easier to digest information
+*   use of small groups of other children for math instruction
+*   repeated review of basic math concepts in hands-on, tangible demonstrations 
+
+A [2012 review Trusted Source](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3514770/) of the literature on treating dyscalculia observed that the success rates of the strategies recommended for treating dyscalculia aren’t well documented. The best treatment plan will take into account your child’s individual talents, needs, and interests.
+
+### For adults
+
+Dyscalculia treatment for adults can be more challenging if you’re not in an academic setting with special education resources available.
+
+Your healthcare professional may also be able to help you with exercises and education material to help you strengthen the neural pathways used for mathematics. Training or private tutoring can help treat adult dyscalculia, as well as [adult dyslexia.](https://www.healthline.com/health/dyslexia-in-adults)
+
+[What’s the outlook for people with dyscalculia?](https://www.healthline.com/health/dyscalculia)
+------------------------------------------------------------------------------------------------
+
+Dyscalculia is treatable, and early diagnosis can make a big difference in how the person who has it experiences mathematics learning. It may be more challenging for people with dyscalculia to learn math concepts, but it’s by no means impossible.
+
+Data that shows the long-term outlook for people with dyscalculia is limited. Advocacy groups and educators claim that some people with this condition go on to excel at math and pursue mathematic careers.
+
+[The takeaway](https://www.healthline.com/health/dyscalculia)
+-------------------------------------------------------------
+
+Dyscalculia refers to a learning disability that makes learning math concepts difficult. People who have dyscalculia may have to take a different approach to learn math concepts, going more slowly or reviewing more often as they encounter new material.
+
+Dyscalculia isn’t something that people grow out of, but it’s treatable. If you believe that you or your child has dyscalculia, speak to your doctor about your concerns.
+
+ADVERTISEMENT
+
+Explore online talk therapy options
+
+![Image 29](https://healthline-activation-prod.healthline.com/driver-images/BetterHelp%20Vertical%20Stretch.png)
+
+![Image 30](https://healthline-activation-prod.healthline.com/driver-images/BetterHelp%20New%20Header%20Logo.png)
+
+**4.5** 
+
+FROM **TRUSTPILOT**
+
+**Therapy via messaging, phone, or live video chat**
+
+*   Great for a large network of licensed therapists
+*   Flexible cancellation at any time
+*   $65 to 90/week, billed every 4 weeks
+
+**20% off your first month**
+
+[LEARN MORE](https://hasofferstracking.betterhelp.com/aff_c?aff_id=2072&offer_id=2&rvo_aff=1&rvo_brandid=BetterHelp&rvo_prodid=e673de28-62ed-4e85-983b-16b82dc8461b&rvo_subid=e673de28-62ed-4e85-983b-16b82dc8461b&source=healthline&aff_sub=null&aff_sub2=/health/dyscalculia&aff_sub3=0f56349f-bbbc-4a89-9c39-8d00caac2814&rvo_subid2=/health/dyscalculia)
+
+![Image 31](https://healthline-activation-prod.healthline.com/driver-images/Hers%20Vertical%20Stretch.png)
+
+![Image 32](https://healthline-activation-prod.healthline.com/driver-images/Hers%20Second%20Image.png)
+
+**4.6** 
+
+(2.1K+)
+
+FROM **App Store**
+
+*   FDA-approved medication for anxiety and depression available
+*   Unlimited check-ins via online messaging
+*   $49 to $85/month, billed monthly
+
+**$49 per month or less than $2 per day.**
+
+[LEARN MORE](https://hersinc.pxf.io/yqkZ0b?rvo_aff=1&rvo_brandid=Hers&rvo_prodid=a725eb06-94c1-4bf5-8403-2f4e4652d3c6&rvo_subid=a725eb06-94c1-4bf5-8403-2f4e4652d3c6&rvo_subid2=/health/dyscalculia&subid1=null&subid2=/health/dyscalculia&subid3=d4187333-0e65-4ad7-b7f7-d63a9cbdb350)
+
+![Image 33](https://healthline-activation-prod.healthline.com/driver-images/Talkspace%20Vertical%20Stretch.png)
+
+![Image 34](https://healthline-activation-prod.healthline.com/driver-images/Talkspace%20-%20Secondary.png)
+
+**4.8** 
+
+(29.8k)
+
+FROM **App Store**
+
+**Great for therapy and psychiatry with insurance**
+
+*   Therapy via messaging, phone, or live video chat
+*   Psychiatry and prescription management available
+*   Covered members pay an average copay of $30
+
+**Special Offer: $85 off**
+
+[LEARN MORE](https://talkspace.pxf.io/c/411371/1425671/14729?rvo_aff=1&rvo_brandid=Talkspace&rvo_prodid=9055d50d-83d9-47b1-a1bb-4d54138c8644&rvo_subid=9055d50d-83d9-47b1-a1bb-4d54138c8644&rvo_subid2=/health/dyscalculia&subid1=null&subid2=/health/dyscalculia&subid3=7be15836-b948-424d-b4c4-45f30a920247)
+
+![Image 35](https://healthline-activation-prod.healthline.com/driver-images/Online%20Therapy%20Vertical%20Stretch.png)
+
+![Image 36](https://healthline-activation-prod.healthline.com/driver-images/Online-Therapy.com%20Second%20Image.png)
+
+**4.7** 
+
+(2.9k)
+
+FROM **ONLINE-THERAPY.COM**
+
+*   Great for cognitive behavioral therapy
+*   Therapy via messaging, live video chat, and worksheets
+*   $40 to $88/week, billed monthly
+
+**20% off your first month**
+
+[LEARN MORE](https://go.online-therapy.com/aff_c?aff_id=1020&offer_id=4&rvo_aff=1&rvo_brandid=Online-Therapy.com&rvo_prodid=b2ee09a7-2c43-4681-8aa1-6af99a4418f6&rvo_subid=b2ee09a7-2c43-4681-8aa1-6af99a4418f6&rvo_subid2=/health/dyscalculia&correlationId=b4f4181b-de27-4562-b64d-06ad4a7475ba)
+
+### How we reviewed this article:
+
+Sources
+
+Healthline has strict sourcing guidelines and relies on peer-reviewed studies, academic research institutions, and medical journals and associations. We only use quality, credible sources to ensure content accuracy and integrity. You can learn more about how we ensure our content is accurate and current by reading our[editorial policy](https://www.healthline.com/about/process).
+
+*   Causes of dyscalculia and math learning difficulties. (n.d.).
+
+[https://www.dyscalculia.org/dyscalculia/math-ld-causes](https://www.dyscalculia.org/dyscalculia/math-ld-causes)
+*   Dyscalculia. (n.d.).
+
+[https://ldaamerica.org/types-of-learning-disabilities/dyscalculia/](https://ldaamerica.org/types-of-learning-disabilities/dyscalculia/)
+*   Haberstroh S, et al. (2019). The diagnosis and treatment of dyscalculia.
+
+[https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6440373/](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6440373/)
+*   How are learning disabilities diagnosed? (2018).
+
+[https://www.nichd.nih.gov/health/topics/learning/conditioninfo/diagnosed](https://www.nichd.nih.gov/health/topics/learning/conditioninfo/diagnosed)
+*   Kaufmann L, et al. (2012). The diagnosis and management of dyscalculia.
+
+[https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3514770/](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3514770/)
+
+Share this article
+
+[](https://www.healthline.com/health/dyscalculia "Print this page")
+
+[](https://www.healthline.com/health/dyscalculia "Email this page")
+
+[](https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fwww.healthline.com%2Fhealth%2Fdyscalculia%3Futm_medium%3Dsocial%26utm_source%3Dfacebook%26utm_campaign%3Dsocial-sharebar-referred-desktop "Share on Facebook")
+
+[](https://twitter.com/intent/tweet?via=healthline&text=Understanding%20Dyscalculia%3A%20Symptoms%2C%20Diagnosis%2C%20and%20Treatment&url=https%3A%2F%2Fwww.healthline.com%2Fhealth%2Fdyscalculia%3Futm_medium%3Dsocial%26utm_source%3Dtwitter%26utm_campaign%3Dsocial-sharebar-referred-desktop "Share on Twitter")
+
+[](https://www.healthline.com/health/dyscalculia "Show more")
+
+![Image 37](https://i0.wp.com/post.healthline.com/wp-content/uploads/2018/09/TimothyLegg.png?w=105&h=105)
+
+[Medically reviewed](https://www.healthline.com/health/dyscalculia) by [Timothy J. Legg, PhD, PsyD](https://www.healthline.com/health/dyscalculia) — Written by [Kathryn Watson](https://www.healthline.com/health/dyscalculia) on December 19, 2019
+
+Was this article helpful?
+-------------------------
+
+[Yes](https://www.healthline.com/health/dyscalculia)[No](https://www.healthline.com/health/dyscalculia)
+
+### Read this next
+
+*   [](https://www.healthline.com/health/dyslexia-in-adults?utm_source=ReadNext)[Dyslexia in Adults](https://www.healthline.com/health/dyslexia-in-adults?utm_source=ReadNext)  Medically reviewed by [Timothy J. Legg, PhD, PsyD](https://www.healthline.com/medical-team) [READ MORE](https://www.healthline.com/health/dyslexia-in-adults?utm_source=ReadNext)        
+*   [](https://www.healthline.com/health/what-is-dysgraphia?utm_source=ReadNext)[Dysgraphia Explained](https://www.healthline.com/health/what-is-dysgraphia?utm_source=ReadNext)  Medically reviewed by [Karen Gill, M.D.](https://www.healthline.com/medical-team) 
+[Dysgraphia is a learning disability that can make it difficult for you or your child to write. It's different from dyslexia, though the two conditions…](https://www.healthline.com/health/what-is-dysgraphia?utm_source=ReadNext)
+
+[READ MORE](https://www.healthline.com/health/what-is-dysgraphia?utm_source=ReadNext)     
+*   [](https://www.healthline.com/health/short-attention-span?utm_source=ReadNext)[What Are the Causes of a Short Attention Span, and How Can I Improve It?](https://www.healthline.com/health/short-attention-span?utm_source=ReadNext)  Medically reviewed by [Timothy J. Legg, PhD, PsyD](https://www.healthline.com/medical-team) 
+[If your mind wanders and it's hard for you to remain interested and focused, there are things you can do to help improve a short attention span.](https://www.healthline.com/health/short-attention-span?utm_source=ReadNext)
+
+[READ MORE](https://www.healthline.com/health/short-attention-span?utm_source=ReadNext)        
+*   [](https://www.healthline.com/health/executive-dysfunction?utm_source=ReadNext)[Understanding Executive Dysfunction and How It Shows Up](https://www.healthline.com/health/executive-dysfunction?utm_source=ReadNext)  Medically reviewed by [Kendra Kubala, PsyD](https://www.healthline.com/medical-team) 
+[Executive dysfunction isn't a condition, but it can show up as a symptom of many conditions. Learn what it involves and how to manage it.](https://www.healthline.com/health/executive-dysfunction?utm_source=ReadNext)
+
+[READ MORE](https://www.healthline.com/health/executive-dysfunction?utm_source=ReadNext)     
+*   [](https://www.healthline.com/health/dyspraxia?utm_source=ReadNext)[Dyspraxia Explained](https://www.healthline.com/health/dyspraxia?utm_source=ReadNext)  Medically reviewed by [Nancy Hammond, M.D.](https://www.healthline.com/medical-team) 
+[Dyspraxia, or developmental coordination disorder, is a condition that affects fine and gross motor skills. Learn about its symptoms in children and…](https://www.healthline.com/health/dyspraxia?utm_source=ReadNext)
+
+[READ MORE](https://www.healthline.com/health/dyspraxia?utm_source=ReadNext)     
+*   [](https://www.healthline.com/health/intellectual-disability-vs-learning-disability?utm_source=ReadNext)[What’s the Difference Between an Intellectual Disability and a Learning Disability?](https://www.healthline.com/health/intellectual-disability-vs-learning-disability?utm_source=ReadNext)  Medically reviewed by [Debra Sullivan, Ph.D., MSN, R.N., CNE, COI](https://www.healthline.com/medical-team) 
+[Intellectual disabilities are very different from learning disabilities. Learn more about the types, symptoms, and prognosis of these conditions.](https://www.healthline.com/health/intellectual-disability-vs-learning-disability?utm_source=ReadNext)
+
+[READ MORE](https://www.healthline.com/health/intellectual-disability-vs-learning-disability?utm_source=ReadNext)     
+*   [](https://www.healthline.com/health/testing-for-learning-disability?utm_source=ReadNext)[How Are Learning Disabilities Tested and Diagnosed?](https://www.healthline.com/health/testing-for-learning-disability?utm_source=ReadNext)
+[If you suspect your child has a learning disability, getting them tested is the first step.](https://www.healthline.com/health/testing-for-learning-disability?utm_source=ReadNext)
+
+[READ MORE](https://www.healthline.com/health/testing-for-learning-disability?utm_source=ReadNext)     
+*   [](https://www.healthline.com/health/how-to-help-a-child-with-dyslexia-at-home?utm_source=ReadNext)[A Guide to Helping Children with Dyslexia Outside of School](https://www.healthline.com/health/how-to-help-a-child-with-dyslexia-at-home?utm_source=ReadNext)
+[Dyslexia is often diagnosed in early childhood when reading education begins. With proper support and condition management, a child with dyslexia can…](https://www.healthline.com/health/how-to-help-a-child-with-dyslexia-at-home?utm_source=ReadNext)
+
+[READ MORE](https://www.healthline.com/health/how-to-help-a-child-with-dyslexia-at-home?utm_source=ReadNext)     
+*   [](https://www.healthline.com/health/bodily-kinesthetic?utm_source=ReadNext)[Everything You Need to Know About Bodily-Kinesthetic Intelligence](https://www.healthline.com/health/bodily-kinesthetic?utm_source=ReadNext)  Medically reviewed by [Timothy J. Legg, PhD, PsyD](https://www.healthline.com/medical-team) 
+[This learning style is often referred to as learning with the hands or physical learning. Basically, people with bodily-kinesthetic intelligence can…](https://www.healthline.com/health/bodily-kinesthetic?utm_source=ReadNext)
+
+[READ MORE](https://www.healthline.com/health/bodily-kinesthetic?utm_source=ReadNext)     
+*   [](https://www.healthline.com/health/what-is-considered-a-high-iq?utm_source=ReadNext)[What IQ Measurements Indicate — and What They Don’t](https://www.healthline.com/health/what-is-considered-a-high-iq?utm_source=ReadNext)  Medically reviewed by [Timothy J. Legg, PhD, PsyD](https://www.healthline.com/medical-team) 
+[A high IQ might give you a leg up in certain situations, like getting the job you want. However, a lower IQ score doesn’t mean you’re not intelligent…](https://www.healthline.com/health/what-is-considered-a-high-iq?utm_source=ReadNext)
+
+[READ MORE](https://www.healthline.com/health/what-is-considered-a-high-iq?utm_source=ReadNext)     
+
+[](http://www.facebook.com/pages/Healthline/173263326992)[](https://twitter.com/healthline)[](http://pinterest.com/healthline/)[](http://www.instagram.com/healthline)[](https://www.youtube.com/channel/UC7snF15Idi7px6XujWe_h9A)[](https://flipboard.com/@healthline)
+
+Get our wellness newsletter
+---------------------------
+
+Filter out the noise and nurture your inbox with health and wellness advice that’s inclusive and rooted in medical expertise.
+
+SIGN UP
+Your [privacy](https://www.healthline.com/privacy-policy) is important to us
+
+© 2025 Healthline Media LLC. All rights reserved. Healthline Media is an RVO Health Company. Our website services, content, and products are for informational purposes only. Healthline Media does not provide medical advice, diagnosis, or treatment. [See additional information](https://www.healthline.com/additional-information).
+
+*   [About Us](https://www.healthline.com/about)
+*   [Contact Us](https://www.healthline.com/about/contact-us)
+*   [Terms of Use](https://www.healthline.com/terms-of-use)
+*   [Privacy Policy](https://www.healthline.com/privacy-policy)
+*   Privacy Settings
+*   [Advertising Policy](https://www.healthline.com/advertising-policy)
+
+*   [Health Topics](https://www.healthline.com/directory/topics)
+*   [Sitemap](https://www.healthline.com/sitemap)
+*   [Medical Affairs](https://www.healthline.com/medical-team)
+*   [Content Integrity](https://www.healthline.com/about/content-integrity)
+*   [Newsletters](https://www.healthline.com/newsletter-signup)
+*   [Your Privacy Choices](https://privacyportal.onetrust.com/webform/b45407c6-ee79-4a08-912e-02ce898f9a14/2933b890-b659-41c5-86d8-a2375e0d7776?anonymousId=4da38236-8617-4f20-8aa9-604ad3e90093&orgId=50162747-1340-4ce9-8836-735e1fd65cc6)
+*   © 2025 Healthline Media LLC. All rights reserved. Healthline Media is an RVO Health Company. Our website services, content, and products are for informational purposes only. Healthline Media does not provide medical advice, diagnosis, or treatment. [See additional information](https://www.healthline.com/additional-information). 
+
+© 2025 Healthline Media LLC. All rights reserved. Healthline Media is an RVO Health Company. Our website services, content, and products are for informational purposes only. Healthline Media does not provide medical advice, diagnosis, or treatment. [See additional information](https://www.healthline.com/additional-information).
+
+[](https://www.healthlinemedia.com/?utm_source=healthline.com&utm_medium=site&utm_campaign=footer&utm_content=logo)
+
+[About](https://www.healthlinemedia.com/?utm_source=healthline.com&utm_medium=site&utm_campaign=footer&utm_content=about)[Careers](https://rvohealth.com/careers)[Advertise with us](https://www.healthlinemedia.com/advertise?utm_source=healthline.com&utm_medium=site&utm_campaign=footer&utm_content=advertise)
+
+OUR BRANDS
+
+[Healthline](https://www.healthline.com/)[Medical News Today](https://www.medicalnewstoday.com/?transit_id=633a5bde-8c4b-4d8b-bfac-dcb9e24a6366)[Greatist](https://greatist.com/)[Psych Central](https://psychcentral.com/)[Bezzy](https://bezzy.com/)
+
+[](https://aacihealthcare.com/certificates/c143-1-2021-trust-usa/)
+
+![Image 39](https://www.healthline.com/navi/reinforce?&domain=healthline.com)![Image 40](https://ad-delivery.net/px.gif?ch=2)![Image 41](https://ad.doubleclick.net/favicon.ico?ad=300x250&ad_box_=1&adnet=1&showad=1&size=250x250)![Image 42](https://ad-delivery.net/px.gif?ch=1&e=0.45240864883606957)
+

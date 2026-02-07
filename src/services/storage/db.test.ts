@@ -3,7 +3,7 @@
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { DiscalculasDB, db, ensureDBHealth, queryWithTiming } from './db';
-import type { Session, TelemetryLog, DrillResult } from './schemas';
+import type { Session } from './schemas';
 
 describe('DiscalculasDB', () => {
   // Use test database instance
@@ -228,22 +228,20 @@ describe('DiscalculasDB', () => {
         {
           sessionId,
           timestamp: '2025-11-10T10:05:00.000Z',
-          module: 'number-line',
-          drillType: 'estimation',
-          correctAnswers: 8,
-          totalQuestions: 10,
-          averageResponseTime: 2500,
-          difficultyLevel: 5
+          module: 'number_line',
+          difficulty: 'easy',
+          isCorrect: true,
+          timeToAnswer: 2500,
+          accuracy: 80
         },
         {
           sessionId,
           timestamp: '2025-11-10T10:10:00.000Z',
-          module: 'spatial-rotation',
-          drillType: 'rotation',
-          correctAnswers: 7,
-          totalQuestions: 10,
-          averageResponseTime: 3200,
-          difficultyLevel: 6
+          module: 'spatial_rotation',
+          difficulty: 'medium',
+          isCorrect: true,
+          timeToAnswer: 3200,
+          accuracy: 70
         }
       ]);
 

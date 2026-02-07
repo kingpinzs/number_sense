@@ -42,7 +42,7 @@ function DefaultFallback({ error, resetError }: FallbackProps) {
       <p className="text-muted-foreground mb-4 max-w-md">
         We're sorry, but something unexpected happened. Please try again.
       </p>
-      {process.env.NODE_ENV === 'development' && (
+      {import.meta.env.DEV && (
         <details className="mb-4 text-left w-full max-w-md">
           <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
             Error details

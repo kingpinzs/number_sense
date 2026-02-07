@@ -1,0 +1,115 @@
+<story-context id="2-1-build-assessment-wizard-shell-with-multi-step-form" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>1</storyId>
+    <title>Build Assessment Wizard Shell with Multi-Step Form</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-21</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/10-story-21-build-assessment-wizard-shell-with-multi-step-form.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>first-time user</asA>
+    <iWant>a guided assessment wizard that clearly shows my progress through questions</iWant>
+    <soThat>I understand how far along I am and can complete it confidently</soThat>
+    <tasks>
+      <task id="1">Create AssessmentWizard.tsx component in src/features/assessment/components/</task>
+      <task id="2">Implement step indicator showing "Question X of 10"</task>
+      <task id="3">Add Progress bar component using shadcn/ui Progress</task>
+      <task id="4">Implement Previous/Next navigation buttons with validation</task>
+      <task id="5">Add Exit button with confirmation dialog</task>
+      <task id="6">Configure React Hook Form for wizard state management</task>
+      <task id="7">Integrate with SessionContext for session state</task>
+      <task id="8">Use shadcn/ui Sheet component for full-screen modal</task>
+      <task id="9">Implement ARIA landmarks and focus trap</task>
+      <task id="10">Add keyboard navigation (Enter, Escape)</task>
+      <task id="11">Write unit tests achieving 100% coverage</task>
+      <task id="12">Update AssessmentRoute to render wizard</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC1">AssessmentWizard renders with step indicator "Question X of 10"</criterion>
+    <criterion id="AC2">Progress bar shows 0-100% based on (currentStep / 10) * 100</criterion>
+    <criterion id="AC3">Touch-friendly question area with 44px minimum tap targets</criterion>
+    <criterion id="AC4">Previous button disabled on Q1, Next enabled after answer</criterion>
+    <criterion id="AC5">Exit button shows confirmation before abandoning</criterion>
+    <criterion id="AC6">React Hook Form manages currentStep (1-10), answers array, startTime</criterion>
+    <criterion id="AC7">Form validation requires answer before advancing</criterion>
+    <criterion id="AC8">Uses shadcn/ui Sheet component (full-screen on mobile)</criterion>
+    <criterion id="AC9">ARIA landmarks: role="dialog", aria-labelledby="assessment-title", focus trap</criterion>
+    <criterion id="AC10">Keyboard: Enter advances, Escape shows exit confirmation</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/PRD.md" title="Product Requirements" section="Assessment" snippet="10-question assessment that identifies user's math and spatial weaknesses for personalized training plan" />
+      <doc path="docs/architecture.md" title="Architecture Spec" section="Epic to Architecture Mapping" snippet="Assessment uses features/assessment/, routes/AssessmentRoute.tsx, assessments table (Dexie), Multi-step wizard with React Hook Form" />
+      <doc path="docs/ux-design-specification.md" title="UX Design" section="Assessment Flow" snippet="Warm, calm visual design with streak-based habit system. Mobile-first with generous padding and 44px+ tap targets" />
+      <doc path="docs/sprint-artifacts/tech-spec-epic-2.md" title="Epic 2 Tech Spec" section="Assessment Wizard" snippet="Multi-step form orchestration with step navigation, form submission, using SessionContext for wizard state" />
+    </docs>
+
+    <code>
+      <file path="src/routes/AssessmentRoute.tsx" kind="route" symbol="AssessmentRoute" reason="Placeholder route to be replaced with wizard integration" />
+      <file path="src/context/SessionContext.tsx" kind="context" symbol="SessionProvider, useSession" reason="Session state management for wizard - use startSession, endSession methods" />
+      <file path="src/shared/components/ui/sheet.tsx" kind="component" symbol="Sheet, SheetContent, SheetHeader" reason="Full-screen modal for assessment wizard shell" />
+      <file path="src/shared/components/ui/progress.tsx" kind="component" symbol="Progress" reason="Progress bar component for step completion visualization" />
+      <file path="src/shared/components/ui/button.tsx" kind="component" symbol="Button" reason="Previous/Next/Exit buttons" />
+      <file path="src/shared/components/ui/form.tsx" kind="component" symbol="Form, FormField, FormItem" reason="React Hook Form integration components" />
+      <file path="src/features/assessment/index.ts" kind="module" symbol="assessment module" reason="Feature module entry point - export AssessmentWizard from here" />
+      <file path="src/shared/components/ErrorBoundary.tsx" kind="component" symbol="ErrorBoundary" reason="Wrap wizard in error boundary for crash recovery" />
+    </code>
+
+    <dependencies>
+      <node>
+        <package name="react-hook-form" version="^7.66.0" reason="Wizard form state management" />
+        <package name="@hookform/resolvers" version="^5.2.2" reason="Zod validation integration" />
+        <package name="zod" version="^3.25.76" reason="Schema validation for form fields" />
+        <package name="framer-motion" version="12.23.24" reason="Progress bar animations, transitions" />
+        <package name="lucide-react" version="^0.553.0" reason="Icons for navigation buttons" />
+        <package name="@radix-ui/react-dialog" version="^1.1.15" reason="Sheet component foundation" />
+        <package name="@radix-ui/react-progress" version="^1.1.8" reason="Progress component foundation" />
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint source="architecture.md">100% test coverage required for all new code</constraint>
+    <constraint source="architecture.md">WCAG 2.1 Level AA accessibility mandatory</constraint>
+    <constraint source="architecture.md">Mobile-first responsive design with 44px+ tap targets</constraint>
+    <constraint source="architecture.md">Feature-based organization in src/features/assessment/</constraint>
+    <constraint source="architecture.md">Use React Context (SessionContext) for state management</constraint>
+    <constraint source="PRD.md">Performance: less than 100ms input latency, 60fps interactions</constraint>
+    <constraint source="tech-spec">Store wizard state in SessionContext during assessment</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="useSession" kind="hook" signature="useSession(): { state: SessionState; startSession: (module: string, sessionId: string) => void; endSession: () => void }" path="src/context/SessionContext.tsx" />
+    <interface name="SessionState" kind="type" signature="{ currentModule: string | null; sessionId: string | null; sessionStatus: SessionStatus; startTime: string | null }" path="src/context/SessionContext.tsx" />
+    <interface name="Progress" kind="component" signature="<Progress value={number} className={string} />" path="src/shared/components/ui/progress.tsx" />
+    <interface name="Sheet" kind="component" signature="<Sheet open={boolean} onOpenChange={(open: boolean) => void}><SheetContent>...</SheetContent></Sheet>" path="src/shared/components/ui/sheet.tsx" />
+  </interfaces>
+
+  <tests>
+    <standards>
+      Testing follows architecture.md ADR-005: Vitest for unit/integration tests, React Testing Library for component tests, Playwright for E2E. AAA pattern (Arrange, Act, Assert). Co-located test files (*).test.tsx. 100% coverage enforced by CI. Use custom render from tests/test-utils.tsx with all providers wrapped.
+    </standards>
+    <locations>
+      <location>src/features/assessment/components/AssessmentWizard.test.tsx</location>
+      <location>tests/e2e/assessment.spec.ts (Epic 2 E2E - Story 2.7)</location>
+    </locations>
+    <ideas>
+      <idea ac="AC1">Test step indicator shows correct "Question X of 10" text for each step</idea>
+      <idea ac="AC2">Test progress bar value updates correctly: 10% at step 1, 100% at step 10</idea>
+      <idea ac="AC3">Test tap targets meet 44px minimum via getBoundingClientRect</idea>
+      <idea ac="AC4">Test Previous disabled on step 1, Next disabled until answer provided</idea>
+      <idea ac="AC5">Test Exit button shows confirmation dialog, confirm abandons, cancel returns</idea>
+      <idea ac="AC6">Test form state updates: currentStep increments, answers array populated</idea>
+      <idea ac="AC7">Test validation: cannot advance without answering current question</idea>
+      <idea ac="AC8">Test Sheet renders as full-screen modal</idea>
+      <idea ac="AC9">Test ARIA: role="dialog", aria-labelledby present, focus trapped in modal</idea>
+      <idea ac="AC10">Test keyboard: Enter advances when valid, Escape shows exit confirmation</idea>
+    </ideas>
+  </tests>
+</story-context>

@@ -1,0 +1,229 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>5</storyId>
+    <title>Set Up React Context Providers for State Management</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-10</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/06-story-15-set-up-react-context-providers-for-state-management.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>React Context providers (AppContext, SessionContext, UserSettingsContext)</iWant>
+    <soThat>global state is managed consistently across all components without prop drilling</soThat>
+    <tasks>
+      - Implement AppContext with reducer pattern (useReducer with AppReducer)
+      - Implement SessionContext with session management (START_SESSION, END_SESSION, PAUSE_SESSION, RESUME_SESSION)
+      - Implement UserSettingsContext with localStorage persistence
+      - Wrap App.tsx with all three providers in correct order (UserSettingsContext → AppContext → SessionContext → Router)
+      - Create test component to verify reading and dispatching to each context
+      - Define TypeScript types for all state and actions
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    **Given** the Dexie database is operational (Story 1.4 complete)
+    **When** I implement the Context providers
+    **Then** the following context providers are created:
+
+    **AppContext** (src/context/AppContext.tsx):
+    - State: streak: number, onlineStatus: boolean, lastSyncTimestamp: string | null
+    - Actions: SET_STREAK, UPDATE_ONLINE_STATUS, SET_LAST_SYNC
+    - useReducer pattern with AppReducer
+
+    **SessionContext** (src/context/SessionContext.tsx):
+    - State: currentModule: string | null, sessionId: string | null, sessionStatus: SessionStatus, startTime: string | null
+    - Actions: START_SESSION, END_SESSION, PAUSE_SESSION, RESUME_SESSION
+
+    **UserSettingsContext** (src/context/UserSettingsContext.tsx):
+    - State: reducedMotion: boolean, soundEnabled: boolean, dailyGoalMinutes: number, researchModeEnabled: boolean
+    - Actions: UPDATE_SETTINGS
+    - Persists to localStorage on every change
+
+    **And** src/App.tsx wraps the app with all three providers in correct order
+    **And** A test component successfully reads and dispatches to each context
+    **And** TypeScript types are fully defined for all state and actions
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Foundation &amp; Core Refactor</title>
+        <section>React Context State Contracts (lines 254-284)</section>
+        <snippet>Defines AppState, AppAction, SessionState, SessionAction, SessionStatus types. AppContext manages streak, onlineStatus, lastSyncTimestamp. SessionContext manages currentModule, sessionId, sessionStatus, startTime. UserSettingsContext manages reducedMotion, soundEnabled, dailyGoalMinutes, researchModeEnabled with localStorage persistence.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Foundation &amp; Core Refactor</title>
+        <section>Component Initialization Flow (lines 397-417)</section>
+        <snippet>Context provider wrapping order in App.tsx: UserSettingsContextProvider (load persisted settings first) → AppContextProvider (initialize app-level state) → SessionContextProvider (manage active sessions) → BrowserRouter → Routes. This order ensures settings are available before app state initializes.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Foundation &amp; Core Refactor</title>
+        <section>Custom Hooks Interfaces (lines 322-349)</section>
+        <snippet>useApp() returns {state, dispatch, setStreak, updateOnlineStatus, setLastSync}. useSession() returns {state, dispatch, startSession, endSession, pauseSession, resumeSession}. useUserSettings() returns {settings, updateSettings}. All hooks provide both raw dispatch and convenience methods.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Foundation &amp; Core Refactor</title>
+        <section>LocalStorage Keys (lines 234-252)</section>
+        <snippet>STORAGE_KEYS constants: STREAK, LAST_SESSION_DATE, USER_SETTINGS, LAST_USED_MODULE, RESEARCH_MODE_ENABLED. All keys namespaced with 'discalculas:' prefix. UserSettings interface: reducedMotion, soundEnabled, dailyGoalMinutes, researchModeEnabled (all typed).</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Specification</title>
+        <section>State Management (ADR-002)</section>
+        <snippet>React Context chosen over Redux for simplicity and local-first architecture. Three context providers: AppContext (global app state), SessionContext (active training session), UserSettingsContext (persisted preferences). LocalStorage keys: STREAK, LAST_SESSION_DATE, USER_SETTINGS, LAST_USED_MODULE, RESEARCH_MODE_ENABLED.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Specification</title>
+        <section>Project Structure (lines 173-176)</section>
+        <snippet>Context providers live in src/context/ folder: AppContext.tsx, SessionContext.tsx, UserSettingsContext.tsx. Each exports the provider component and custom hook for consuming the context.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/App.tsx</path>
+        <kind>component</kind>
+        <symbol>App</symbol>
+        <lines>1-181</lines>
+        <reason>Main application component that needs to be wrapped with all three Context providers. Currently renders design system demo. Must wrap with UserSettingsContext → AppContext → SessionContext → Router per architecture spec.</reason>
+      </artifact>
+      <artifact>
+        <path>src/services/storage/db.ts</path>
+        <kind>service</kind>
+        <symbol>DiscalculasDB</symbol>
+        <lines>29-58</lines>
+        <reason>Dexie database implementation from Story 1.4 (prerequisite). Provides 8 tables including sessions, assessments, telemetry_logs. Context providers will use this for data persistence alongside localStorage.</reason>
+      </artifact>
+      <artifact>
+        <path>src/services/storage/db.ts</path>
+        <kind>service</kind>
+        <symbol>ensureDBHealth</symbol>
+        <lines>69-91</lines>
+        <reason>Database health check utility that tests read/write operations. Can be used in Context providers to verify IndexedDB accessibility before initializing state.</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <package>react</package>
+        <version>19.2.0</version>
+        <purpose>Context API (createContext, useContext, useReducer hooks)</purpose>
+      </node>
+      <node>
+        <package>dexie</package>
+        <version>4.2.1</version>
+        <purpose>IndexedDB wrapper for session/telemetry data persistence</purpose>
+      </node>
+      <node>
+        <package>dexie-react-hooks</package>
+        <version>4.2.0</version>
+        <purpose>React hooks for live queries (future integration with contexts)</purpose>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    - Context provider wrapping order is MANDATORY: UserSettingsContext (outermost) → AppContext → SessionContext → BrowserRouter (innermost). This order ensures settings load first, then app state, then session state.
+    - Must use useReducer pattern with TypeScript-typed actions for AppContext and SessionContext (not useState).
+    - All Context state and action types must be exported for type safety.
+    - UserSettingsContext MUST persist to localStorage on every UPDATE_SETTINGS action.
+    - Export custom hooks (useApp, useSession, useUserSettings) - do NOT export raw Context objects.
+    - Follow reducer pattern from architecture.md communication-patterns section.
+    - Prepare for future WebSocket/sync in AppContext (add commented placeholders).
+    - All localStorage keys must use STORAGE_KEYS constants with 'discalculas:' namespace.
+    - Handle corrupt/missing localStorage data gracefully with default fallbacks.
+    - TypeScript strict mode must pass with zero errors.
+  </constraints>
+  <interfaces>
+    <interface>
+      <name>AppState</name>
+      <kind>TypeScript interface</kind>
+      <signature>{ streak: number; onlineStatus: boolean; lastSyncTimestamp: string | null }</signature>
+      <path>src/context/AppContext.tsx</path>
+    </interface>
+    <interface>
+      <name>AppAction</name>
+      <kind>TypeScript discriminated union</kind>
+      <signature>{ type: 'SET_STREAK'; payload: number } | { type: 'UPDATE_ONLINE_STATUS'; payload: boolean } | { type: 'SET_LAST_SYNC'; payload: string | null }</signature>
+      <path>src/context/AppContext.tsx</path>
+    </interface>
+    <interface>
+      <name>SessionState</name>
+      <kind>TypeScript interface</kind>
+      <signature>{ currentModule: string | null; sessionId: string | null; sessionStatus: SessionStatus; startTime: string | null }</signature>
+      <path>src/context/SessionContext.tsx</path>
+    </interface>
+    <interface>
+      <name>SessionStatus</name>
+      <kind>TypeScript type alias</kind>
+      <signature>'idle' | 'active' | 'paused' | 'completed'</signature>
+      <path>src/context/SessionContext.tsx</path>
+    </interface>
+    <interface>
+      <name>SessionAction</name>
+      <kind>TypeScript discriminated union</kind>
+      <signature>{ type: 'START_SESSION'; payload: { module: string; sessionId: string } } | { type: 'END_SESSION' } | { type: 'PAUSE_SESSION' } | { type: 'RESUME_SESSION' }</signature>
+      <path>src/context/SessionContext.tsx</path>
+    </interface>
+    <interface>
+      <name>UserSettings</name>
+      <kind>TypeScript interface</kind>
+      <signature>{ reducedMotion: boolean; soundEnabled: boolean; dailyGoalMinutes: number; researchModeEnabled: boolean }</signature>
+      <path>src/context/UserSettingsContext.tsx</path>
+    </interface>
+    <interface>
+      <name>useApp hook</name>
+      <kind>Custom React hook</kind>
+      <signature>() =&gt; { state: AppState; dispatch: Dispatch&lt;AppAction&gt;; setStreak: (n: number) =&gt; void; updateOnlineStatus: (b: boolean) =&gt; void; setLastSync: (s: string | null) =&gt; void }</signature>
+      <path>src/context/AppContext.tsx</path>
+    </interface>
+    <interface>
+      <name>useSession hook</name>
+      <kind>Custom React hook</kind>
+      <signature>() =&gt; { state: SessionState; dispatch: Dispatch&lt;SessionAction&gt;; startSession: (module: string, sessionId: string) =&gt; void; endSession: () =&gt; void; pauseSession: () =&gt; void; resumeSession: () =&gt; void }</signature>
+      <path>src/context/SessionContext.tsx</path>
+    </interface>
+    <interface>
+      <name>useUserSettings hook</name>
+      <kind>Custom React hook</kind>
+      <signature>() =&gt; { settings: UserSettings; updateSettings: (partial: Partial&lt;UserSettings&gt;) =&gt; void }</signature>
+      <path>src/context/UserSettingsContext.tsx</path>
+    </interface>
+    <interface>
+      <name>STORAGE_KEYS</name>
+      <kind>Constant object</kind>
+      <signature>{ STREAK: 'discalculas:streak'; LAST_SESSION_DATE: 'discalculas:lastSessionDate'; USER_SETTINGS: 'discalculas:userSettings'; LAST_USED_MODULE: 'discalculas:lastUsedModule'; RESEARCH_MODE_ENABLED: 'discalculas:researchModeEnabled' }</signature>
+      <path>src/services/storage/localStorage.ts</path>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>Unit and integration tests required using Vitest + React Testing Library. 100% coverage threshold enforced (statements, branches, functions, lines). Co-located test files (*.test.tsx) next to each Context. AAA pattern mandatory (Arrange, Act, Assert). Use user-centric queries (getByRole, getByLabelText). Test both raw dispatch and convenience methods. Test localStorage persistence in UserSettingsContext.</standards>
+    <locations>src/context/*.test.tsx (co-located with Context files)</locations>
+    <ideas>
+      <test id="AC-1" description="Verify AppContext updates streak and persists to localStorage">
+        Unit test: Render test component that uses useApp(), dispatch SET_STREAK action, assert state.streak updated and localStorage contains value.
+      </test>
+      <test id="AC-2" description="Verify SessionContext manages session lifecycle">
+        Unit test: Use useSession() hook, call startSession('training', 'session-123'), assert state.sessionStatus === 'active', call endSession(), assert state.sessionStatus === 'completed'.
+      </test>
+      <test id="AC-3" description="Verify UserSettingsContext persists on every change">
+        Integration test: Use useUserSettings(), call updateSettings({soundEnabled: false}), assert localStorage updated immediately, reload component, assert setting persisted.
+      </test>
+      <test id="AC-4" description="Verify context provider wrapping order in App.tsx">
+        Integration test: Render App component, verify all contexts are accessible from a test child component, verify no context is undefined.
+      </test>
+      <test id="AC-5" description="Verify TypeScript types compile with strict mode">
+        Meta test: Run 'npx tsc --noEmit', verify zero errors related to Context files.
+      </test>
+      <test id="AC-6" description="Verify corrupt localStorage data falls back to defaults">
+        Unit test: Pre-populate localStorage with invalid JSON, render UserSettingsContext, assert default settings loaded without crash.
+      </test>
+    </ideas>
+  </tests>
+</story-context>

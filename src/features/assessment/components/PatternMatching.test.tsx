@@ -4,7 +4,8 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '../../../../tests/test-utils';
-import { PatternMatching, PatternMatchingResult } from './PatternMatching';
+import { PatternMatching } from './PatternMatching';
+import type { PatternMatchingResult } from './PatternMatching';
 
 describe('PatternMatching', () => {
   const mockOnAnswer = vi.fn();

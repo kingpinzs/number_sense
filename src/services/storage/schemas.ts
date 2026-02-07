@@ -13,8 +13,10 @@ export interface Session {
   module: string;        // "assessment" | "training" | "cognition" | "coach"
   duration: number;      // milliseconds
   completionStatus: "completed" | "abandoned" | "paused";
-  confidencePre?: number;   // 1-10 scale (legacy)
-  confidencePost?: number;  // 1-10 scale (legacy)
+  /** @deprecated Use confidenceBefore (1-5 scale) instead */
+  confidencePre?: number;
+  /** @deprecated Use confidenceAfter (1-5 scale) instead */
+  confidencePost?: number;
   anxietyLevel?: number;    // 1-10 scale
 
   // Training-specific fields (Story 3.1)
@@ -71,6 +73,9 @@ export interface DrillResult {
   // Math Operations specific fields
   operation?: 'addition' | 'subtraction' | 'multiplication';
   problem?: string;         // e.g., "12 + 7"
+
+  // Confidence tracking (Story 3.6)
+  confidence?: string;      // User's self-reported confidence level
 }
 
 /**

@@ -1,0 +1,277 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>7</storyId>
+    <title>E2E Test - First-Time User Assessment Journey</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-22</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/16-story-27-e2e-test-first-time-user-assessment-journey.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>comprehensive E2E test covering the full assessment flow</iWant>
+    <soThat>I can confidently deploy knowing the onboarding experience works end-to-end</soThat>
+    <tasks>
+1. Navigate to `/assessment`
+2. Verify wizard renders with "Question 1 of 10"
+3. Answer all 10 questions (using test data for consistent results)
+4. Verify progress bar reaches 100%
+5. Verify "Next" button changes to "Finish" on Q10
+6. Click "Finish"
+7. Wait for ResultsSummary to render
+8. Verify all 3 domain cards present
+9. Verify scores displayed correctly (based on test answers)
+10. Verify "Start Training" button present
+11. Click "Start Training"
+12. Verify navigation to `/training`
+
+Additional Requirements:
+- Test runs in mobile viewport (375×667)
+- Test takes screenshots at: Q1, Q5, Q10, Results
+- Test verifies IndexedDB contains assessment record
+- Test completes in <30 seconds
+- Test passes on Chromium, Firefox, WebKit
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+**Given** all assessment stories are complete (Story 2.6 done)
+**When** I run the E2E test suite
+**Then** a Playwright test exists (`tests/e2e/assessment-flow.spec.ts`) that executes all test steps successfully
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Discalculas Architecture Specification</title>
+        <section>Testing</section>
+        <snippet>E2E Tests: Playwright 1.56.1 with cross-browser support. Mobile-first viewport (375×667). Tests located in tests/e2e/. 100% test coverage mandatory for all code.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-2.md</path>
+        <title>Epic 2 Technical Specification</title>
+        <section>First-Time User Assessment Flow</section>
+        <snippet>10-question wizard covering number_sense (Q1-4), spatial (Q5-7), operations (Q8-10). Final step displays ResultsSummary with domain scores, navigates to training with weights pre-loaded. All data persisted to IndexedDB.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Specification</title>
+        <section>Project Structure</section>
+        <snippet>Tests located in tests/e2e/. Use Playwright with accessible selectors (getByRole, getByLabel). Screenshots on failure. Trace on first retry.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>tests/e2e/smoke.spec.ts</path>
+        <kind>e2e-test</kind>
+        <symbol>smoke tests</symbol>
+        <lines>1-67</lines>
+        <reason>Reference pattern for Playwright tests in this project - shows standard structure, mobile viewport usage, and test organization</reason>
+      </artifact>
+      <artifact>
+        <path>src/routes/AssessmentRoute.tsx</path>
+        <kind>route</kind>
+        <symbol>AssessmentRoute</symbol>
+        <lines>1-366</lines>
+        <reason>Main assessment route component that orchestrates the wizard flow, calculates scores on completion, and displays ResultsSummary. Primary target for E2E test.</reason>
+      </artifact>
+      <artifact>
+        <path>src/features/assessment/components/ResultsSummary.tsx</path>
+        <kind>component</kind>
+        <symbol>ResultsSummary</symbol>
+        <lines>1-291</lines>
+        <reason>Results screen component that displays domain scores with color-coded cards (coral/yellow/mint), confetti animation, completion time, and "Start Training" button. Test must verify this renders correctly.</reason>
+      </artifact>
+      <artifact>
+        <path>src/features/assessment/components/QuantityComparison.tsx</path>
+        <kind>component</kind>
+        <symbol>QuantityComparison</symbol>
+        <lines>1-120</lines>
+        <reason>First question type in assessment (Q1-2). Test needs to interact with this component.</reason>
+      </artifact>
+      <artifact>
+        <path>src/features/assessment/components/NumberLineEstimation.tsx</path>
+        <kind>component</kind>
+        <symbol>NumberLineEstimation</symbol>
+        <lines>1-150</lines>
+        <reason>Second question type (Q3-4). Test interacts with number line slider.</reason>
+      </artifact>
+      <artifact>
+        <path>src/features/assessment/components/MentalRotation.tsx</path>
+        <kind>component</kind>
+        <symbol>MentalRotation</symbol>
+        <lines>1-180</lines>
+        <reason>Spatial awareness question (Q5-6). Test must answer rotation questions.</reason>
+      </artifact>
+      <artifact>
+        <path>src/features/assessment/components/PatternMatching.tsx</path>
+        <kind>component</kind>
+        <symbol>PatternMatching</symbol>
+        <lines>1-200</lines>
+        <reason>Spatial pattern question (Q7). Test selects matching pattern.</reason>
+      </artifact>
+      <artifact>
+        <path>src/features/assessment/components/BasicOperations.tsx</path>
+        <kind>component</kind>
+        <symbol>BasicOperations</symbol>
+        <lines>1-150</lines>
+        <reason>Math operations questions (Q8-9). Test inputs numeric answers.</reason>
+      </artifact>
+      <artifact>
+        <path>src/features/assessment/components/WordProblem.tsx</path>
+        <kind>component</kind>
+        <symbol>WordProblem</symbol>
+        <lines>1-140</lines>
+        <reason>Word problem question (Q10). Final question before results.</reason>
+      </artifact>
+      <artifact>
+        <path>src/services/assessment/scoring.ts</path>
+        <kind>service</kind>
+        <symbol>calculateDomainScore</symbol>
+        <lines>1-208</lines>
+        <reason>Scoring algorithm that calculates domain scores from answers. Used by AssessmentRoute to generate results.</reason>
+      </artifact>
+      <artifact>
+        <path>src/services/assessment/storage.ts</path>
+        <kind>service</kind>
+        <symbol>saveAssessmentResults</symbol>
+        <lines>1-97</lines>
+        <reason>Saves assessment results to IndexedDB (Dexie). Test should verify storage with page.evaluate().</reason>
+      </artifact>
+      <artifact>
+        <path>playwright.config.ts</path>
+        <kind>config</kind>
+        <symbol>playwright config</symbol>
+        <lines>1-80</lines>
+        <reason>Playwright configuration defining mobile viewport (375×667), browser projects (chromium/firefox/webkit), and test settings (30s timeout, screenshots on failure).</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <dependency ecosystem="npm">
+        <package>@playwright/test</package>
+        <version>1.56.1</version>
+        <purpose>E2E testing framework with cross-browser support</purpose>
+      </dependency>
+      <dependency ecosystem="npm">
+        <package>vitest</package>
+        <version>3.2.4</version>
+        <purpose>Unit/integration test runner (not used for E2E)</purpose>
+      </dependency>
+      <dependency ecosystem="npm">
+        <package>dexie</package>
+        <version>4.2.1</version>
+        <purpose>IndexedDB wrapper - test must verify assessment saved to DiscalculasDB</purpose>
+      </dependency>
+      <dependency ecosystem="npm">
+        <package>react</package>
+        <version>19.2.0</version>
+        <purpose>UI framework</purpose>
+      </dependency>
+      <dependency ecosystem="npm">
+        <package>react-router-dom</package>
+        <version>7.9.5</version>
+        <purpose>Routing - test verifies navigation to /training</purpose>
+      </dependency>
+      <dependency ecosystem="npm">
+        <package>framer-motion</package>
+        <version>12.23.24</version>
+        <purpose>Animations (confetti on ResultsSummary)</purpose>
+      </dependency>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Must use Playwright's accessible selectors (getByRole, getByLabel, getByText) per architecture standards</constraint>
+    <constraint>Test must run in mobile viewport 375×667 (iPhone SE) as per project configuration</constraint>
+    <constraint>Test timeout: Maximum 30 seconds total (playwright.config.ts line 18)</constraint>
+    <constraint>Must clear IndexedDB before test: await page.evaluate(() => indexedDB.deleteDatabase('DiscalculasDB'))</constraint>
+    <constraint>Test must pass on all three browser engines: Chromium, Firefox, WebKit</constraint>
+    <constraint>Screenshots required at: Q1, Q5, Q10, Results page (stored in test-results/assessment-flow/)</constraint>
+    <constraint>Mock performance.now() for consistent timing in test data</constraint>
+    <constraint>Use test data that produces deterministic, expected scores for verification</constraint>
+    <constraint>100% coverage required - this E2E test completes the assessment epic coverage</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>/assessment route</name>
+      <kind>React Route</kind>
+      <signature>GET /assessment → Renders AssessmentRoute component</signature>
+      <path>src/routes/AssessmentRoute.tsx</path>
+    </interface>
+    <interface>
+      <name>/training route</name>
+      <kind>React Route</kind>
+      <signature>GET /training → Target navigation after completing assessment</signature>
+      <path>src/routes/TrainingRoute.tsx</path>
+    </interface>
+    <interface>
+      <name>ResultsSummary Props</name>
+      <kind>Component Interface</kind>
+      <signature>{ domainScores: DomainScores; completionTime: { minutes: number; seconds: number }; onStartTraining: () => void }</signature>
+      <path>src/features/assessment/components/ResultsSummary.tsx</path>
+    </interface>
+    <interface>
+      <name>DiscalculasDB.assessments table</name>
+      <kind>IndexedDB Schema</kind>
+      <signature>{ id: string; timestamp: string; domainScores: DomainScores; totalQuestions: number; correctAnswers: number }</signature>
+      <path>src/services/storage/db.ts</path>
+    </interface>
+    <interface>
+      <name>calculateDomainScore</name>
+      <kind>Function</kind>
+      <signature>(questions: QuestionForScoring[], domain: Domain) => number (0-5 scale)</signature>
+      <path>src/services/assessment/scoring.ts:73-95</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Playwright E2E tests with cross-browser support (Chromium, Firefox, WebKit).
+      Mobile-first viewport (375×667 iPhone SE).
+      Use accessible selectors: page.getByRole(), page.getByLabel(), page.getByText().
+      AAA pattern: Arrange, Act, Assert with clear comments.
+      Screenshots on test milestones and failures.
+      Tests located in tests/e2e/ directory.
+      Run via: npm run test:e2e
+      CI integration via GitHub Actions (already configured).
+    </standards>
+    <locations>
+      tests/e2e/*.spec.ts
+    </locations>
+    <ideas>
+      <idea ac="AC1-12">
+        Create tests/e2e/assessment-flow.spec.ts that:
+        1. Clears IndexedDB before test
+        2. Navigates to /assessment
+        3. Verifies wizard renders with "Question 1 of 10"
+        4. Takes screenshot at Q1
+        5. Answers all 10 questions using test data (deterministic answers for reproducible scores)
+        6. Verifies progress bar updates (10%, 20%, ..., 100%)
+        7. Takes screenshot at Q5 (mid-point)
+        8. Takes screenshot at Q10 (before completion)
+        9. Verifies "Next" button text changes to "Complete" on Q10
+        10. Clicks "Complete" button
+        11. Waits for ResultsSummary to render (with loading state)
+        12. Takes screenshot of results page
+        13. Verifies 3 domain cards are present
+        14. Verifies domain scores match expected values based on test answers
+        15. Verifies completion time is displayed
+        16. Verifies "Start Training" button exists
+        17. Verifies IndexedDB contains assessment record: page.evaluate(async () => { const db = await Dexie.open('DiscalculasDB'); return db.assessments.toArray(); })
+        18. Clicks "Start Training"
+        19. Verifies navigation to /training route
+        20. Confirms test completes in <30s
+      </idea>
+      <idea ac="Mobile viewport">
+        Test implicitly uses mobile viewport (375×667) as configured in playwright.config.ts for all projects
+      </idea>
+      <idea ac="Cross-browser">
+        Playwright projects in config run test automatically on chromium, firefox, webkit
+      </idea>
+    </ideas>
+  </tests>
+</story-context>

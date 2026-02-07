@@ -5,7 +5,7 @@
 // Story 3.7: Added telemetry logging and atomic session persistence
 // Manages drill queue, session lifecycle, and state
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/button';
@@ -43,8 +43,11 @@ import {
   useMagicMinuteTrigger,
   createMagicMinuteSession,
   updateMagicMinuteSession,
+  useTransparencyToast,
   type MagicMinuteSummary,
 } from '@/features/magic-minute';
+// Story 4.4: Adaptive difficulty imports
+import { processSessionEnd } from '@/services/adaptiveDifficulty/difficultyEngine';
 
 /**
  * TrainingSession component
@@ -67,12 +70,21 @@ export default function TrainingSession() {
   const [showTransition, setShowTransition] = useState(false);
   const [nextDrillType, setNextDrillType] = useState<'number_line' | 'spatial_rotation' | 'math_operations' | null>(null);
 
+  // Dexie auto-generated session ID for drill foreign keys
+  const [dbSessionId, setDbSessionId] = useState<number | null>(null);
+
+  // Story 3.4: Track used problems across drills to prevent duplicates within a session
+  const usedProblemsRef = useRef(new Set<string>());
+
   // Story 4.2: Magic Minute state
   const [showMagicMinute, setShowMagicMinute] = useState(false);
   const [magicMinutePatterns, setMagicMinutePatterns] = useState<MistakePattern[]>([]);
   const [magicMinuteDbId, setMagicMinuteDbId] = useState<number | null>(null);
   const [sessionAnalyzer] = useState(() => createSessionAnalyzer());
   const { checkTrigger, acknowledge, reset: resetTrigger } = useMagicMinuteTrigger();
+
+  // Story 4.5: TransparencyToast displays messages like "Difficulty increased because you're doing great!"
+  const { showTransparencyToast } = useTransparencyToast();
 
   const { state: sessionState, startTrainingSession, nextDrill, endSession, setConfidenceBefore, setConfidenceAfter, triggerMagicMinute, completeMagicMinute } = useSession();
 
@@ -81,16 +93,8 @@ export default function TrainingSession() {
     async function initializeTelemetry() {
       try {
         // Restore any telemetry entries from localStorage backup
-        const restoredCount = await restoreTelemetryBackup();
-        if (restoredCount > 0) {
-          console.log(`Restored ${restoredCount} telemetry entries from backup`);
-        }
-
-        // Clean old sessions (365 days retention)
-        const cleanedCount = await cleanOldSessions(365);
-        if (cleanedCount > 0) {
-          console.log(`Cleaned ${cleanedCount} old sessions`);
-        }
+        await restoreTelemetryBackup();
+        await cleanOldSessions(365);
       } catch (error) {
         console.error('Error initializing telemetry:', error);
       }
@@ -148,7 +152,6 @@ export default function TrainingSession() {
       const implementedTypes = ['number_line', 'spatial_rotation', 'math_operations'];
 
       if (!implementedTypes.includes(currentDrillType)) {
-        console.log(`Skipping unimplemented drill type: ${currentDrillType}`);
         if (sessionState.currentDrillIndex < sessionState.drillQueue.length - 1) {
           nextDrill();
         } else {
@@ -174,6 +177,9 @@ export default function TrainingSession() {
     // Start training session in context with drill queue
     startTrainingSession(sessionId, 'quick', drillQueue);
 
+    // Story 3.4: Reset used problems tracking for new session
+    usedProblemsRef.current = new Set<string>();
+
     // Story 4.2: Reset Magic Minute state for new session
     resetTrigger();
     sessionAnalyzer.reset();
@@ -186,7 +192,7 @@ export default function TrainingSession() {
 
     // Story 3.7: Persist session to Dexie and log telemetry
     try {
-      await db.sessions.add({
+      const newDbId = await db.sessions.add({
         timestamp: new Date().toISOString(),
         module: 'training',
         duration: 0,
@@ -194,11 +200,10 @@ export default function TrainingSession() {
         sessionType: 'quick',
         drillQueue: drillQueue,  // Store drill queue for session resume capability
       });
+      setDbSessionId(newDbId as number);
 
       // Log session start telemetry
       await logSessionStart(sessionId, 'quick', drillQueue.length);
-
-      console.log('Training session persisted to Dexie:', { sessionId, drillQueue });
     } catch (error) {
       console.error('Failed to persist session:', error);
 
@@ -219,9 +224,6 @@ export default function TrainingSession() {
   };
 
   const handleDrillComplete = async (result: DrillResult) => {
-    // Story 3.2: Handle drill completion and advance to next drill
-    console.log('Drill completed:', result);
-
     // Story 3.7: Log drill completion telemetry
     await logDrillComplete(result.module, {
       accuracy: result.accuracy,
@@ -241,13 +243,9 @@ export default function TrainingSession() {
         setMagicMinutePatterns(analysisResult.patterns);
         triggerMagicMinute(analysisResult.patterns);
 
-        // Create Magic Minute session in database
-        // Note: sessionState.sessionId is a UUID string, but MagicMinuteSession expects a number.
-        // Use timestamp-based ID as fallback since UUID parsing returns NaN.
-        // TODO: Refactor to capture Dexie's auto-generated session ID at session start.
-        const numericSessionId = Date.now();
+        // Create Magic Minute session in database using Dexie's auto-generated ID
         const targetedMistakes = analysisResult.patterns.map(p => p.patternType);
-        const dbId = await createMagicMinuteSession(numericSessionId, targetedMistakes);
+        const dbId = await createMagicMinuteSession(dbSessionId ?? 0, targetedMistakes);
         if (dbId) setMagicMinuteDbId(dbId);
 
         setShowMagicMinute(true);
@@ -319,8 +317,7 @@ export default function TrainingSession() {
     }, { number_line: 0, spatial_rotation: 0, math_operations: 0 });
 
     // Update streak
-    const newStreak = updateStreak();
-    console.log('Streak updated:', newStreak);
+    updateStreak();
 
     // Story 3.7: Persist session completion with atomic transaction
     try {
@@ -355,12 +352,20 @@ export default function TrainingSession() {
           drillCount
         });
 
-        console.log('Session completed and persisted:', {
-          sessionId,
-          drillCount,
-          accuracy,
-          drillTypes: drillTypeCounts
-        });
+        // Story 4.4: Calculate and apply difficulty adjustments
+        // Story 4.5: Show transparency toast for adjustments
+        if (sessionId) {
+          try {
+            const adjustments = await processSessionEnd(sessionId);
+            if (adjustments.length > 0) {
+              showTransparencyToast(adjustments);
+            }
+          } catch (adjustmentError) {
+            console.error('Failed to process difficulty adjustments:', adjustmentError);
+            // Non-critical - don't fail session completion
+          }
+        }
+
       }
     } catch (error) {
       console.error('Failed to update session:', error);
@@ -389,8 +394,6 @@ export default function TrainingSession() {
 
   // Story 4.2: Handle Magic Minute completion
   const handleMagicMinuteComplete = async (summary: MagicMinuteSummary) => {
-    console.log('Magic Minute completed:', summary);
-
     // Update Magic Minute session in database
     if (magicMinuteDbId) {
       await updateMagicMinuteSession(magicMinuteDbId, summary);
@@ -428,10 +431,6 @@ export default function TrainingSession() {
   // Story 3.5: Handle pause button actions
   // Story 3.7: Enhanced with telemetry logging
   const handlePauseResume = async () => {
-    // Session context already handles pause/resume state
-    // This callback is for PauseButton to trigger on resume
-    console.log('Session resumed');
-
     // Log session resume telemetry
     await logSessionResume();
   };
@@ -467,17 +466,18 @@ export default function TrainingSession() {
       );
     }
 
-    // Calculate difficulty based on drill index (Story 3.2 AC-4)
-    // First 2 drills: Easy
-    // Next 3 drills: Medium
-    // Remaining: Hard (TODO: check accuracy > 80%)
+    // Calculate difficulty based on drill index and performance
+    // First 2 drills: Easy, Next 3: Medium, Remaining: Hard only if accuracy > 80%
     let difficulty: 'easy' | 'medium' | 'hard';
     if (drillIndex < 2) {
       difficulty = 'easy';
     } else if (drillIndex < 5) {
       difficulty = 'medium';
     } else {
-      difficulty = 'hard';
+      const results = sessionState.results || [];
+      const correctCount = results.filter(r => r.isCorrect).length;
+      const currentAccuracy = results.length > 0 ? (correctCount / results.length) * 100 : 0;
+      difficulty = currentAccuracy > 80 ? 'hard' : 'medium';
     }
 
     // Story 3.5: Wrap drill with UI components
@@ -503,12 +503,11 @@ export default function TrainingSession() {
         </div>
 
         {/* Render drill based on type */}
-        {/* TODO: sessionId should be Dexie's auto-generated numeric ID, not parsed UUID */}
         {currentDrillType === 'number_line' && (
           <NumberLineDrill
             key={`drill-${drillIndex}`}
             difficulty={difficulty}
-            sessionId={0}
+            sessionId={dbSessionId ?? 0}
             onComplete={handleDrillComplete}
           />
         )}
@@ -517,7 +516,7 @@ export default function TrainingSession() {
           <SpatialRotationDrill
             key={`drill-${drillIndex}`}
             difficulty={difficulty}
-            sessionId={0}
+            sessionId={dbSessionId ?? 0}
             onComplete={handleDrillComplete}
           />
         )}
@@ -526,8 +525,9 @@ export default function TrainingSession() {
           <MathOperationsDrill
             key={`drill-${drillIndex}`}
             difficulty={difficulty}
-            sessionId={0}
+            sessionId={dbSessionId ?? 0}
             onComplete={handleDrillComplete}
+            usedProblems={usedProblemsRef.current}
           />
         )}
 
@@ -553,7 +553,7 @@ export default function TrainingSession() {
         {showMagicMinute && magicMinutePatterns.length > 0 && (
           <MagicMinuteTimer
             mistakePatterns={magicMinutePatterns}
-            sessionId={0}
+            sessionId={dbSessionId ?? 0}
             onComplete={handleMagicMinuteComplete}
           />
         )}

@@ -1,0 +1,275 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>3</epicId>
+    <storyId>3.3</storyId>
+    <title>Implement Spatial Rotation Drill</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-23</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/3-3-implement-spatial-rotation-drill.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user in a training session</asA>
+    <iWant>spatial rotation drills that challenge my ability to mentally rotate and mirror 2D shapes</iWant>
+    <soThat>I improve my spatial awareness and visual-spatial reasoning through targeted practice</soThat>
+    <tasks>
+### Task 1: Create SVG Shape Library
+**Subtask 1.1:** Create `src/features/training/content/shapes.ts`
+- Export 8-10 pre-defined SVG shape components as React components
+- Shapes: square, circle, triangle, rectangle, pentagon, hexagon, L-shape, T-shape, arrow, star
+- Each shape: 120x120px viewBox, centered, simple paths
+- Use consistent stroke width (2px) and fill (currentColor for theming)
+
+**Subtask 1.2:** Create shape transformation utilities
+- `rotateShape(degrees: number)`: Apply CSS transform for rotation
+- `mirrorShape()`: Apply CSS transform for horizontal flip (scaleX(-1))
+- Ensure transforms use GPU-accelerated properties (transform, not left/top)
+
+### Task 2: Implement SpatialRotationDrill Component
+**Subtask 2.1:** Create `src/features/training/drills/SpatialRotationDrill.tsx`
+- Implement DrillProps interface: `{ difficulty, sessionId, onComplete }`
+- Component state: referenceShape, comparisonShape, rotationDegrees, isMirrored, correctAnswer, userAnswer, showFeedback, timeToAnswer
+
+**Subtask 2.2:** Implement drill problem generation logic
+- `generateDrillProblem(difficulty)` function
+- Selects random shape from library
+- Applies rotation/mirroring based on difficulty
+- Returns: { referenceShape, comparisonShape, rotationDegrees, isMirrored, correctAnswer }
+
+**Subtask 2.3:** Implement UI layout
+- Two-column grid: reference shape (left) | comparison shape (right)
+- Question prompt: "Are these the same shape?"
+- Two answer buttons with Framer Motion hover effects
+- Feedback overlay (green/red flash with checkmark/X icon)
+
+**Subtask 2.4:** Implement interaction handlers
+- `handleAnswer(userSelection: boolean)` function
+- Records timeToAnswer, determines isCorrect, shows feedback UI
+- Creates DrillResult object, calls onComplete(result)
+
+**Subtask 2.5:** Implement accessibility features
+- Keyboard navigation (Tab, Space, Enter)
+- ARIA labels and roles
+- Screen reader announcements for feedback
+
+### Task 3: Extend DrillResult Schema (if not already done)
+**Subtask 3.1:** Update `src/types/schemas.ts`
+- Add optional fields: shapeType, rotationDegrees, isMirrored
+- Verify Dexie schema supports these fields
+- NOTE: May already be complete from Story 3.2
+
+### Task 4: Integrate SpatialRotationDrill into TrainingSession
+**Subtask 4.1:** Update `src/features/training/components/TrainingSession.tsx`
+- Import SpatialRotationDrill component
+- Add conditional rendering for 'spatial_rotation' drill type
+- Follow same pattern as NumberLineDrill with React key prop
+
+**Subtask 4.2:** Test auto-skip logic for unimplemented drill types
+
+### Task 5: Write Unit Tests
+**Subtask 5.1:** Create `src/features/training/drills/SpatialRotationDrill.test.tsx`
+- Test component renders with shapes
+- Test answer buttons trigger onComplete
+- Test feedback displays correctly
+- Test DrillResult contains required fields
+
+**Subtask 5.2:** Create `src/features/training/content/shapes.test.ts`
+- Test all shapes render
+- Test transformations apply correct CSS
+
+### Task 6: Write E2E Test
+**Subtask 6.1:** Update `tests/e2e/training-drill-flow.spec.ts`
+- Add test case for Spatial Rotation Drill flow
+- Follow same pattern as NumberLineDrill E2E test
+
+### Task 7: Manual Testing and Bug Fixes
+**Subtask 7.1:** Run manual verification steps
+**Subtask 7.2:** Fix any bugs discovered
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+**Given** a training session is active with Spatial Rotation drill selected
+**When** the SpatialRotationDrill component renders
+**Then** the drill displays:
+- Two SVG shapes rendered side-by-side (left: reference, right: comparison)
+- Shapes from pre-defined SVG library (8-10 shapes)
+- Comparison shape may be: same, rotated (45°, 90°, 180°, 270°), mirrored, or both
+- Question prompt: "Are these the same shape?"
+- Two large tap-friendly buttons: "Yes, Same" (green) and "No, Different" (red)
+- Timer tracking elapsed time (hidden from UI)
+
+**And** Interaction flow:
+1. User views shapes and mentally rotates/mirrors
+2. User taps answer button
+3. Visual feedback: Correct (green flash, success sound, "+1" animation) or Incorrect (shows correct answer with explanation)
+4. Auto-advances to next drill after 1.5 seconds
+
+**And** Drill result recorded with module='spatial_rotation', shapeType, rotationDegrees, isMirrored, userAnswer, correctAnswer, isCorrect, accuracy (100 or 0), timeToAnswer, difficulty
+
+**And** Difficulty progression:
+- Easy: No mirroring, only 90°/180° rotations, simple shapes
+- Medium: Mirroring OR rotation, 45° angles, complex shapes
+- Hard: Both rotation AND mirroring, all angles, complex asymmetric shapes
+
+**And** Accessibility: Keyboard support (Tab, Space, Enter), 44px tap targets, ARIA labels, screen reader support, high contrast mode
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/epic-3-tech-spec.md" title="Epic 3 Technical Specification" section="Spatial Rotation Drill">
+        SpatialRotationDrill component specification (line 126): Mental rotation/mirroring of 2D shapes with DrillProps interface.
+        DrillResult model extensions (lines 178-182): shapeType, rotationDegrees, isMirrored fields for spatial rotation data capture.
+        Acceptance criteria AC-2.2 (line 729): Component test requirements - shapes render correctly, rotation/mirroring applied, answer validated.
+        Manual verification steps (line 758): Start session, advance to drill, verify SVG shapes, select answer, verify feedback, check Dexie persistence.
+        Performance NFR (lines 440-443): SVG shapes must render without layout shift, CSS transforms preferred, no lazy loading during drill.
+      </doc>
+      <doc path="docs/architecture.md" title="Architecture Specification" section="Feature-Based Organization">
+        Project structure (lines 145-199): Feature modules organized as `src/features/training/drills/`, shared components in `src/shared/components/`.
+        Testing philosophy (lines 376-410): E2E tests as final guarantee, manual verification required in running dev server (`npm run dev`), incremental per-story verification.
+        Technology stack (lines 98-140): React 19.2, TypeScript 5.9, Framer Motion 12.23.24, shadcn/ui, Tailwind CSS v4, Dexie.js 4.2.1.
+        Naming conventions (lines 304-323): Components PascalCase.tsx, camelCase for functions/variables, SCREAMING_SNAKE_CASE for constants.
+        Accessibility mandate (lines 412-417): WCAG 2.1 AA compliance, ARIA labels, keyboard navigation, respect prefers-reduced-motion.
+      </doc>
+      <doc path="docs/ux-design-specification.md" title="UX Design Specification" section="Drill Interaction Widgets">
+        DrillInteractionWidget abstract component (lines 956-998): Base patterns for drill UI - states (default, input active, submitted, correct, incorrect), accessibility (keyboard nav, screen reader support).
+        Color system for feedback (lines 232-245): Success green (#66BB6A) for correct, warning gold (#FBD786) for incorrect (not harsh red), celebratory animations.
+        Button hierarchy (lines 1059-1088): Primary coral (#E87461) for submit actions, 48px height touch targets, secondary mint (#A8E6CF) for alternatives.
+        Feedback patterns (lines 1092-1119): Success checkmark + border flash, supportive error messages ("Let's try another approach"), 3s toast auto-dismiss.
+        Spatial rotation drill requirements (line 968-973): Canvas/SVG object, rotation controls (swipe/buttons), angle indicator, reset button.
+      </doc>
+    </docs>
+    <code>
+      <artifact path="src/features/training/drills/NumberLineDrill.tsx" kind="component" symbol="DrillProps" lines="18-23" reason="Interface contract that SpatialRotationDrill must implement (difficulty, sessionId, onComplete). Story 3.2 established this pattern." />
+      <artifact path="src/features/training/drills/NumberLineDrill.tsx" kind="component" symbol="NumberLineDrill" lines="1-380" reason="Reference implementation showing drill component structure, feedback UI, Dexie persistence pattern, auto-advance timing (1.5s), and React Hooks best practices." />
+      <artifact path="src/services/storage/schemas.ts" kind="interface" symbol="DrillResult" lines="43-66" reason="Extended in Story 3.2 to include shapeType, rotationDegrees, isMirrored fields (lines 58-61). SpatialRotationDrill will populate these fields." />
+      <artifact path="src/features/training/components/TrainingSession.tsx" kind="component" symbol="TrainingSession" lines="121-162" reason="Integration pattern for rendering drills. Must add conditional for 'spatial_rotation' drill type with key prop pattern: key={`drill-${drillIndex}`} to prevent state bugs." />
+      <artifact path="src/services/storage/db.ts" kind="service" symbol="DiscalculasDB" lines="1-100" reason="Dexie database setup with drill_results table indexed by sessionId and module. SpatialRotationDrill persists results here with localStorage fallback." />
+      <artifact path="tests/e2e/training-drill-flow.spec.ts" kind="test" symbol="training-drill-flow" lines="1-150" reason="E2E test pattern from Story 3.2. Must extend with spatial rotation drill test case following same structure." />
+    </code>
+    <dependencies>
+      <framework name="React" version="19.2.0">Core UI framework with hooks for component state and lifecycle</framework>
+      <framework name="TypeScript" version="5.9.3">Type safety for interfaces (DrillProps, DrillResult) and component props</framework>
+      <library name="Framer Motion" version="12.23.24">Animations for feedback transitions, button hover effects, confetti celebrations</library>
+      <library name="Dexie.js" version="4.2.1">IndexedDB wrapper for persisting drill results to drill_results table</library>
+      <library name="dexie-react-hooks" version="4.2.0">React hooks (useLiveQuery) for Dexie operations</library>
+      <library name="shadcn/ui" version="latest">UI components - Button (answer buttons), Card (drill container), Toast (feedback notifications)</library>
+      <library name="Tailwind CSS" version="4.1.17">Utility-first CSS for responsive layout, color system (coral/mint/yellow), spacing scale (8px base)</library>
+      <library name="lucide-react" version="0.553.0">Icon library for checkmark/X feedback icons</library>
+      <test-library name="Vitest" version="3.2.4">Unit test framework with React Testing Library integration</test-library>
+      <test-library name="@testing-library/react" version="16.3.0">Component testing with user-centric queries and accessibility focus</test-library>
+      <test-library name="Playwright" version="1.56.1">E2E testing framework for browser automation and visual testing</test-library>
+      <test-library name="fake-indexeddb" version="6.2.5">Mock IndexedDB for unit tests without real database</test-library>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="interface">MUST implement DrillProps interface exactly: { difficulty: 'easy'|'medium'|'hard', sessionId: number, onComplete: (result: DrillResult) => void }. Defined in NumberLineDrill.tsx:18-23.</constraint>
+    <constraint type="schema">DrillResult object MUST include: sessionId, timestamp (ISO 8601), module ('spatial_rotation'), shapeType, rotationDegrees, isMirrored, isCorrect, accuracy (100 or 0 binary), timeToAnswer (ms), difficulty. Schema at schemas.ts:43-66.</constraint>
+    <constraint type="accessibility">WCAG 2.1 AA compliance mandatory. Keyboard navigation (Tab, Space, Enter), ARIA labels (role="application", aria-label), 44px minimum tap targets, screen reader support, high contrast mode.</constraint>
+    <constraint type="performance">SVG shapes must render without layout shift (fixed dimensions). CSS transforms for rotation/mirroring (GPU-accelerated). Target &lt;16ms render time (60 FPS). No lazy loading during drill (pre-load shapes).</constraint>
+    <constraint type="database">Persist to Dexie drill_results table. Fallback to localStorage on error. Indexed by sessionId and module for fast queries.</constraint>
+    <constraint type="ux-timing">Auto-advance after 1.5s feedback delay (consistent with NumberLineDrill). Immediate visual feedback on answer submission. No skippable UI during feedback.</constraint>
+    <constraint type="react-pattern">Use key prop in TrainingSession integration: key={`drill-${drillIndex}`} to force new component instances. Prevents state persistence bug from Story 3.2.</constraint>
+    <constraint type="naming">Components: PascalCase.tsx. Functions: camelCase. Constants: SCREAMING_SNAKE_CASE. Database columns: snake_case.</constraint>
+    <constraint type="architecture">Feature-based organization: src/features/training/drills/SpatialRotationDrill.tsx. SVG library: src/features/training/content/shapes.ts. Tests: co-located .test.tsx files.</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="DrillProps" path="src/features/training/drills/NumberLineDrill.tsx" lines="18-23">
+      <signature>interface DrillProps {
+  difficulty: 'easy' | 'medium' | 'hard';
+  sessionId: number;
+  onComplete: (result: DrillResult) => void;
+  onSkip?: () => void;  // Optional, deferred to Epic 4
+}</signature>
+      <usage>SpatialRotationDrill component MUST implement this interface as component props</usage>
+    </interface>
+    <interface name="DrillResult" path="src/services/storage/schemas.ts" lines="43-66">
+      <signature>interface DrillResult {
+  id?: number;              // Auto-increment (Dexie)
+  sessionId: number;        // FK to sessions
+  timestamp: string;        // ISO 8601
+  module: 'number_line' | 'spatial_rotation' | 'math_operations';
+  difficulty: 'easy' | 'medium' | 'hard';
+  isCorrect: boolean;
+  timeToAnswer: number;     // milliseconds
+  accuracy: number;         // 0-100
+
+  // Spatial Rotation fields (Story 3.2 extended schema)
+  shapeType?: string;       // e.g., 'triangle', 'pentagon'
+  rotationDegrees?: number; // 0, 45, 90, 180, 270
+  isMirrored?: boolean;     // true if horizontal flip
+}</signature>
+      <usage>SpatialRotationDrill creates this object in onComplete callback. Spatial rotation fields MUST be populated.</usage>
+    </interface>
+    <interface name="SVG Shape Components" path="src/features/training/content/shapes.ts" lines="TBD">
+      <signature>React.FC components for each shape (square, circle, triangle, rectangle, pentagon, hexagon, L-shape, T-shape, arrow, star).
+Each component: 120x120px viewBox, centered, currentColor fill.
+Transformation utilities: rotateShape(degrees), mirrorShape() using CSS transforms.</signature>
+      <usage>SpatialRotationDrill imports shape components and applies transformations for drill generation</usage>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+Unit Tests: Vitest 3.2.4 + React Testing Library 16.3.0. AAA pattern (Arrange, Act, Assert). Co-located .test.tsx files. Mock Framer Motion animations. Use fake-indexeddb for Dexie mocks.
+
+Component Tests: User-centric queries (getByRole, getByLabelText). Accessibility validation. Test states: default, input active, submitted, correct, incorrect. Verify DrillResult object structure.
+
+E2E Tests: Playwright 1.56.1 with running dev server. Test complete user journey: start session → navigate to drill → interact → verify feedback → check persistence. Cross-browser (Chromium primary). Must pass on first run (indicates proper integration).
+
+Coverage Target: 100% per architecture.md. All acceptance criteria must have test evidence. Manual verification in dev server (`npm run dev`) required per Definition of Done.
+
+Test Philosophy: E2E as final guarantee, not primary integration check. Each story verifies own integration points before marking done.
+    </standards>
+    <locations>
+Unit Tests: src/features/training/drills/SpatialRotationDrill.test.tsx (component tests)
+           src/features/training/content/shapes.test.ts (SVG library tests)
+
+E2E Tests:  tests/e2e/training-drill-flow.spec.ts (extend existing test suite with spatial rotation case)
+
+Test Commands:
+  npm test                    # Run all unit/component tests
+  npm run test:watch          # Watch mode for development
+  npm run test:e2e            # Run Playwright E2E tests
+  npm run test:ui             # Vitest UI for debugging
+    </locations>
+    <ideas>
+**Unit Test Ideas (SpatialRotationDrill.test.tsx):**
+- Test: Component renders with reference and comparison shapes
+- Test: Answer buttons ("Yes, Same" / "No, Different") are clickable and trigger onComplete
+- Test: Feedback displays correctly for correct answer (green flash, checkmark)
+- Test: Feedback displays correctly for incorrect answer (warning gold, explanation)
+- Test: DrillResult object contains all required fields (shapeType, rotationDegrees, isMirrored, accuracy, timeToAnswer)
+- Test: Accessibility - keyboard navigation (Tab to buttons, Space/Enter to select)
+- Test: Accessibility - ARIA labels present (role="application", aria-label)
+- Test: Difficulty progression - Easy level has no mirroring, 90/180 rotations only
+- Test: Difficulty progression - Medium has mirroring OR rotation, includes 45°
+- Test: Difficulty progression - Hard has both rotation AND mirroring combined
+- Test: Framer Motion animations properly mocked (no animation errors in tests)
+- Test: Auto-advance timing - onComplete called after 1.5s feedback delay
+
+**SVG Library Test Ideas (shapes.test.ts):**
+- Test: All 10 shapes render without errors (square, circle, triangle, etc.)
+- Test: Shape transformations apply correct CSS (rotateShape applies transform: rotate)
+- Test: Mirror transformation applies scaleX(-1)
+- Test: Rotation degrees match expected values (0°, 45°, 90°, 180°, 270°)
+- Test: Shapes use currentColor for fill (theme compatibility)
+
+**E2E Test Ideas (training-drill-flow.spec.ts):**
+- Test: Complete assessment prerequisite (creates training plan)
+- Test: Start training session from Home dashboard
+- Test: Advance through drills until SpatialRotationDrill renders
+- Test: Verify two SVG shapes display side-by-side
+- Test: Click "Yes, Same" or "No, Different" answer button
+- Test: Verify feedback animation appears (green/gold flash)
+- Test: Verify auto-advance to next drill after 1.5s
+- Test: Check Dexie drill_results table has spatial_rotation entry
+- Test: Verify persisted record includes shapeType, rotationDegrees, isMirrored fields
+- Test: Mobile viewport responsive behavior (shapes scale correctly)
+    </ideas>
+  </tests>
+</story-context>
+</story-context>

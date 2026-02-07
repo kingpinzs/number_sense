@@ -11,7 +11,6 @@ import {
   generateSubtraction,
   generateMultiplication,
   generateProblem,
-  type Difficulty,
 } from './problemGenerator';
 
 describe('generateAddition', () => {
@@ -283,6 +282,54 @@ describe('generateProblem', () => {
         const mulResult = generateProblem('medium', 'multiplication');
         expect(mulResult.operation).toBe('multiplication');
       }
+    });
+  });
+
+  describe('with usedProblems tracking', () => {
+    it('should not generate duplicate problems when usedProblems set provided', () => {
+      const usedProblems = new Set<string>();
+      const generated: string[] = [];
+
+      for (let i = 0; i < 15; i++) {
+        const result = generateProblem('medium', undefined, usedProblems);
+        generated.push(result.problem);
+      }
+
+      // All problems should be unique
+      const uniqueProblems = new Set(generated);
+      expect(uniqueProblems.size).toBe(generated.length);
+    });
+
+    it('should add generated problem to usedProblems set', () => {
+      const usedProblems = new Set<string>();
+      const result = generateProblem('easy', undefined, usedProblems);
+      expect(usedProblems.has(result.problem)).toBe(true);
+    });
+
+    it('should accept duplicate after max retries when problem space exhausted', () => {
+      // Pre-fill usedProblems with all possible easy addition/subtraction problems
+      const usedProblems = new Set<string>();
+      for (let i = 0; i <= 9; i++) {
+        for (let j = 0; j <= 9; j++) {
+          usedProblems.add(`${i} + ${j}`);
+        }
+        for (let j = 0; j <= i; j++) {
+          usedProblems.add(`${i} - ${j}`);
+        }
+      }
+
+      // Should still return a result (accepts duplicate after max retries)
+      const result = generateProblem('easy', undefined, usedProblems);
+      expect(result).toHaveProperty('problem');
+      expect(result).toHaveProperty('answer');
+      expect(result).toHaveProperty('operation');
+    });
+
+    it('should work without usedProblems parameter (backward compatible)', () => {
+      const result = generateProblem('easy');
+      expect(result).toHaveProperty('problem');
+      expect(result).toHaveProperty('answer');
+      expect(result).toHaveProperty('operation');
     });
   });
 });

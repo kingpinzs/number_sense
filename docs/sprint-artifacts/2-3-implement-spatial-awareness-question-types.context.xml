@@ -1,0 +1,118 @@
+<story-context id="2-3-implement-spatial-awareness-question-types" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>3</storyId>
+    <title>Implement Spatial Awareness Question Types</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-21</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/12-story-23-implement-spatial-awareness-question-types.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user taking the assessment</asA>
+    <iWant>spatial questions that test my mental rotation and pattern recognition</iWant>
+    <soThat>the app can identify if I struggle with spatial reasoning</soThat>
+    <tasks>
+      <task id="1">Create MentalRotation.tsx component in src/features/assessment/components/</task>
+      <task id="2">Create PatternMatching.tsx component in src/features/assessment/components/</task>
+      <task id="3">Implement SVG shape rendering with CSS transform: rotate()</task>
+      <task id="4">Implement pattern grid rendering (3×3 flexbox with colored cells)</task>
+      <task id="5">Define shapes and patterns in src/features/assessment/content/questions.ts</task>
+      <task id="6">Add accessibility text descriptions for screen readers</task>
+      <task id="7">Implement randomization for shape combinations and patterns</task>
+      <task id="8">Record timing and correctness for both question types</task>
+      <task id="9">Write unit tests achieving 100% coverage for both components</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC1">Mental Rotation shows two 2D shapes (one rotated 90°, 180°, or 270°)</criterion>
+    <criterion id="AC2">MR asks "Are these the same shape?" with Yes/No options</criterion>
+    <criterion id="AC3">MR uses asymmetric shapes (L-shapes, irregular polygons) for difficulty</criterion>
+    <criterion id="AC4">MR records isCorrect and timeToAnswer</criterion>
+    <criterion id="AC5">Pattern Matching shows 3×3 grid with pattern (checkerboard, diagonal, etc.)</criterion>
+    <criterion id="AC6">PM shows 4 option grids (A, B, C, D) where one matches</criterion>
+    <criterion id="AC7">PM asks "Which grid matches this pattern?"</criterion>
+    <criterion id="AC8">PM records isCorrect, selectedOption, and timeToAnswer</criterion>
+    <criterion id="AC9">SVG-based rendering for crisp shapes on all screen sizes</criterion>
+    <criterion id="AC10">Touch targets: Minimum 60px for option buttons on mobile</criterion>
+    <criterion id="AC11">Shapes randomized per session (different combinations each time)</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/architecture.md" title="Architecture Spec" section="Epic to Architecture Mapping" snippet="Assessment uses features/assessment/, routes/AssessmentRoute.tsx, assessments table (Dexie), Multi-step wizard with React Hook Form" />
+      <doc path="docs/architecture.md" title="Architecture Spec" section="Performance" snippet="Performance targets: &lt;100ms input latency, 60fps interactions, SVG rendering for scalable graphics" />
+      <doc path="docs/ux-design-specification.md" title="UX Design" section="Assessment Flow" snippet="Mobile-first with generous padding and 60px+ tap targets for option buttons. Warm, calm visual design avoiding anxiety-inducing elements. SVG-based rendering for crisp shapes." />
+      <doc path="docs/ux-design-specification.md" title="UX Design" section="Color System" snippet="Primary coral #E87461 for CTAs, Success green #66BB6A for correct answers, Warning gold #FBD786 for supportive errors (not harsh red)" />
+      <doc path="docs/sprint-artifacts/tech-spec-epic-2.md" title="Epic 2 Tech Spec" section="Services and Modules" snippet="SpatialRotation Q1-2: Shape rotation matching with visual shape displays. Question components record correctness, response time, user answer." />
+      <doc path="docs/sprint-artifacts/tech-spec-epic-2.md" title="Epic 2 Tech Spec" section="Data Models" snippet="QuestionResult interface: questionId, domain, questionType, correct, responseTime, userAnswer, expectedAnswer, difficulty" />
+    </docs>
+
+    <code>
+      <file path="src/features/assessment/components/AssessmentWizard.tsx" kind="component" symbol="AssessmentWizard" reason="Parent wizard shell that will render MentalRotation and PatternMatching question components" />
+      <file path="src/features/assessment/components/QuestionCard.tsx" kind="component" symbol="QuestionCard" reason="Reusable wrapper for consistent question styling - use for both spatial question types" />
+      <file path="src/features/assessment/components/QuantityComparison.tsx" kind="component" symbol="QuantityComparison" reason="Reference implementation for question component pattern: answer handling, timing, state management" />
+      <file path="src/features/assessment/components/NumberLineEstimation.tsx" kind="component" symbol="NumberLineEstimation" reason="Reference implementation for SVG rendering and interactive question UI" />
+      <file path="src/features/assessment/content/questions.ts" kind="module" symbol="generateNumberSenseQuestions" reason="Add generateSpatialQuestions() alongside existing number sense generators" />
+      <file path="src/features/assessment/index.ts" kind="module" symbol="assessment exports" reason="Export new MentalRotation and PatternMatching components from feature module" />
+      <file path="src/shared/components/ui/button.tsx" kind="component" symbol="Button" reason="Use for Yes/No buttons (MentalRotation) and A/B/C/D option buttons (PatternMatching)" />
+      <file path="src/shared/components/ui/card.tsx" kind="component" symbol="Card" reason="Base component used by QuestionCard wrapper" />
+      <file path="tests/test-utils.tsx" kind="test-util" symbol="render" reason="Custom render with providers for component tests" />
+    </code>
+
+    <dependencies>
+      <node>
+        <package name="react" version="19.2.0" reason="UI framework" />
+        <package name="framer-motion" version="12.23.24" reason="Smooth animations for shape rotations and pattern transitions" />
+        <package name="lucide-react" version="^0.553.0" reason="Icons for question UI if needed" />
+        <package name="tailwindcss" version="4.1.17" reason="Styling for SVG shapes, grids, and components" />
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint source="architecture.md">100% test coverage required for all new code</constraint>
+    <constraint source="architecture.md">WCAG 2.1 Level AA accessibility mandatory</constraint>
+    <constraint source="architecture.md">Mobile-first responsive design with 60px+ tap targets (story spec)</constraint>
+    <constraint source="architecture.md">Feature-based organization in src/features/assessment/</constraint>
+    <constraint source="architecture.md">Performance: less than 100ms input latency, 60fps interactions</constraint>
+    <constraint source="tech-spec-epic-2.md">Use performance.now() for accurate timing measurements</constraint>
+    <constraint source="story">SVG shapes use &lt;path&gt; elements for complex shapes with CSS transform: rotate()</constraint>
+    <constraint source="story">Pattern grids use 3×3 flexbox with colored cells</constraint>
+    <constraint source="story">Accessibility requires text descriptions for screen readers</constraint>
+    <constraint source="ux-design">Warm, calm visual design to reduce anxiety - avoid harsh red error states</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="QuestionResult" kind="type" signature="{ questionId: string; domain: 'number_sense' | 'spatial' | 'operations'; questionType: string; correct: boolean; responseTime: number; userAnswer: string | number; expectedAnswer: string | number; difficulty: 1 | 2 | 3; }" path="docs/sprint-artifacts/tech-spec-epic-2.md" />
+    <interface name="MentalRotationProps" kind="component-props" signature="{ shapeType: string; rotationAngle: 90 | 180 | 270; isMatch: boolean; onAnswer: (answer: 'yes' | 'no') => void; }" path="To be created" />
+    <interface name="PatternMatchingProps" kind="component-props" signature="{ patternType: string; correctOption: 'A' | 'B' | 'C' | 'D'; options: GridPattern[]; onAnswer: (option: string) => void; }" path="To be created" />
+    <interface name="SpatialQuestionConfig" kind="type" signature="Union type of MentalRotationConfig | PatternMatchingConfig with shape/pattern definitions" path="To be created in questions.ts" />
+  </interfaces>
+
+  <tests>
+    <standards>
+      Testing follows architecture.md ADR-005: Vitest for unit/integration tests, React Testing Library for component tests. AAA pattern (Arrange, Act, Assert). Co-located test files (*.test.tsx). 100% coverage enforced by CI. Use custom render from tests/test-utils.tsx with all providers wrapped.
+    </standards>
+    <locations>
+      <location>src/features/assessment/components/MentalRotation.test.tsx</location>
+      <location>src/features/assessment/components/PatternMatching.test.tsx</location>
+      <location>src/features/assessment/content/questions.test.ts (extend existing with spatial generators)</location>
+    </locations>
+    <ideas>
+      <idea ac="AC1">Test that MentalRotation renders two SVG shapes with correct rotation angles (90°, 180°, 270°)</idea>
+      <idea ac="AC2">Test that Yes/No buttons are rendered and clickable with 60px+ touch targets</idea>
+      <idea ac="AC3">Test shape library includes asymmetric shapes (L-shapes, irregular polygons)</idea>
+      <idea ac="AC4">Test that onAnswer callback receives correct parameters including timing</idea>
+      <idea ac="AC5">Test that PatternMatching renders 3×3 grid with pattern correctly</idea>
+      <idea ac="AC6">Test that 4 option grids (A, B, C, D) are rendered with clear selection states</idea>
+      <idea ac="AC7">Test that question prompt displays correctly</idea>
+      <idea ac="AC8">Test that all required fields are recorded in answer callback (isCorrect, selectedOption, timeToAnswer)</idea>
+      <idea ac="AC9">Test SVG rendering produces crisp shapes at various viewport sizes</idea>
+      <idea ac="AC10">Test all interactive buttons meet 60px minimum touch target</idea>
+      <idea ac="AC11">Test randomization produces different shape/pattern combinations on multiple renders</idea>
+    </ideas>
+  </tests>
+</story-context>

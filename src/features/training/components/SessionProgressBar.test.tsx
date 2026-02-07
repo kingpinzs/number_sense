@@ -87,7 +87,7 @@ describe('SessionProgressBar', () => {
   });
 
   it('applies correct CSS classes', () => {
-    const { container } = render(<SessionProgressBar currentIndex={0} totalDrills={6} />);
+    render(<SessionProgressBar currentIndex={0} totalDrills={6} />);
 
     const wrapper = screen.getByTestId('session-progress-bar');
     expect(wrapper).toHaveClass('w-full', 'space-y-2');

@@ -1,0 +1,415 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>2.5</storyId>
+    <title>Implement Scoring Algorithm and Weakness Identification</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-21T00:00:00Z</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/14-story-25-implement-scoring-algorithm-and-weakness-identification.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user who completed the assessment</asA>
+    <iWant>my results analyzed to identify specific weak areas</iWant>
+    <soThat>I receive personalized training recommendations</soThat>
+    <tasks>
+      <task>Create src/services/assessment/scoring.ts module</task>
+      <task>Implement calculateDomainScore() pure function</task>
+      <task>Implement identifyWeaknesses() pure function</task>
+      <task>Implement generateWeights() pure function with normalization</task>
+      <task>Write comprehensive unit tests with 100% coverage</task>
+      <task>Validate weight normalization (sum exactly equals 1.0)</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-2.5.1">
+      <description>Accuracy Scoring per Domain - Number Sense Score: (Q1-Q4 correct / 4) × 5 = 0-5 scale</description>
+    </criterion>
+    <criterion id="AC-2.5.2">
+      <description>Accuracy Scoring per Domain - Spatial Awareness Score: (Q5-Q7 correct / 3) × 5 = 0-5 scale</description>
+    </criterion>
+    <criterion id="AC-2.5.3">
+      <description>Accuracy Scoring per Domain - Operations Score: (Q8-Q10 correct / 3) × 5 = 0-5 scale</description>
+    </criterion>
+    <criterion id="AC-2.5.4">
+      <description>Weakness Identification - Score ≤ 2.5 = Weak area (needs priority training)</description>
+    </criterion>
+    <criterion id="AC-2.5.5">
+      <description>Weakness Identification - Score 2.6-3.5 = Moderate (needs some focus)</description>
+    </criterion>
+    <criterion id="AC-2.5.6">
+      <description>Weakness Identification - Score > 3.5 = Strength (occasional practice)</description>
+    </criterion>
+    <criterion id="AC-2.5.7">
+      <description>Training Plan Weight Generation - Weak areas get 2x weight, Moderate areas get 1x weight, Strengths get 0.5x weight</description>
+    </criterion>
+    <criterion id="AC-2.5.8">
+      <description>Training Plan Weight Generation - Normalize weights to sum to 1.0 (avoid floating point errors)</description>
+    </criterion>
+    <criterion id="AC-2.5.9">
+      <description>Assessment record saved to Dexie assessments table with all fields</description>
+    </criterion>
+    <criterion id="AC-2.5.10">
+      <description>Training plan weights stored in SessionContext for use by Training epic</description>
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc source="tech-spec-epic-2.md">
+        <section name="Data Models and Contracts">
+          <content>
+// Assessment Record (Dexie storage)
+interface Assessment {
+  id: string;                    // UUID
+  timestamp: string;             // ISO 8601
+  status: 'in_progress' | 'completed' | 'abandoned';
+  questions: QuestionResult[];   // All 10 question results
+  domainScores: DomainScores;    // Aggregated by category
+  trainingPlanWeights: TrainingWeights;
+  totalDuration: number;         // milliseconds
+  confidenceRatings: ConfidenceRatings;
+}
+
+// Individual Question Result
+interface QuestionResult {
+  questionId: string;
+  domain: 'number_sense' | 'spatial' | 'operations';
+  questionType: string;          // e.g., 'quantity_comparison', 'number_line'
+  correct: boolean;
+  responseTime: number;          // milliseconds
+  userAnswer: string | number;
+  expectedAnswer: string | number;
+  difficulty: 1 | 2 | 3;         // Easy, Medium, Hard
+  confidenceBefore?: number;     // 1-5 scale (optional per-question)
+}
+
+// Domain Score Aggregation
+interface DomainScores {
+  number_sense: {
+    score: number;               // 0-100
+    questionsCorrect: number;
+    totalQuestions: number;
+    averageResponseTime: number;
+    isWeakness: boolean;         // score &lt; 60
+  };
+  spatial: { /* same structure */ };
+  operations: { /* same structure */ };
+}
+
+// Training Plan Weights
+interface TrainingWeights {
+  number_sense: number;          // 0.5 (strength) to 2.0 (weakness)
+  spatial: number;
+  operations: number;
+  generatedAt: string;           // ISO 8601
+}
+          </content>
+        </section>
+        <section name="APIs and Interfaces">
+          <content>
+// ScoringService
+interface ScoringService {
+  calculateDomainScore(results: QuestionResult[], domain: string): DomainScore;
+  identifyWeaknesses(domainScores: DomainScores): string[];
+  generateTrainingWeights(domainScores: DomainScores): TrainingWeights;
+}
+          </content>
+        </section>
+        <section name="Workflows and Sequencing">
+          <content>
+5. Calculate Scores
+   - ScoringService.calculateDomainScore() for each domain
+   - ScoringService.identifyWeaknesses()
+   - ScoringService.generateTrainingWeights()
+   ↓
+6. Display Results
+   - ResultsSummary shows strengths (green), weaknesses (orange/red)
+   - Training plan weights stored in SessionContext
+   - Full assessment record saved to Dexie (status: completed)
+          </content>
+        </section>
+        <section name="Question Sequencing">
+          <content>
+- Questions 1-3: Number Sense (quantity comparison, number line x2)
+- Questions 4-6: Spatial (rotation x2, mirror recognition)
+- Questions 7-10: Operations (basic ops x2, estimation x2)
+
+NOTE: Story 2.5 uses a DIFFERENT question distribution:
+- Questions 1-4: Number Sense (4 questions)
+- Questions 5-7: Spatial (3 questions)
+- Questions 8-10: Operations (3 questions)
+          </content>
+        </section>
+      </doc>
+      <doc source="architecture.md">
+        <section name="Service Layer Patterns">
+          <content>
+- Pure functions preferred for services
+- No side effects in calculation/transformation logic
+- Service modules export named functions, not classes
+- Location: src/services/{domain}/{module}.ts
+- All services must have corresponding .test.ts files
+- 100% test coverage enforced by CI
+          </content>
+        </section>
+        <section name="Testing Standards">
+          <content>
+- Framework: Vitest 3.2.4
+- Component tests: React Testing Library 16.3.0
+- Coverage: 100% statement/branch/function/line
+- Pattern: AAA (Arrange, Act, Assert)
+- File naming: {module}.test.ts or {Component}.test.tsx
+- Location: Co-located with source files
+          </content>
+        </section>
+      </doc>
+    </docs>
+
+    <code>
+      <artifact source="src/services/storage/schemas.ts">
+        <description>Assessment schema interface (Epic 1) - NOTE: This is a simpler schema than tech-spec. Story 2.5 implements the simpler version.</description>
+        <content>
+export interface Assessment {
+  id?: number;
+  timestamp: string;
+  status: "in-progress" | "completed";
+  totalQuestions: number;
+  correctAnswers: number;
+  weaknesses: string[];     // e.g., ["number-sense", "spatial-rotation"]
+  strengths: string[];
+  recommendations: string[];
+  userId: string;          // Always "local_user"
+}
+        </content>
+      </artifact>
+      <artifact source="src/services/storage/db.ts">
+        <description>Dexie database singleton and operations pattern</description>
+        <content>
+import Dexie, { type Table } from 'dexie';
+import type { Assessment } from './schemas';
+
+export class DiscalculasDB extends Dexie {
+  assessments!: Table&lt;Assessment, number&gt;;
+
+  constructor() {
+    super('DiscalculasDB');
+    this.version(1).stores({
+      assessments: '++id, timestamp, status',
+      // ... other tables
+    });
+  }
+}
+
+export const db = new DiscalculasDB();
+
+// Example usage:
+// await db.assessments.add({ timestamp: new Date().toISOString(), ... });
+// const latest = await db.assessments.orderBy('timestamp').reverse().first();
+        </content>
+      </artifact>
+      <artifact source="src/features/assessment/content/questions.ts">
+        <description>Question generation patterns with domain categorization</description>
+        <content>
+// Example question config with domain field
+export interface QuestionConfig {
+  id: string;
+  domain: 'number_sense' | 'spatial' | 'operations';
+  type: string;
+  difficulty: 1 | 2 | 3;
+  // ... other fields
+}
+
+// Questions 1-4: Number Sense
+// Questions 5-7: Spatial
+// Questions 8-10: Operations
+        </content>
+      </artifact>
+      <artifact source="src/features/assessment/components/BasicOperations.tsx">
+        <description>Result interface pattern from implemented questions</description>
+        <content>
+export interface BasicOperationsResult {
+  userAnswer: number;
+  isCorrect: boolean;
+  timeToAnswer: number;
+  operationType: string;
+  correctAnswer: number;
+}
+
+// Each question type returns a result with:
+// - userAnswer
+// - isCorrect (boolean)
+// - timeToAnswer (milliseconds via performance.now())
+// - domain-specific metadata
+        </content>
+      </artifact>
+    </code>
+
+    <dependencies>
+      <framework name="React" version="19.2.0" />
+      <framework name="TypeScript" version="5.9.3" />
+      <framework name="Vite" version="7.2.2" />
+      <library name="dexie" version="4.2.1" purpose="IndexedDB storage" />
+      <library name="dexie-react-hooks" version="4.2.0" purpose="React integration for Dexie" />
+      <library name="zod" version="3.25.76" purpose="Schema validation (optional for scoring validation)" />
+      <testFramework name="vitest" version="3.2.4" />
+      <testFramework name="@testing-library/react" version="16.3.0" />
+      <devTool name="fake-indexeddb" version="6.2.5" purpose="Dexie mocking in tests" />
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="architecture">Pure functions only - no side effects in scoring logic</constraint>
+    <constraint type="architecture">Service module location: src/services/assessment/scoring.ts</constraint>
+    <constraint type="architecture">Export named functions: calculateDomainScore, identifyWeaknesses, generateWeights</constraint>
+    <constraint type="data">Weight normalization must sum to exactly 1.0 (avoid floating point errors)</constraint>
+    <constraint type="data">Use simpler Assessment schema from schemas.ts, not the complex tech-spec version</constraint>
+    <constraint type="testing">100% test coverage required (enforced by CI)</constraint>
+    <constraint type="testing">Test file location: src/services/assessment/scoring.test.ts</constraint>
+    <constraint type="performance">Scoring must execute in &lt;50ms for all 10 questions</constraint>
+    <constraint type="storage">Local-first - no external APIs, all data in Dexie</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="calculateDomainScore">
+      <signature>
+function calculateDomainScore(
+  questions: Array&lt;{ domain: string; isCorrect: boolean }&gt;,
+  domain: 'number_sense' | 'spatial' | 'operations'
+): number
+      </signature>
+      <description>
+Calculates domain score on 0-5 scale based on question distribution:
+- Number Sense: Q1-Q4 (4 questions) → (correct / 4) × 5
+- Spatial: Q5-Q7 (3 questions) → (correct / 3) × 5
+- Operations: Q8-Q10 (3 questions) → (correct / 3) × 5
+      </description>
+      <returns>Score between 0.0 and 5.0</returns>
+    </interface>
+
+    <interface name="identifyWeaknesses">
+      <signature>
+function identifyWeaknesses(
+  domainScores: Record&lt;string, number&gt;
+): { weaknesses: string[]; moderate: string[]; strengths: string[] }
+      </signature>
+      <description>
+Categorizes domains based on score thresholds:
+- Score ≤ 2.5 → Weak area (needs priority training)
+- Score 2.6-3.5 → Moderate (needs some focus)
+- Score &gt; 3.5 → Strength (occasional practice)
+      </description>
+      <returns>Object with arrays of domain names by category</returns>
+    </interface>
+
+    <interface name="generateWeights">
+      <signature>
+function generateWeights(
+  categories: { weaknesses: string[]; moderate: string[]; strengths: string[] }
+): Record&lt;string, number&gt;
+      </signature>
+      <description>
+Generates normalized training weights:
+- Weak areas: 2.0x weight
+- Moderate areas: 1.0x weight
+- Strengths: 0.5x weight
+- Normalize so sum of all weights = 1.0
+
+Example:
+- number_sense: weak (2.0)
+- spatial: strength (0.5)
+- operations: moderate (1.0)
+- Sum: 3.5 → Normalize: [2.0/3.5, 0.5/3.5, 1.0/3.5] = [0.571, 0.143, 0.286]
+      </description>
+      <returns>Object mapping domain names to normalized weights (sum = 1.0)</returns>
+    </interface>
+
+    <interface name="Dexie Assessment Operations">
+      <description>
+// Retrieve latest assessment
+const latest = await db.assessments.orderBy('timestamp').reverse().first();
+
+// Update assessment with scores
+await db.assessments.update(id, {
+  status: 'completed',
+  weaknesses: ['number_sense'],
+  strengths: ['spatial', 'operations'],
+  // ... other fields
+});
+
+// Add new assessment
+const id = await db.assessments.add({
+  timestamp: new Date().toISOString(),
+  status: 'in-progress',
+  totalQuestions: 10,
+  correctAnswers: 0,
+  weaknesses: [],
+  strengths: [],
+  recommendations: [],
+  userId: 'local_user'
+});
+      </description>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      <standard>100% statement, branch, function, and line coverage required</standard>
+      <standard>Vitest framework with AAA pattern (Arrange, Act, Assert)</standard>
+      <standard>Test file: src/services/assessment/scoring.test.ts</standard>
+      <standard>Test pure functions in isolation (no mocking needed for calculation logic)</standard>
+      <standard>Use fake-indexeddb for Dexie integration tests (if needed)</standard>
+      <standard>Clear test descriptions: "should calculate correct score for X questions correct"</standard>
+    </standards>
+
+    <locations>
+      <location>src/services/assessment/scoring.test.ts</location>
+    </locations>
+
+    <ideas>
+      <category name="calculateDomainScore Edge Cases">
+        <idea>All questions correct (4/4, 3/3) → should return 5.0</idea>
+        <idea>All questions incorrect (0/4, 0/3) → should return 0.0</idea>
+        <idea>Partial correct - number sense: 2/4 → should return 2.5</idea>
+        <idea>Partial correct - spatial: 2/3 → should return 3.333...</idea>
+        <idea>Partial correct - operations: 1/3 → should return 1.666...</idea>
+        <idea>Empty questions array → should return 0.0 (or throw error?)</idea>
+        <idea>Questions from wrong domain filtered out correctly</idea>
+      </category>
+
+      <category name="identifyWeaknesses Threshold Testing">
+        <idea>Score exactly 2.5 → should be classified as weak (≤ 2.5)</idea>
+        <idea>Score 2.6 → should be classified as moderate</idea>
+        <idea>Score 3.5 → should be classified as moderate (≤ 3.5)</idea>
+        <idea>Score 3.6 → should be classified as strength (&gt; 3.5)</idea>
+        <idea>All domains weak → weaknesses array has all 3 domains</idea>
+        <idea>All domains strong → strengths array has all 3 domains</idea>
+        <idea>Mixed distribution → verify correct categorization</idea>
+      </category>
+
+      <category name="generateWeights Normalization">
+        <idea>All weak (2.0 × 3 = 6.0 total) → each should be 1/3 ≈ 0.333</idea>
+        <idea>All strong (0.5 × 3 = 1.5 total) → each should be 1/3 ≈ 0.333</idea>
+        <idea>All moderate (1.0 × 3 = 3.0 total) → each should be 1/3 ≈ 0.333</idea>
+        <idea>Mixed (weak=2.0, moderate=1.0, strength=0.5, sum=3.5) → [0.571, 0.286, 0.143]</idea>
+        <idea>Sum of all weights MUST equal 1.0 (use toBeCloseTo for floating point)</idea>
+        <idea>No negative weights</idea>
+        <idea>No weights &gt; 1.0</idea>
+        <idea>Empty categories → should handle gracefully (or throw error?)</idea>
+      </category>
+
+      <category name="Integration with Assessment Schema">
+        <idea>Result object matches Assessment interface fields (weaknesses, strengths arrays)</idea>
+        <idea>Domain names use correct format: "number_sense", "spatial", "operations"</idea>
+        <idea>Weights can be stored as JSON in assessment record</idea>
+      </category>
+
+      <category name="Performance">
+        <idea>Scoring 10 questions completes in &lt; 50ms</idea>
+        <idea>No unnecessary iterations or O(n²) operations</idea>
+      </category>
+    </ideas>
+  </tests>
+</story-context>

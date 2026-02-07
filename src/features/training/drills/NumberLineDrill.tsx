@@ -6,10 +6,11 @@
  * Provides visual feedback, calculates accuracy, and records drill results to Dexie.
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
 import { Button } from '@/shared/components/ui/button';
 import { db } from '@/services/storage/db';
+import { STORAGE_KEYS } from '@/services/storage/localStorage';
 import type { DrillResult } from '@/services/storage/schemas';
 
 /**
@@ -51,7 +52,7 @@ export default function NumberLineDrill({ difficulty, sessionId, onComplete }: D
   const range = max - min;
 
   // State management
-  const [targetNumber, setTargetNumber] = useState<number>(config.generateTarget());
+  const [targetNumber] = useState<number>(config.generateTarget());
   const [markerPosition, setMarkerPosition] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -163,10 +164,15 @@ export default function NumberLineDrill({ difficulty, sessionId, onComplete }: D
     } catch (error) {
       console.error('Failed to persist drill result:', error);
       // Fallback to localStorage backup
-      const backup = localStorage.getItem('DRILL_RESULTS_BACKUP');
-      const results = backup ? JSON.parse(backup) : [];
-      results.push(result);
-      localStorage.setItem('DRILL_RESULTS_BACKUP', JSON.stringify(results));
+      try {
+        const backup = localStorage.getItem(STORAGE_KEYS.DRILL_RESULTS_BACKUP);
+        const results = backup ? JSON.parse(backup) : [];
+        results.push(result);
+        localStorage.setItem(STORAGE_KEYS.DRILL_RESULTS_BACKUP, JSON.stringify(results));
+      } catch {
+        // localStorage backup also failed — reset to just this result
+        localStorage.setItem(STORAGE_KEYS.DRILL_RESULTS_BACKUP, JSON.stringify([result]));
+      }
     }
 
     // Auto-advance after 1.5 seconds

@@ -4,7 +4,8 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '../../../../tests/test-utils';
-import { NumberLineEstimation, NumberLineResult } from './NumberLineEstimation';
+import { NumberLineEstimation } from './NumberLineEstimation';
+import type { NumberLineResult } from './NumberLineEstimation';
 
 describe('NumberLineEstimation', () => {
   const mockOnAnswer = vi.fn();

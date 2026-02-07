@@ -1,0 +1,31 @@
+# Workflow Status Template
+# Tracks BMad methodology planning + solutioning progress
+# Implementation stories tracked separately via sprint-status.yaml
+
+generated: 2025-11-08
+project: discalculas
+project_type: software
+project_level: 3
+selected_track: method
+field_type: brownfield
+workflow_path: bmad/bmm/workflows/workflow-status/paths/method-brownfield.yaml
+
+workflow_status:
+  # Prerequisite: Documentation
+  document-project: docs/index.md
+
+  # Phase 0: Discovery (Optional)
+  research: docs/research-domain-2025-11-08.md
+
+  # Phase 1: Planning
+  prd: docs/PRD.md
+  validate-prd: docs/validation-report-20251109-102526.md
+  create-design: docs/ux-design-specification.md
+
+  # Phase 2: Solutioning
+  create-architecture: docs/architecture.md
+  validate-architecture: optional
+  solutioning-gate-check: docs/implementation-readiness-report-2025-11-09.md
+
+  # Phase 3: Implementation
+  sprint-planning: docs/sprint-artifacts/sprint-status.yaml

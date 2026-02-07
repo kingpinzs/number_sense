@@ -11,7 +11,7 @@ export interface BottomNavProps {
 interface NavItem {
   path: string;
   label: string;
-  icon: React.ComponentType<{ className?: string; 'aria-hidden'?: boolean }>;
+  icon: React.ComponentType<{ className?: string; 'aria-hidden'?: boolean | 'true' | 'false' }>;
 }
 
 const navItems: NavItem[] = [

@@ -6,14 +6,15 @@
  * Provides visual feedback, confidence prompts, and records drill results to Dexie.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, X } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { NumberKeypad } from '@/shared/components/NumberKeypad';
 import { db } from '@/services/storage/db';
+import { STORAGE_KEYS } from '@/services/storage/localStorage';
 import type { DrillResult } from '@/services/storage/schemas';
-import { generateProblem, type Difficulty } from '@/services/training/problemGenerator';
+import { generateProblem } from '@/services/training/problemGenerator';
 
 /**
  * DrillProps interface per Epic 3 tech spec
@@ -23,11 +24,12 @@ export interface DrillProps {
   sessionId: number;
   onComplete: (result: DrillResult) => void;
   onSkip?: () => void;
+  usedProblems?: Set<string>;
 }
 
-export default function MathOperationsDrill({ difficulty, sessionId, onComplete }: DrillProps) {
-  // Generate problem on mount
-  const [problemData] = useState(() => generateProblem(difficulty));
+export default function MathOperationsDrill({ difficulty, sessionId, onComplete, usedProblems }: DrillProps) {
+  // Generate problem on mount, checking against usedProblems to avoid duplicates
+  const [problemData] = useState(() => generateProblem(difficulty, undefined, usedProblems));
   const { problem, answer: correctAnswer, operation } = problemData;
 
   // State management
@@ -36,8 +38,17 @@ export default function MathOperationsDrill({ difficulty, sessionId, onComplete 
   const [showFeedback, setShowFeedback] = useState(false);
   const [showConfidencePrompt, setShowConfidencePrompt] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
-  const [confidence, setConfidence] = useState<string | null>(null);
   const [startTime] = useState(Date.now());
+  const feedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clean up timeout on unmount to prevent setState on unmounted component
+  useEffect(() => {
+    return () => {
+      if (feedbackTimerRef.current) {
+        clearTimeout(feedbackTimerRef.current);
+      }
+    };
+  }, []);
 
   // Check for prefers-reduced-motion
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -54,7 +65,7 @@ export default function MathOperationsDrill({ difficulty, sessionId, onComplete 
     setShowFeedback(true);
 
     // Show confidence prompt after feedback delay
-    setTimeout(() => {
+    feedbackTimerRef.current = setTimeout(() => {
       setShowFeedback(false);
       setShowConfidencePrompt(true);
     }, correct ? 1000 : 1500);
@@ -62,7 +73,6 @@ export default function MathOperationsDrill({ difficulty, sessionId, onComplete 
 
   // Handle confidence selection
   const handleConfidenceSelect = async (selectedConfidence: string) => {
-    setConfidence(selectedConfidence);
     setShowConfidencePrompt(false);
 
     const timeToAnswer = Date.now() - startTime;
@@ -77,7 +87,7 @@ export default function MathOperationsDrill({ difficulty, sessionId, onComplete 
       isCorrect,
       timeToAnswer,
       accuracy: isCorrect ? 100 : 0,
-      userAnswer: userAnswerNum,
+      userAnswer: userAnswerNum ?? undefined,
       correctAnswer,
       operation,
       problem,
@@ -90,10 +100,14 @@ export default function MathOperationsDrill({ difficulty, sessionId, onComplete 
     } catch (error) {
       console.error('Failed to persist drill result:', error);
       // Fallback to localStorage backup
-      const backup = localStorage.getItem('DRILL_RESULTS_BACKUP');
-      const results = backup ? JSON.parse(backup) : [];
-      results.push(result);
-      localStorage.setItem('DRILL_RESULTS_BACKUP', JSON.stringify(results));
+      try {
+        const backup = localStorage.getItem(STORAGE_KEYS.DRILL_RESULTS_BACKUP);
+        const results = backup ? JSON.parse(backup) : [];
+        results.push(result);
+        localStorage.setItem(STORAGE_KEYS.DRILL_RESULTS_BACKUP, JSON.stringify(results));
+      } catch {
+        localStorage.setItem(STORAGE_KEYS.DRILL_RESULTS_BACKUP, JSON.stringify([result]));
+      }
     }
 
     // Call onComplete callback

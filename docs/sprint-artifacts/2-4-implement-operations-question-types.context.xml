@@ -1,0 +1,429 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>4</storyId>
+    <title>Implement Operations Question Types</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-21</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/13-story-24-implement-operations-question-types.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user taking the assessment</asA>
+    <iWant>math operations questions that test my calculation abilities</iWant>
+    <soThat>the app can identify if I struggle with addition, subtraction, or multiplication</soThat>
+    <tasks>
+      - Implement BasicOperations component for questions 8-9 (addition/subtraction problems)
+      - Implement WordProblem component for question 10 (dyscalculia-friendly word problems)
+      - Create reusable NumberKeypad component for numeric input (0-9, backspace, submit)
+      - Add question generation logic with randomized numbers
+      - Implement input validation (non-negative integers, max 4 digits)
+      - Record user answers, correctness, and response times
+      - Ensure 24px minimum font size for readability
+      - Add WCAG 2.1 AA accessibility compliance (labels, error announcements)
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    **Basic Operations (Q8-Q9):**
+    - Shows simple arithmetic problem: "12 + 7 = ?"
+    - Answer input: Number keypad (0-9, backspace, submit)
+    - Operations: Mix of addition and subtraction (single-digit and double-digit)
+    - Records: userAnswer, correctAnswer, isCorrect, timeToAnswer
+
+    **Word Problem (Q10):**
+    - Shows dyscalculia-friendly word problem (simple context, clear numbers)
+    - Example: "You have 8 apples. You give away 3. How many do you have now?"
+    - Answer input: Number keypad
+    - Records: userAnswer, correctAnswer, isCorrect, timeToAnswer
+
+    **Additional Requirements:**
+    - Number keypad rendered using setupCompactAndNumpad pattern from existing codebase
+    - Input validation: Non-negative integers only, max 4 digits
+    - Visual: Large, clear numbers (24px font minimum) for readability
+    - Questions randomized: Numbers vary per session (avoid memorization)
+
+    **Prerequisites:** Story 2.3 (Spatial awareness questions implemented)
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <!-- Epic 2 Technical Specification -->
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-2.md</path>
+        <title>Epic Technical Specification: Assessment & Onboarding Flow</title>
+        <section>Overview</section>
+        <snippet>Epic 2 delivers the initial dyscalculia assessment experience that identifies user weaknesses in number sense, spatial awareness, and math operations. This 10-question wizard serves as the entry point for new users, establishing their personalized training plan weights.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-2.md</path>
+        <title>Epic Technical Specification: Assessment & Onboarding Flow</title>
+        <section>Services and Modules - EstimationProblems / BasicOperations</section>
+        <snippet>BasicOperations module handles Operations Q1-2 (Mental math) with problem config inputs, producing user answer and correctness. EstimationProblems handles Operations Q3-4 (Approximate answers) with accuracy percentage output.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-2.md</path>
+        <title>Epic Technical Specification: Assessment & Onboarding Flow</title>
+        <section>Data Models - QuestionResult</section>
+        <snippet>QuestionResult interface captures: questionId, domain, questionType, correct (boolean), responseTime (ms), userAnswer, expectedAnswer, difficulty (1-3), confidenceBefore (optional 1-5 scale).</snippet>
+      </doc>
+
+      <!-- Architecture -->
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Discalculas - Architecture Specification</title>
+        <section>Epic to Architecture Mapping - Assessment</section>
+        <snippet>Assessment components located in features/assessment/, routes/AssessmentRoute.tsx. Storage in assessments table (Dexie). Uses multi-step wizard with React Hook Form pattern.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Discalculas - Architecture Specification</title>
+        <section>Naming Conventions</section>
+        <snippet>Components: PascalCase.tsx, Hooks: camelCase.ts with use prefix, Tests: Same + .test.tsx, Types: camelCase.types.ts. Database: snake_case plural tables.</snippet>
+      </doc>
+
+      <!-- UX Design -->
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>Discalculas UX Design Specification</title>
+        <section>Journey 1: First-Time Assessment - Step 2-11</section>
+        <snippet>Assessment questions display: Progress bar (10 segments), Question card (white, 20px font), Interactive components with 44px+ tap targets. Math operations use number pad input. No "right/wrong" shown during assessment to maintain non-judgmental experience.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>Discalculas UX Design Specification</title>
+        <section>Component 6: DrillInteractionWidget - Math Operations Variant</section>
+        <snippet>Math Operations Widget: Problem display (large, readable font), Number pad input or multiple choice grid, Clear/backspace button, Submit button. States: Default, Input Active, Submitted, Correct (success green border), Incorrect (warning gold border with hint).</snippet>
+      </doc>
+
+      <!-- Epics Documentation -->
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Discalculas Epics</title>
+        <section>Epic 2: Story 2.4 - Technical Notes</section>
+        <snippet>Location: src/features/assessment/components/BasicOperations.tsx, WordProblem.tsx. Number keypad: Reusable component in src/shared/components/NumberKeypad.tsx. Question generation: Randomize numbers within difficulty ranges (e.g., 1-20 for addition). Word problems: Template strings with variable substitution.</snippet>
+      </doc>
+    </docs>
+
+    <code>
+      <!-- Existing Assessment Components - Patterns to Follow -->
+      <file>
+        <path>src/features/assessment/components/QuantityComparison.tsx</path>
+        <kind>component</kind>
+        <symbol>QuantityComparison</symbol>
+        <lines>full file</lines>
+        <reason>Reference pattern for question component structure: props interface, result interface, timing with performance.now(), QuestionCard wrapper</reason>
+      </file>
+      <file>
+        <path>src/features/assessment/components/NumberLineEstimation.tsx</path>
+        <kind>component</kind>
+        <symbol>NumberLineEstimation</symbol>
+        <lines>full file</lines>
+        <reason>Reference pattern for interactive question components with answer validation and timing</reason>
+      </file>
+      <file>
+        <path>src/features/assessment/components/MentalRotation.tsx</path>
+        <kind>component</kind>
+        <symbol>MentalRotation</symbol>
+        <lines>full file</lines>
+        <reason>Reference pattern for question components: useState for answered state, useCallback for handleAnswer, performance.now() timing, QuestionCard footer with buttons</reason>
+      </file>
+      <file>
+        <path>src/features/assessment/components/PatternMatching.tsx</path>
+        <kind>component</kind>
+        <symbol>PatternMatching</symbol>
+        <lines>full file</lines>
+        <reason>Most recent spatial question component - follow same structure and patterns for consistency</reason>
+      </file>
+      <file>
+        <path>src/features/assessment/components/QuestionCard.tsx</path>
+        <kind>component</kind>
+        <symbol>QuestionCard</symbol>
+        <lines>full file</lines>
+        <reason>Shared wrapper component for all assessment questions - use as container for BasicOperations and WordProblem</reason>
+      </file>
+
+      <!-- Question Generation -->
+      <file>
+        <path>src/features/assessment/content/questions.ts</path>
+        <kind>service</kind>
+        <symbol>generateMentalRotationConfig, generatePatternMatchingConfig, seededRandom</symbol>
+        <lines>full file</lines>
+        <reason>Question generation patterns with seeded randomization for deterministic tests. Add generateBasicOperationsConfig and generateWordProblemConfig following same patterns</reason>
+      </file>
+
+      <!-- Assessment Feature Index -->
+      <file>
+        <path>src/features/assessment/index.ts</path>
+        <kind>module</kind>
+        <symbol>exports</symbol>
+        <lines>full file</lines>
+        <reason>Public API for assessment feature - add new component exports here</reason>
+      </file>
+
+      <!-- Shared UI Components -->
+      <file>
+        <path>src/shared/components/ui/button.tsx</path>
+        <kind>component</kind>
+        <symbol>Button</symbol>
+        <lines>full file</lines>
+        <reason>shadcn/ui Button component - use for Submit and number keypad buttons with variant="outline"</reason>
+      </file>
+      <file>
+        <path>src/shared/components/ui/card.tsx</path>
+        <kind>component</kind>
+        <symbol>Card</symbol>
+        <lines>full file</lines>
+        <reason>shadcn/ui Card component - referenced by QuestionCard for consistent styling</reason>
+      </file>
+    </code>
+
+    <dependencies>
+      <node>
+        <react>19.2.0</react>
+        <react-hook-form>^7.66.0</react-hook-form>
+        <@hookform/resolvers>^5.2.2</@hookform/resolvers>
+        <zod>^3.25.76</zod>
+        <lucide-react>^0.553.0</lucide-react>
+      </node>
+      <devDependencies>
+        <vitest>^3.2.4</vitest>
+        <@testing-library/react>16.3.0</@testing-library/react>
+        <@testing-library/user-event>^14.5.2</@testing-library/user-event>
+        <@playwright/test>1.56.1</@playwright/test>
+      </devDependencies>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    **Architectural Constraints:**
+    - Feature-based organization: All operations question components must live in src/features/assessment/components/
+    - Component naming: PascalCase.tsx (BasicOperations.tsx, WordProblem.tsx, NumberKeypad.tsx)
+    - Export all new components from src/features/assessment/index.ts
+    - Follow existing question component patterns (performance.now() timing, QuestionCard wrapper, result interfaces)
+
+    **Data Constraints:**
+    - All timestamps as ISO 8601 strings
+    - Response times in milliseconds (number type)
+    - QuestionResult interface must include: questionId, domain ('operations'), questionType, correct, responseTime, userAnswer, expectedAnswer, difficulty
+
+    **UI/UX Constraints:**
+    - WCAG 2.1 AA compliance required (4.5:1 contrast, keyboard navigation, ARIA labels)
+    - Minimum 44px tap targets for mobile
+    - 24px minimum font size for numbers and problems
+    - No visual feedback during assessment (no red/green indicators until results page)
+    - Respect prefers-reduced-motion for animations
+
+    **Testing Constraints:**
+    - 100% test coverage required (enforced by CI)
+    - Unit tests for question generation logic
+    - Component tests for BasicOperations, WordProblem, NumberKeypad with React Testing Library
+    - Integration tests for answer validation and timing
+    - Use seededRandom for deterministic test question generation
+
+    **Performance Constraints:**
+    - Question render time: &lt;100ms from navigation to interactive
+    - Touch response: &lt;50ms tap to visual feedback
+    - Animation FPS: 60fps for transitions
+  </constraints>
+
+  <interfaces>
+    <!-- Component Interfaces to Implement -->
+    <interface>
+      <name>BasicOperationsProps</name>
+      <kind>React component props</kind>
+      <signature>
+        interface BasicOperationsProps {
+          operationType: 'addition' | 'subtraction';
+          operand1: number;
+          operand2: number;
+          correctAnswer: number;
+          onAnswer: (result: BasicOperationsResult) => void;
+        }
+
+        interface BasicOperationsResult {
+          userAnswer: number;
+          isCorrect: boolean;
+          timeToAnswer: number;
+          operationType: string;
+          correctAnswer: number;
+        }
+      </signature>
+      <path>src/features/assessment/components/BasicOperations.tsx</path>
+    </interface>
+
+    <interface>
+      <name>WordProblemProps</name>
+      <kind>React component props</kind>
+      <signature>
+        interface WordProblemProps {
+          problemText: string;
+          correctAnswer: number;
+          onAnswer: (result: WordProblemResult) => void;
+        }
+
+        interface WordProblemResult {
+          userAnswer: number;
+          isCorrect: boolean;
+          timeToAnswer: number;
+          problemText: string;
+          correctAnswer: number;
+        }
+      </signature>
+      <path>src/features/assessment/components/WordProblem.tsx</path>
+    </interface>
+
+    <interface>
+      <name>NumberKeypadProps</name>
+      <kind>React component props</kind>
+      <signature>
+        interface NumberKeypadProps {
+          value: string;
+          onChange: (value: string) => void;
+          onSubmit: () => void;
+          maxDigits?: number; // default 4
+          disabled?: boolean;
+          'data-testid'?: string;
+        }
+      </signature>
+      <path>src/shared/components/NumberKeypad.tsx</path>
+    </interface>
+
+    <!-- Question Generation Functions -->
+    <interface>
+      <name>generateBasicOperationsConfig</name>
+      <kind>Function signature</kind>
+      <signature>
+        export function generateBasicOperationsConfig(
+          id: string,
+          seed?: number
+        ): BasicOperationsConfig {
+          return {
+            type: 'basic-operations',
+            id,
+            operationType: 'addition' | 'subtraction',
+            operand1: number, // 1-20 for easy, 10-50 for medium, 20-99 for hard
+            operand2: number,
+            correctAnswer: number
+          };
+        }
+      </signature>
+      <path>src/features/assessment/content/questions.ts</path>
+    </interface>
+
+    <interface>
+      <name>generateWordProblemConfig</name>
+      <kind>Function signature</kind>
+      <signature>
+        export function generateWordProblemConfig(
+          id: string,
+          seed?: number
+        ): WordProblemConfig {
+          return {
+            type: 'word-problem',
+            id,
+            problemText: string, // Template with substituted values
+            correctAnswer: number,
+            context: 'apples' | 'coins' | 'toys' | 'books' // Simple contexts
+          };
+        }
+      </signature>
+      <path>src/features/assessment/content/questions.ts</path>
+    </interface>
+
+    <!-- Existing Interfaces to Integrate With -->
+    <interface>
+      <name>QuestionCard</name>
+      <kind>React component</kind>
+      <signature>
+        interface QuestionCardProps {
+          question: string;
+          children: React.ReactNode;
+          footer?: React.ReactNode;
+          'data-testid'?: string;
+        }
+      </signature>
+      <path>src/features/assessment/components/QuestionCard.tsx</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      **Testing Framework:** Vitest 3.2.4 with React Testing Library 16.3.0 for component tests, Playwright 1.56.1 for E2E tests.
+
+      **Coverage Requirements:** 100% statement/branch/function/line coverage enforced by CI. All new code requires comprehensive unit + component tests.
+
+      **Testing Patterns:**
+      - Unit tests: Pure functions (question generation, validation logic)
+      - Component tests: User interactions (typing, clicking, keyboard navigation), visual rendering, accessibility (ARIA labels, roles)
+      - Integration tests: Question-to-result data flow, timing accuracy
+      - E2E tests: Full assessment journey covered by Story 2.7
+
+      **Test Co-location:** Tests live alongside components with .test.tsx extension
+
+      **AAA Pattern:** Arrange (setup), Act (user interaction), Assert (expect outcomes)
+    </standards>
+
+    <locations>
+      - src/features/assessment/components/BasicOperations.test.tsx
+      - src/features/assessment/components/WordProblem.test.tsx
+      - src/shared/components/NumberKeypad.test.tsx
+      - src/features/assessment/content/questions.test.ts (extend with operations tests)
+    </locations>
+
+    <ideas>
+      **BasicOperations.test.tsx:**
+      - AC: Basic Operations Q8-Q9 → Test addition problem renders with correct operands
+      - AC: Basic Operations Q8-Q9 → Test subtraction problem renders with correct operands
+      - AC: Records correctAnswer → Test correct answer submission records isCorrect=true
+      - AC: Records correctAnswer → Test incorrect answer submission records isCorrect=false
+      - AC: Records timeToAnswer → Test response time measured accurately with performance.now()
+      - AC: Number keypad → Test number keypad integration (type digits, backspace, submit)
+      - AC: Input validation → Test max 4 digits enforced
+      - AC: Input validation → Test non-negative integers only
+      - AC: Large font (24px) → Test visual rendering with large, clear numbers
+      - AC: Questions randomized → Test seeded generation produces consistent but different problems
+
+      **WordProblem.test.tsx:**
+      - AC: Word Problem Q10 → Test word problem text renders with numbers
+      - AC: Example contexts → Test "apples" context problem
+      - AC: Records correctAnswer → Test correct answer to word problem
+      - AC: Records timeToAnswer → Test timing captured for word problem
+      - AC: Number keypad → Test keypad integration for word problem input
+      - AC: Dyscalculia-friendly → Test simple language and clear number presentation
+
+      **NumberKeypad.test.tsx:**
+      - AC: Number keypad (0-9, backspace, submit) → Test all digit buttons (0-9) render and work
+      - AC: Number keypad → Test backspace button removes last digit
+      - AC: Number keypad → Test submit button triggers onSubmit callback
+      - AC: Input validation → Test maxDigits prop enforces limit
+      - AC: Disabled state → Test disabled prop disables all buttons
+      - Accessibility → Test keyboard navigation (Tab, Enter, Space, Escape)
+      - Accessibility → Test ARIA labels on buttons ("Button 0", "Backspace", "Submit")
+      - Accessibility → Test data-testid passed through for testing
+
+      **questions.test.ts (extend existing file):**
+      - AC: Randomization → Test generateBasicOperationsConfig with seed produces deterministic results
+      - AC: Randomization → Test generateBasicOperationsConfig without seed varies
+      - AC: Question types → Test addition operations generate correct answers
+      - AC: Question types → Test subtraction operations generate correct answers (no negative results)
+      - AC: Difficulty ranges → Test operands fall within 1-20 range for easy difficulty
+      - AC: Word problems → Test generateWordProblemConfig with different contexts
+      - AC: Word problems → Test template substitution produces valid problem text
+
+      **Integration Tests:**
+      - Test BasicOperations → NumberKeypad → answer submission → result callback flow
+      - Test WordProblem → NumberKeypad → answer submission → result callback flow
+      - Test answer recording includes all required QuestionResult fields
+      - Test performance.now() timing is within reasonable range (&lt;5000ms typical)
+
+      **Accessibility Tests:**
+      - Test WCAG 2.1 AA compliance with axe-core
+      - Test keyboard-only operation (no mouse needed)
+      - Test screen reader announcements for validation errors
+      - Test focus management (focus on first input on mount)
+      - Test reduced-motion preference respected
+    </ideas>
+  </tests>
+</story-context>

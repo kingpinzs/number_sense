@@ -13,7 +13,6 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import SpatialRotationDrill from './SpatialRotationDrill';
 import { db } from '@/services/storage/db';
 import type { DrillResult } from '@/services/storage/schemas';
@@ -334,7 +333,7 @@ describe('SpatialRotationDrill', () => {
       await waitFor(
         () => {
           expect(localStorageSpy).toHaveBeenCalledWith(
-            'DRILL_RESULTS_BACKUP',
+            'discalculas:drillResultsBackup',
             expect.any(String)
           );
         },

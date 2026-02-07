@@ -62,6 +62,11 @@ export default function AssessmentRoute() {
   } | null>(null);
   const questionAreaRef = useRef<HTMLDivElement>(null);
 
+  // Use local state for currentStep - more reliable than React Hook Form for UI state
+  const [currentStep, setCurrentStep] = useState(1);
+  // Local state for answers for immediate UI feedback
+  const [localAnswers, setLocalAnswers] = useState<(string | undefined)[]>(Array(TOTAL_QUESTIONS).fill(undefined));
+
   // Generate all questions once (deterministic seed for consistency)
   const questions = useMemo(() => {
     const seed = Date.now();
@@ -72,7 +77,7 @@ export default function AssessmentRoute() {
     ];
   }, []);
 
-  // Initialize form with React Hook Form
+  // Initialize form with React Hook Form (for form submission only)
   const methods = useForm<AssessmentFormValues>({
     resolver: zodResolver(assessmentSchema),
     defaultValues: {
@@ -82,12 +87,10 @@ export default function AssessmentRoute() {
     },
   });
 
-  const { watch, setValue, getValues } = methods;
-  const currentStep = watch('currentStep');
-  const answers = watch('answers');
+  const { setValue, getValues } = methods;
 
-  // Current answer for validation
-  const currentAnswer = answers[currentStep - 1];
+  // Current answer for validation - use local state
+  const currentAnswer = localAnswers[currentStep - 1];
   const hasAnswer = currentAnswer !== undefined && currentAnswer !== '';
 
   // Progress calculation (0-100%)
@@ -109,10 +112,11 @@ export default function AssessmentRoute() {
 
   // Navigate to previous question
   const handlePrevious = useCallback(() => {
-    if (currentStep > 1) {
-      setValue('currentStep', currentStep - 1);
-    }
-  }, [currentStep, setValue]);
+    setCurrentStep(prev => {
+      if (prev > 1) return prev - 1;
+      return prev;
+    });
+  }, []);
 
   // Helper function to check if answer is correct
   const isAnswerCorrect = useCallback((questionIndex: number, answer: string | undefined): boolean => {
@@ -155,12 +159,11 @@ export default function AssessmentRoute() {
     if (!hasAnswer) return;
 
     if (currentStep < TOTAL_QUESTIONS) {
-      setValue('currentStep', currentStep + 1);
+      setCurrentStep(prev => prev + 1);
     } else {
       // Assessment complete - calculate scores and show results
       endSession();
 
-      const allAnswers = getValues('answers');
       const startTime = new Date(getValues('startTime'));
       const endTime = new Date();
 
@@ -170,9 +173,9 @@ export default function AssessmentRoute() {
       const minutes = Math.floor(totalSeconds / 60);
       const seconds = totalSeconds % 60;
 
-      // Build QuestionForScoring array
+      // Build QuestionForScoring array using localAnswers
       // Q1-Q4: number_sense, Q5-Q7: spatial, Q8-Q10: operations
-      const questionsForScoring: QuestionForScoring[] = allAnswers.map((answer, index) => {
+      const questionsForScoring: QuestionForScoring[] = localAnswers.map((answer, index) => {
         let domain: Domain;
         if (index < 4) domain = 'number_sense';
         else if (index < 7) domain = 'spatial';
@@ -198,7 +201,7 @@ export default function AssessmentRoute() {
       });
       setShowResults(true);
     }
-  }, [currentStep, hasAnswer, setValue, endSession, getValues, isAnswerCorrect]);
+  }, [currentStep, hasAnswer, endSession, getValues, localAnswers, isAnswerCorrect]);
 
   // Handle exit with confirmation
   const handleExit = useCallback(() => {
@@ -222,42 +225,54 @@ export default function AssessmentRoute() {
     setShowExitConfirm(false);
   }, []);
 
-  // Handle answer from question components
+  // Handle answer from question components - uses setLocalAnswers for immediate UI feedback
   const handleQuantityAnswer = useCallback((result: QuantityComparisonResult) => {
-    const newAnswers = [...answers];
-    newAnswers[currentStep - 1] = result.answer;
-    setValue('answers', newAnswers);
-  }, [answers, currentStep, setValue]);
+    setLocalAnswers(prev => {
+      const newAnswers = [...prev];
+      newAnswers[currentStep - 1] = result.answer;
+      return newAnswers;
+    });
+  }, [currentStep]);
 
   const handleNumberLineAnswer = useCallback((result: NumberLineResult) => {
-    const newAnswers = [...answers];
-    newAnswers[currentStep - 1] = String(result.userAnswer);
-    setValue('answers', newAnswers);
-  }, [answers, currentStep, setValue]);
+    setLocalAnswers(prev => {
+      const newAnswers = [...prev];
+      newAnswers[currentStep - 1] = String(result.userAnswer);
+      return newAnswers;
+    });
+  }, [currentStep]);
 
   const handleMentalRotationAnswer = useCallback((result: MentalRotationResult) => {
-    const newAnswers = [...answers];
-    newAnswers[currentStep - 1] = result.answer;
-    setValue('answers', newAnswers);
-  }, [answers, currentStep, setValue]);
+    setLocalAnswers(prev => {
+      const newAnswers = [...prev];
+      newAnswers[currentStep - 1] = result.answer;
+      return newAnswers;
+    });
+  }, [currentStep]);
 
   const handlePatternMatchingAnswer = useCallback((result: PatternMatchingResult) => {
-    const newAnswers = [...answers];
-    newAnswers[currentStep - 1] = result.selectedOption;
-    setValue('answers', newAnswers);
-  }, [answers, currentStep, setValue]);
+    setLocalAnswers(prev => {
+      const newAnswers = [...prev];
+      newAnswers[currentStep - 1] = result.selectedOption;
+      return newAnswers;
+    });
+  }, [currentStep]);
 
   const handleBasicOperationsAnswer = useCallback((result: BasicOperationsResult) => {
-    const newAnswers = [...answers];
-    newAnswers[currentStep - 1] = String(result.userAnswer);
-    setValue('answers', newAnswers);
-  }, [answers, currentStep, setValue]);
+    setLocalAnswers(prev => {
+      const newAnswers = [...prev];
+      newAnswers[currentStep - 1] = String(result.userAnswer);
+      return newAnswers;
+    });
+  }, [currentStep]);
 
   const handleWordProblemAnswer = useCallback((result: WordProblemResult) => {
-    const newAnswers = [...answers];
-    newAnswers[currentStep - 1] = String(result.userAnswer);
-    setValue('answers', newAnswers);
-  }, [answers, currentStep, setValue]);
+    setLocalAnswers(prev => {
+      const newAnswers = [...prev];
+      newAnswers[currentStep - 1] = String(result.userAnswer);
+      return newAnswers;
+    });
+  }, [currentStep]);
 
   // Render current question component
   const renderQuestion = () => {
@@ -425,7 +440,7 @@ export default function AssessmentRoute() {
 
         {/* Navigation footer */}
         {!showExitConfirm && (
-          <div className="flex items-center justify-between border-t bg-background p-4">
+          <div className="relative z-[999] flex items-center justify-between border-t bg-background p-4">
             <Button
               variant="outline"
               onClick={handlePrevious}

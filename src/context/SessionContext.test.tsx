@@ -222,14 +222,13 @@ describe('SessionContext', () => {
 
       const handleRecordResult = () => {
         const result: DrillResult = {
-          sessionId: 'training-session-456',
+          sessionId: 1,
           timestamp: new Date().toISOString(),
-          module: 'training',
-          drillType: 'number_line',
-          difficulty: 1,
-          responseTime: 2500,
-          correct: true,
-          userId: 'local_user'
+          module: 'number_line',
+          difficulty: 'easy',
+          isCorrect: true,
+          timeToAnswer: 2500,
+          accuracy: 100,
         };
         recordDrillResult(result);
       };

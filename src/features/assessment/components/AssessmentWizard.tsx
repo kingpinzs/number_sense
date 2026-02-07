@@ -74,6 +74,11 @@ export function AssessmentWizard({
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const questionAreaRef = useRef<HTMLDivElement>(null);
 
+  // Use local state for currentStep - more reliable than React Hook Form for UI state
+  const [currentStep, setCurrentStep] = useState(1);
+  // Local state to track answers for immediate UI feedback
+  const [localAnswers, setLocalAnswers] = useState<(string | undefined)[]>(Array(TOTAL_QUESTIONS).fill(undefined));
+
   // Generate all questions once (deterministic seed for consistency)
   const questions = useMemo(() => {
     const seed = Date.now();
@@ -84,7 +89,7 @@ export function AssessmentWizard({
     ];
   }, []);
 
-  // Initialize form with React Hook Form
+  // Initialize form with React Hook Form (for answers only)
   const methods = useForm<AssessmentFormValues>({
     resolver: zodResolver(assessmentSchema),
     defaultValues: {
@@ -94,12 +99,10 @@ export function AssessmentWizard({
     },
   });
 
-  const { watch, setValue, getValues } = methods;
-  const currentStep = watch('currentStep');
-  const answers = watch('answers');
+  const { setValue, getValues } = methods;
 
-  // Current answer for validation
-  const currentAnswer = answers[currentStep - 1];
+  // Use local state for immediate UI feedback
+  const currentAnswer = localAnswers[currentStep - 1];
   const hasAnswer = currentAnswer !== undefined && currentAnswer !== '';
 
   // Progress calculation (0-100%)
@@ -108,13 +111,16 @@ export function AssessmentWizard({
   // Track if session has been started to prevent duplicate starts
   const sessionStartedRef = useRef(false);
 
-  // Start session when wizard opens
+  // Start session when wizard opens and reset state
   useEffect(() => {
     if (open && !sessionStartedRef.current) {
       sessionStartedRef.current = true;
       const sessionId = `assessment-${Date.now()}`;
       startSession('assessment', sessionId);
       setValue('startTime', new Date().toISOString());
+      setValue('answers', Array(TOTAL_QUESTIONS).fill(undefined));
+      setCurrentStep(1);
+      setLocalAnswers(Array(TOTAL_QUESTIONS).fill(undefined));
     }
     if (!open) {
       sessionStartedRef.current = false;
@@ -122,7 +128,29 @@ export function AssessmentWizard({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  // Handle keyboard navigation
+  // Navigate to previous question
+  const handlePrevious = useCallback(() => {
+    setCurrentStep(prev => {
+      if (prev > 1) return prev - 1;
+      return prev;
+    });
+  }, []);
+
+  // Navigate to next question or complete
+  const handleNext = useCallback(() => {
+    if (!hasAnswer) return;
+
+    if (currentStep < TOTAL_QUESTIONS) {
+      setCurrentStep(prev => prev + 1);
+    } else {
+      // Assessment complete
+      endSession();
+      onComplete?.(getValues('answers'));
+      onOpenChange(false);
+    }
+  }, [currentStep, hasAnswer, endSession, onComplete, onOpenChange, getValues]);
+
+  // Handle keyboard navigation (must be after handleNext declaration)
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!open) return;
@@ -138,28 +166,7 @@ export function AssessmentWizard({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [open, hasAnswer, currentStep]);
-
-  // Navigate to previous question
-  const handlePrevious = useCallback(() => {
-    if (currentStep > 1) {
-      setValue('currentStep', currentStep - 1);
-    }
-  }, [currentStep, setValue]);
-
-  // Navigate to next question or complete
-  const handleNext = useCallback(() => {
-    if (!hasAnswer) return;
-
-    if (currentStep < TOTAL_QUESTIONS) {
-      setValue('currentStep', currentStep + 1);
-    } else {
-      // Assessment complete
-      endSession();
-      onComplete?.(getValues('answers'));
-      onOpenChange(false);
-    }
-  }, [currentStep, hasAnswer, setValue, endSession, onComplete, onOpenChange, getValues]);
+  }, [open, hasAnswer, handleNext]);
 
   // Handle exit with confirmation
   const handleExit = useCallback(() => {
@@ -179,72 +186,94 @@ export function AssessmentWizard({
     setShowExitConfirm(false);
   }, []);
 
-  // Handle answer from question components
-  const handleAnswer = useCallback((answer: string) => {
-    const newAnswers = [...answers];
-    newAnswers[currentStep - 1] = answer;
-    setValue('answers', newAnswers);
-  }, [answers, currentStep, setValue]);
+  // Handle answer from question components - accepts result objects and serializes to string
+  const handleAnswer = useCallback((answer: unknown) => {
+    // Serialize complex result objects to JSON strings for storage
+    const serializedAnswer = typeof answer === 'string' ? answer : JSON.stringify(answer);
+
+    // Update local state for immediate UI feedback
+    setLocalAnswers(prev => {
+      const newAnswers = [...prev];
+      newAnswers[currentStep - 1] = serializedAnswer;
+      return newAnswers;
+    });
+
+    // Also update form state for final submission
+    const formAnswers = getValues('answers');
+    const newFormAnswers = [...formAnswers];
+    newFormAnswers[currentStep - 1] = serializedAnswer;
+    setValue('answers', newFormAnswers);
+  }, [currentStep, setValue, getValues]);
 
   // Render current question component
   const renderQuestion = () => {
     const questionConfig = questions[currentStep - 1];
     if (!questionConfig) return null;
 
+    // Cast handleAnswer to expected types - all result objects are serialized to JSON
+    const typedHandler = handleAnswer as (result: unknown) => void;
+
+    // Use key={currentStep} to force React to remount components when step changes
+    // This ensures internal state (like 'answered') resets properly
     switch (questionConfig.type) {
       case 'quantity-comparison':
         return (
           <QuantityComparison
+            key={currentStep}
             leftCount={questionConfig.leftCount}
             rightCount={questionConfig.rightCount}
-            onAnswer={handleAnswer}
-            initialAnswer={currentAnswer}
+            onAnswer={typedHandler}
           />
         );
       case 'number-line':
         return (
           <NumberLineEstimation
+            key={currentStep}
             range={questionConfig.range}
             targetNumber={questionConfig.targetNumber}
-            onAnswer={handleAnswer}
-            initialAnswer={currentAnswer}
+            onAnswer={typedHandler}
           />
         );
       case 'mental-rotation':
         return (
           <MentalRotation
+            key={currentStep}
             shapeType={questionConfig.shapeType}
             rotationAngle={questionConfig.rotationAngle}
             isMatch={questionConfig.isMatch}
-            onAnswer={handleAnswer}
-            initialAnswer={currentAnswer}
+            onAnswer={typedHandler}
           />
         );
       case 'pattern-matching':
         return (
           <PatternMatching
+            key={currentStep}
+            patternType={questionConfig.patternType}
+            correctOption={questionConfig.correctOption}
             targetPattern={questionConfig.targetPattern}
             options={questionConfig.options}
-            onAnswer={handleAnswer}
-            initialAnswer={currentAnswer}
+            onAnswer={typedHandler}
+            initialAnswer={currentAnswer as 'A' | 'B' | 'C' | 'D' | undefined}
           />
         );
       case 'basic-operations':
         return (
           <BasicOperations
+            key={currentStep}
             operationType={questionConfig.operationType}
             operand1={questionConfig.operand1}
             operand2={questionConfig.operand2}
-            onAnswer={handleAnswer}
-            initialAnswer={currentAnswer}
+            correctAnswer={questionConfig.correctAnswer}
+            onAnswer={typedHandler}
           />
         );
       case 'word-problem':
         return (
           <WordProblem
+            key={currentStep}
             problemText={questionConfig.problemText}
-            onAnswer={handleAnswer}
-            initialAnswer={currentAnswer}
+            correctAnswer={questionConfig.correctAnswer}
+            onAnswer={typedHandler}
           />
         );
       default:
@@ -356,7 +385,7 @@ export function AssessmentWizard({
 
           {/* Navigation footer */}
           {!showExitConfirm && (
-            <div className="flex items-center justify-between border-t p-4">
+            <div className="relative z-[999] flex items-center justify-between border-t bg-background p-4">
               <Button
                 variant="outline"
                 onClick={handlePrevious}

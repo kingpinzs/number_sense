@@ -4,7 +4,8 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '../../../../tests/test-utils';
-import { MentalRotation, MentalRotationResult } from './MentalRotation';
+import { MentalRotation } from './MentalRotation';
+import type { MentalRotationResult } from './MentalRotation';
 
 describe('MentalRotation', () => {
   const mockOnAnswer = vi.fn();

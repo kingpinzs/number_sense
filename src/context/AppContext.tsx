@@ -2,7 +2,7 @@
 // Architecture: React Context + useReducer pattern for app-level state
 // Manages: streak, onlineStatus, lastSyncTimestamp
 
-import { createContext, useContext, useReducer, useEffect, type ReactNode, type Dispatch } from 'react';
+import { createContext, useContext, useReducer, useEffect, useCallback, type ReactNode, type Dispatch } from 'react';
 import { getStreak, setStreak } from '@/services/storage/localStorage';
 
 /**
@@ -89,9 +89,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'SET_STREAK', payload: streak });
   };
 
-  const updateOnlineStatus = (isOnline: boolean) => {
+  const updateOnlineStatus = useCallback((isOnline: boolean) => {
     dispatch({ type: 'UPDATE_ONLINE_STATUS', payload: isOnline });
-  };
+  }, []);
 
   const setLastSync = (timestamp: string | null) => {
     dispatch({ type: 'SET_LAST_SYNC', payload: timestamp });

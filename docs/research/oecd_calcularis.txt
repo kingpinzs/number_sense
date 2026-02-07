@@ -1,0 +1,165 @@
+Title: Calcularis 2.0
+
+URL Source: https://oecd.ai/en/catalogue/tools/calcularis-20
+
+Markdown Content:
+Calcularis 2.0 - OECD.AI
+
+===============
+
+[![Image 1: OECD AI Policy Observatory](https://oecd.ai/en/assets/images/main_oecd_gpai_logo.svg)](https://oecd.ai/en/)
+
+[](https://oecd.ai/en/)
+
+[Blog](https://oecd.ai/en/wonk)[Live data](https://oecd.ai/en/data)[Policies and initiatives](https://oecd.ai/en/dashboards/overview)
+
+[Priority issues](https://oecd.ai/en/)
+
+ Back 
+
+[Risk & Accountability](https://oecd.ai/en/site/risk-accountability)[AI, Data & Privacy](https://oecd.ai/en/site/data-privacy)[Generative AI](https://oecd.ai/en/genai)[Future of Work](https://oecd.ai/en/working-group-future-of-work)[AI Index](https://oecd.ai/en/site/ai-index)[Incidents](https://oecd.ai/en/site/incidents)[AI in Government](https://oecd.ai/en/gov)[Data Governance](https://oecd.ai/en/working-group-data-governance)[Responsible AI](https://oecd.ai/en/working-group-responsible-ai)[Innovation & Commercialisation](https://oecd.ai/en/working-group-innovation-and-commercialisation)[Compute & Climate](https://oecd.ai/en/site/compute-climate)[AI & Health](https://oecd.ai/en/site/health)[AI Futures](https://oecd.ai/en/site/ai-futures)[WIPS](https://oecd.ai/en/work-innovation-productivity-skills)
+
+[Tools](https://oecd.ai/en/)
+
+ Back 
+
+[Catalogue Tools & Metrics](https://oecd.ai/en/catalogue/overview)[AIM: AI Incidents and Hazards Monitor](https://oecd.ai/en/incidents)[The HAIP Transparency Reporting Framework](https://transparency.oecd.ai/)
+
+[Resources](https://oecd.ai/en/)
+
+ Back 
+
+[The AI Principles](https://oecd.ai/en/ai-principles)[Definitions](https://oecd.ai/en/definitions)[Policy areas](https://oecd.ai/en/policy-areas)[Publications](https://oecd.ai/en/ai-publications)[Videos](https://oecd.ai/en/videos)
+
+[About](https://oecd.ai/en/)
+
+ Back 
+
+[The Context](https://oecd.ai/en/about/the-context)[About GPAI](https://oecd.ai/en/about/about-gpai)[About OECD.AI](https://oecd.ai/en/about/about-oecd-ai)[About AIGO](https://oecd.ai/en/about/network-of-experts)[Background](https://oecd.ai/en/about/background)[Partners](https://oecd.ai/en/about/partners)
+
+[Search](https://oecd.ai/en/search)
+
+[OECD.org](https://oecd.org/)[Going Digital Toolkit](https://goingdigital.oecd.org/)
+
+[English](https://oecd.ai/en/catalogue/tools/calcularis-20)[French](https://oecd.ai/fr/catalogue/tools/calcularis-20)
+
+1.   [Home](https://oecd.ai/en/)
+2.   [Tools & metrics](https://oecd.ai/en/catalogue/overview)
+3.   [Tools](https://oecd.ai/en/catalogue/tools)
+4.   [Calcularis 2.0](https://oecd.ai/en/catalogue/tools/calcularis-20)
+
+ Catalogue of Tools & Metrics for Trustworthy AI 
+These tools and metrics are designed to help AI actors develop and use trustworthy AI systems and applications that respect human rights and are fair, transparent, explainable, robust, secure and safe.
+
+[Overview](https://oecd.ai/en/catalogue/overview)[Tools](https://oecd.ai/en/catalogue/tools)[Metrics](https://oecd.ai/en/catalogue/metrics)[About the catalogue](https://oecd.ai/en/catalogue/faq)
+
+[Contribute to the catalogue](https://oecd.ai/en/catalogue/contribute)
+
+[Contribute to the catalogue](https://oecd.ai/en/catalogue/contribute)
+
+Calcularis 2.0
+==============
+
+[Website](https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2020.01115/full)
+
+* * *
+
+[Educational](https://oecd.ai/en/)
+
+ Uploaded on Aug 6, 2025 
+
+* * *
+
+![Image 2: Calcularis 2.0](https://oecd-ai.case-api.buddyweb.fr/storage/tools/Aug2025/117ojpevlgmdx462no-landscape.jpg)
+
+Efficacy of a Computer-Based Learning Program in Children with Developmental Dyscalculia. What Influences Individual Responsiveness?
+
+This study presents the evaluation of a computer-based learning program for children with developmental dyscalculia and focuses on factors affecting individual responsiveness. The adaptive training program Calcularis 2.0 has been developed according to current neuro-cognitive theory of numerical cognition. It aims to automatize number representations, supports the formation and access to the mental number line and trains arithmetic operations as well as arithmetic fact knowledge in expanding number ranges. Sixty-seven children with developmental dyscalculia from second to fifth grade (mean age 8.96 years) were randomly assigned to one of two groups (Calcularis group, waiting control group). Training duration comprised a minimum of 42 training sessions à 20 min within a maximum period of 13 weeks. Compared to the waiting control group, children of the Calcularis group demonstrated a higher benefit in arithmetic operations and number line estimation. These improvements were shown to be stable after a 3-months post training interval. In addition, this study examines which predictors accounted for training improvements. Results indicate that this self-directed training was especially beneficial for children with low math anxiety scores and without an additional reading and/or spelling disorder. In conclusion, Calcularis 2.0 supports children with developmental dyscalculia to improve their arithmetical abilities and their mental number line representation. However, it is relevant to further adapt the setting to the individual circumstances.
+
+### About the tool
+
+You can click on the links to see the associated tools
+
+* * *
+
+Developing organisation(s):
+
+*   [Tech / Dybuster](https://oecd.ai/en/)
+
+* * *
+
+Tool type(s):
+
+*   [Education & training](https://oecd.ai/en/)
+
+* * *
+
+Objective(s):
+
+*   [Fairness](https://oecd.ai/en/)
+
+* * *
+
+Purpose(s):
+
+*   [Reasoning with knowledge structures/planning](https://oecd.ai/en/)
+
+* * *
+
+Type of approach:
+
+*   [Educational](https://oecd.ai/en/)
+
+* * *
+
+Stakeholder group:
+
+*   [Academia](https://oecd.ai/en/)
+
+* * *
+
+Geographical scope:
+
+*   [Europe](https://oecd.ai/en/)
+
+* * *
+
+Tags:
+
+*   research
+*   Inclusive Education
+*   Computer-Based Learning
+
+[Modify this tool](https://oecd.ai/en/)
+
+Use Cases
+---------
+
+ There is no use cases for this tool yet. 
+
+### Would you like to submit a use case for this tool?
+
+If you have used this tool, we would love to know more about your experience.
+
+[Add use case](https://oecd.ai/en/catalogue/tool-use-cases/submit?toolSlug=calcularis-20)
+
+![Image 3: catalogue Logos](https://oecd.ai/en/assets/images/catalogue-tool-footer-logos.png)
+
+**Disclaimer:**The tools and metrics featured herein are solely those of the originating authors and are not vetted or endorsed by the OECD or its member countries. The Organisation cannot be held responsible for possible issues resulting from the posting of links to third parties' tools and metrics on this catalogue. More on the methodology can be found at [https://oecd.ai/catalogue/faq](https://oecd.ai/catalogue/faq).
+
+ Receive the OECD's artificial intelligence newsletter! 
+
+[Sign up with Linkedin](https://www.linkedin.com/newsletters/oecd-ai-newsletter-7133112175430111232/)
+
+![Image 4: OECD Logo](https://oecd.ai/en/assets/images/logo-oecd-light.svg)
+*   © 2025 OECD. All rights reserved
+*   [Home](https://oecd.ai/en/)
+*   [Terms & conditions](https://www.oecd.org/termsandconditions/)
+*   [Privacy policy](https://www.oecd.org/privacy/)
+
+*   Follow us on:
+*   [![Image 5: Twitter logo](https://oecd.ai/en/assets/images/twitter.svg)](https://twitter.com/OECDinnovation)
+*   [![Image 6: Facebook logo](https://oecd.ai/en/assets/images/facebook.svg)](https://www.facebook.com/theOECD/)
+*   [![Image 7: LinkedIn logo](https://oecd.ai/en/assets/images/linkedin.svg)](https://www.linkedin.com/company/oecd-ai)
+*   [![Image 8: RSS logo](https://oecd.ai/en/assets/images/rss.svg)](https://wp.oecd.ai/feed/)
+

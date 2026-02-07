@@ -42,14 +42,15 @@ export class DiscalculasDB extends Dexie {
   constructor() {
     super('DiscalculasDB');
 
-    // Schema v1: Define tables and indexes
-    this.version(1).stores({
+    // Schema v2: Added [sessionId+module] compound index for drill_results (Story 4.4)
+    // Note: Dexie handles index migrations automatically
+    this.version(2).stores({
       // ++id: auto-increment primary key
       // field: indexed field
       // [field1+field2]: compound index
       sessions: '++id, timestamp, module, [timestamp+module]',
       assessments: '++id, timestamp, status',
-      drill_results: '++id, sessionId, timestamp, module',
+      drill_results: '++id, sessionId, timestamp, module, [sessionId+module]',
       telemetry_logs: '++id, timestamp, event, [timestamp+event]',
       magic_minute_sessions: '++id, sessionId, timestamp',
       difficulty_history: '++id, sessionId, timestamp, module',
@@ -157,7 +158,6 @@ export async function cleanOldSessions(retentionDays: number = 365): Promise<num
       await db.sessions.where('timestamp').below(cutoffDate).delete();
     });
 
-    console.log(`Cleaned ${oldSessions.length} old sessions (older than ${retentionDays} days)`);
     return oldSessions.length;
   } catch (error) {
     console.error('Failed to clean old sessions:', error);

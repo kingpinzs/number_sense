@@ -1,0 +1,379 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>3</epicId>
+    <storyId>1</storyId>
+    <title>Build Training Session Shell and State Management</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-22</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/3-1-build-training-session-shell-and-state-management.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user starting a training session</asA>
+    <iWant>a guided session flow that selects appropriate drills for my needs</iWant>
+    <soThat>I practice my weak areas without thinking about what to do next</soThat>
+    <tasks>
+### Task 1: Create Training Route Component (AC: #1, #5)
+- Create src/routes/TrainingRoute.tsx
+- Implement route protection (redirect if no assessment)
+- Render TrainingSession component
+- Add to router configuration in src/router.tsx
+
+### Task 2: Build TrainingSession Component (AC: #1)
+- Create src/features/training/components/TrainingSession.tsx
+- Implement session header with date display, StreakCounter, session goal
+- Implement "Start Training" button with coral primary color
+- Optional: Implement session type toggle (Quick vs Full)
+- Write component tests (React Testing Library)
+
+### Task 3: Extend SessionContext for Training (AC: #2)
+- Update src/context/SessionContext.tsx with training state
+- Add sessionId, sessionType, drillQueue, currentDrillIndex, sessionStartTime, results
+- Add action: START_TRAINING_SESSION
+- Write reducer tests for new actions
+
+### Task 4: Implement Drill Selection Service (AC: #3)
+- Create src/services/training/drillSelector.ts
+- Implement selectDrills(weights, count) function
+- Load training plan weights from Dexie (latest assessment)
+- Generate weighted random drill queue
+- Enforce variety rule (max 3 consecutive same type)
+- Write unit tests (weighting distribution, variety enforcement, drill counts)
+
+### Task 5: Persist Session to Dexie (AC: #4)
+- Update Dexie schema if needed (verify sessions table structure)
+- Implement session creation in SessionContext START_TRAINING_SESSION
+- Generate UUID for sessionId, create session record in Dexie
+- Handle Dexie errors (storage full, etc.)
+- Write integration test (session start → verify Dexie record created)
+
+### Task 6: Integration Testing (AC: All)
+- Write integration test: Full training session start flow
+- Test error cases (no assessment, Dexie storage failure)
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+AC-1: Training Route and Session Shell Rendering
+- User completes assessment (Epic 2) with training plan weights stored
+- Navigate to /training route → TrainingSession component renders
+- Session header shows date, current streak (StreakCounter), "Start Training" button (coral #E87461)
+- Optional session type toggle: "Quick Session (5 min)" vs "Full Session (15 min)"
+- Session goal displays: "Focus: Number Sense" (based on highest weight)
+
+AC-2: SessionContext State Management
+- Click "Start Training" → SessionContext manages training state
+- sessionId: UUID generated on session start
+- sessionType: 'training' | 'quick'
+- drillQueue: Array of drill types selected by weights
+- currentDrillIndex: Current position (starts at 0)
+- sessionStartTime: ISO 8601 timestamp when session starts
+- results: Empty array for drill results
+
+AC-3: Weighted Drill Selection Algorithm
+- Training plan weights exist in Dexie (from latest assessment)
+- Session start → drill selection algorithm (src/services/training/drillSelector.ts) executes
+- Loads training plan weights from Dexie
+- Generates weighted random selection: Quick session (6 drills), Full session (12 drills)
+- Weighting example: Number Sense=0.5, Spatial=0.3, Operations=0.2 → 50%/30%/20% probabilities
+- Variety enforcement: No more than 3 consecutive drills of same type
+- Returns drillQueue: DrillType[] array
+
+AC-4: Session Persistence to Dexie
+- Click "Start Training" → SessionContext dispatches START_TRAINING_SESSION
+- Session persists to Dexie sessions table with: id (UUID), timestamp (ISO 8601), module ('training'), sessionType ('quick'|'full'), status ('in_progress'), drillQueue
+
+AC-5: No Assessment Handling
+- Navigate to /training with no assessment in Dexie → redirect to /assessment
+- Prompt message: "Please complete your assessment first to personalize training."
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/epic-3-tech-spec.md</path>
+        <title>Epic 3 Technical Specification</title>
+        <section>System Architecture Alignment</section>
+        <snippet>Primary Feature Module: src/features/training/ with components (TrainingSession, ConfidencePrompt), drills (NumberLineDrill, etc.), hooks (useTrainingSession). Supporting Services: src/services/training/ for drillSelector.ts (weighted random drill selection), streakManager.ts. Routing: src/routes/TrainingRoute.tsx at /training path, protected route redirects to /assessment if no weights.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epic-3-tech-spec.md</path>
+        <title>Epic 3 Technical Specification</title>
+        <section>Data Models - SessionContext State Extension</section>
+        <snippet>TrainingSessionState includes: sessionId (string | null), sessionType ('quick' | 'full'), drillQueue (DrillType[]), currentDrillIndex (number), sessionStartTime (string | null), results (DrillResult[]). Quick session = 6 drills, Full session = 12 drills. Actions: START_TRAINING_SESSION, NEXT_DRILL, END_TRAINING_SESSION.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epic-3-tech-spec.md</path>
+        <title>Epic 3 Technical Specification</title>
+        <section>Services and Modules - TrainingSession and drillSelector</section>
+        <snippet>TrainingSession.tsx is main session orchestrator managing drill queue and lifecycle. Inputs: Training plan weights from Dexie. Outputs: Session start/end events, drill completions. drillSelector.ts performs weighted random drill selection. Inputs: TrainingPlanWeights {numberSense, spatial, operations}. Outputs: DrillQueue DrillType[] array (6-12 drills). Enforces variety: max 3 consecutive drills of same type.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epic-3-tech-spec.md</path>
+        <title>Epic 3 Technical Specification</title>
+        <section>Data Models - Session Model</section>
+        <snippet>Dexie sessions table: id (UUID), timestamp (ISO 8601), module ('training'), status ('in_progress' | 'completed' | 'abandoned'), drillCount, accuracy, confidenceBefore/After, confidenceChange, duration, drillTypes distribution.</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>Functional Requirements - Responsive UX Revamp</section>
+        <snippet>Rebuild tab shell, wizard overlay, and inline drills for 320px screens. Every flow (Assessment, Coach, Cognition, Training, Progress) launches within 10 seconds on mid-tier phone and includes inline confidence prompts.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Specification</title>
+        <section>Epic to Architecture Mapping - Training</section>
+        <snippet>Training epic uses features/training/, routes/TrainingRoute.tsx. Storage: sessions and drill_results tables in Dexie. Key patterns: Adaptive difficulty, Magic Minute. Multi-step wizard with React Hook Form.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Specification</title>
+        <section>Data Architecture - Dexie Schema</section>
+        <snippet>sessions table indexed on: 'id, timestamp, module, [timestamp+module]'. Used for training session metadata persistence.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>Design System Foundation</section>
+        <snippet>shadcn/ui + Tailwind CSS v4. Primary color: Coral #E87461 (warm, motivating). Button hierarchy with primary variant for "Start Training". Minimum 44px tap targets for accessibility.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/context/SessionContext.tsx</path>
+        <kind>Context Provider</kind>
+        <symbol>SessionContext, SessionState, SessionAction</symbol>
+        <lines>1-162</lines>
+        <reason>MUST BE EXTENDED for training. Current state: currentModule, sessionId, sessionStatus, startTime. Actions: START_SESSION, END_SESSION, PAUSE_SESSION, RESUME_SESSION. Need to add training-specific fields: sessionType, drillQueue, currentDrillIndex, results. Add action: START_TRAINING_SESSION.</reason>
+      </artifact>
+      <artifact>
+        <path>src/services/storage/db.ts</path>
+        <kind>Database Layer</kind>
+        <symbol>DiscalculasDB, db</symbol>
+        <lines>1-115</lines>
+        <reason>Existing Dexie database with sessions table indexed on 'timestamp, module, [timestamp+module]'. Will use db.sessions.add() to persist training sessions. Also db.assessments for loading training plan weights.</reason>
+      </artifact>
+      <artifact>
+        <path>src/services/storage/schemas.ts</path>
+        <kind>Type Definitions</kind>
+        <symbol>Session, Assessment</symbol>
+        <lines>8-32</lines>
+        <reason>Existing Session interface: {timestamp, module, duration, completionStatus, confidencePre, confidencePost}. Assessment interface: {status, weaknesses, strengths, recommendations}. MAY NEED TO ADD trainingPlanWeights field to Assessment or verify Epic 2 implementation.</reason>
+      </artifact>
+      <artifact>
+        <path>src/shared/components/StreakCounter.tsx</path>
+        <kind>Shared Component</kind>
+        <symbol>StreakCounter</symbol>
+        <lines>N/A</lines>
+        <reason>REUSE in training session header. Displays current streak count from localStorage. Already implemented in Epic 1.</reason>
+      </artifact>
+      <artifact>
+        <path>src/App.tsx</path>
+        <kind>Router Configuration</kind>
+        <symbol>Routes, Route</symbol>
+        <lines>1-100</lines>
+        <reason>Uses react-router-dom. TrainingRoute already imported (line 28). Routing is in Routes/Route JSX. Need to verify TrainingRoute implementation or create if placeholder.</reason>
+      </artifact>
+      <artifact>
+        <path>src/routes/TrainingRoute.tsx</path>
+        <kind>Route Component</kind>
+        <symbol>TrainingRoute</symbol>
+        <lines>N/A</lines>
+        <reason>FILE EXISTS. May be placeholder or partial implementation from Epic 1. THIS STORY CREATES/UPDATES this file to implement protected route, assessment check, and render TrainingSession component.</reason>
+      </artifact>
+      <artifact>
+        <path>src/shared/components/ui/button.tsx</path>
+        <kind>Shared UI Component</kind>
+        <symbol>Button</symbol>
+        <lines>N/A</lines>
+        <reason>shadcn/ui Button component. Use variant="default" for coral primary "Start Training" button.</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <package name="react" version="19.2.0">Core UI framework</package>
+        <package name="react-dom" version="19.2.0">DOM rendering</package>
+        <package name="react-router-dom" version="7.9.5">Routing for /training route</package>
+        <package name="dexie" version="4.2.1">IndexedDB wrapper for sessions persistence</package>
+        <package name="dexie-react-hooks" version="4.2.0">React hooks for Dexie queries</package>
+        <package name="date-fns" version="4.0.0">Date formatting for session header</package>
+        <package name="lucide-react" version="^0.553.0">Icons for UI</package>
+      </node>
+      <testing>
+        <package name="vitest" version="^3.2.4">Unit tests for drillSelector.ts</package>
+        <package name="@testing-library/react" version="16.3.0">Component tests for TrainingSession</package>
+        <package name="fake-indexeddb" version="^6.2.5">Mock Dexie in tests</package>
+      </testing>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>
+      <category>Architecture Pattern</category>
+      <rule>Feature-based organization: Training code in src/features/training/, services in src/services/training/. No code in src/lib or src/utils.</rule>
+      <source>docs/architecture.md - Project Structure</source>
+    </constraint>
+    <constraint>
+      <category>State Management</category>
+      <rule>Use React Context + useReducer pattern. NO Redux or Zustand. Extend existing SessionContext, do not create new training-specific context.</rule>
+      <source>docs/architecture.md - State Management</source>
+    </constraint>
+    <constraint>
+      <category>Naming Conventions</category>
+      <rule>Components: PascalCase.tsx (TrainingSession.tsx). Services: camelCase.ts (drillSelector.ts). Tests: same + .test.tsx. Database tables: snake_case plural (sessions, drill_results).</rule>
+      <source>docs/architecture.md - Naming Conventions</source>
+    </constraint>
+    <constraint>
+      <category>Data Persistence</category>
+      <rule>All dates ISO 8601 strings in storage. Session timestamps use new Date().toISOString(). UUIDs for sessionId using crypto.randomUUID() or uuid library.</rule>
+      <source>docs/architecture.md - Data Formats</source>
+    </constraint>
+    <constraint>
+      <category>Error Handling</category>
+      <rule>Wrap all Dexie operations in try-catch. On write failure: Log to console, show toast notification, fallback to localStorage backup. Never crash on storage errors.</rule>
+      <source>docs/architecture.md - Cross-Cutting Concerns, docs/epic-3-tech-spec.md - Reliability</source>
+    </constraint>
+    <constraint>
+      <category>Testing</category>
+      <rule>100% coverage required. Co-located test files. AAA pattern (Arrange, Act, Assert). Use fake-indexeddb for Dexie mocks. Manual verification in dev server MANDATORY per new DoD.</rule>
+      <source>docs/architecture.md - Testing, Story 3.1 - Manual Verification Steps</source>
+    </constraint>
+    <constraint>
+      <category>Accessibility</category>
+      <rule>WCAG 2.1 AA compliance. Minimum 44px tap targets. ARIA labels for interactive elements. Keyboard navigation support.</rule>
+      <source>docs/architecture.md - Accessibility, docs/PRD.md - Non-Functional Requirements</source>
+    </constraint>
+    <constraint>
+      <category>Performance</category>
+      <rule>Route load <2s. Drill selection algorithm <100ms. SessionContext updates must not trigger full tree re-renders. Use React.memo() for expensive components.</rule>
+      <source>docs/epic-3-tech-spec.md - Performance</source>
+    </constraint>
+    <constraint>
+      <category>Epic 2 Retrospective Learning</category>
+      <rule>CRITICAL: Manual verification in running dev server REQUIRED before marking done. Route must be accessible, UI must render correctly, data flow must be verified in DevTools. E2E test should pass on first run if story verification complete.</rule>
+      <source>docs/architecture.md - E2E Testing Philosophy, Story 3.1 - Manual Verification Steps</source>
+    </constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>SessionContext Extension</name>
+      <kind>React Context State</kind>
+      <signature>
+interface TrainingSessionState extends SessionState {
+  sessionType: 'quick' | 'full';
+  drillQueue: DrillType[];
+  currentDrillIndex: number;
+  results: DrillResult[];
+}
+
+type DrillType = 'number_line' | 'spatial_rotation' | 'math_operations';
+
+// New action to add:
+| { type: 'START_TRAINING_SESSION'; payload: { sessionType: 'quick' | 'full'; drillQueue: DrillType[] } }
+      </signature>
+      <path>src/context/SessionContext.tsx</path>
+    </interface>
+    <interface>
+      <name>DrillSelector Service API</name>
+      <kind>Service Function</kind>
+      <signature>
+async function selectDrills(
+  weights: TrainingPlanWeights,
+  count: number
+): Promise&lt;DrillType[]&gt;
+
+interface TrainingPlanWeights {
+  numberSense: number;  // 0.0 - 1.0
+  spatial: number;
+  operations: number;
+}
+      </signature>
+      <path>src/services/training/drillSelector.ts</path>
+    </interface>
+    <interface>
+      <name>Dexie Sessions Table</name>
+      <kind>Database Schema</kind>
+      <signature>
+sessions.add({
+  timestamp: string;      // ISO 8601
+  module: 'training';
+  duration: number;       // milliseconds
+  completionStatus: 'completed' | 'abandoned' | 'paused';
+  confidencePre?: number;
+  confidencePost?: number;
+})
+      </signature>
+      <path>src/services/storage/db.ts</path>
+    </interface>
+    <interface>
+      <name>TrainingPlanWeights from Assessment</name>
+      <kind>Data Model</kind>
+      <signature>
+// Query from Epic 2 assessments table
+const assessment = await db.assessments
+  .orderBy('timestamp')
+  .reverse()
+  .first();
+
+// VERIFY Epic 2 implementation includes this field:
+assessment.trainingPlanWeights?: {
+  numberSense: number;
+  spatial: number;
+  operations: number;
+}
+
+// Fallback if missing:
+const defaultWeights = { numberSense: 0.33, spatial: 0.33, operations: 0.34 };
+      </signature>
+      <path>src/services/storage/schemas.ts (Assessment interface)</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+Testing framework: Vitest 3.2.4 for unit/integration tests, React Testing Library 16.3.0 for component tests. Co-located test files (ComponentName.test.tsx). AAA pattern (Arrange, Act, Assert). 100% coverage required (statements, branches, functions, lines). Use fake-indexeddb to mock Dexie operations. Manual verification in running dev server MANDATORY per Epic 2 retrospective - verify route accessible, UI renders, data persists in DevTools before marking story done.
+    </standards>
+    <locations>
+      <location>src/features/training/components/*.test.tsx</location>
+      <location>src/services/training/*.test.ts</location>
+      <location>src/context/SessionContext.test.tsx (extend existing tests)</location>
+    </locations>
+    <ideas>
+      <test ac="AC-1">
+        <name>TrainingRoute renders and redirects when no assessment</name>
+        <approach>Component test: Mock db.assessments to return empty. Navigate to /training. Verify redirect to /assessment with toast message.</approach>
+      </test>
+      <test ac="AC-1">
+        <name>TrainingSession component renders session header</name>
+        <approach>Component test: Render TrainingSession with mock training plan weights. Verify header shows date (using date-fns), StreakCounter component, "Start Training" button (coral color #E87461), session goal display.</approach>
+      </test>
+      <test ac="AC-2">
+        <name>SessionContext START_TRAINING_SESSION action updates state</name>
+        <approach>Unit test: Dispatch START_TRAINING_SESSION with sessionType and drillQueue. Verify state updates: sessionId populated, drillQueue set, currentDrillIndex=0, sessionStartTime ISO 8601.</approach>
+      </test>
+      <test ac="AC-3">
+        <name>drillSelector generates weighted random drill queue</name>
+        <approach>Unit test: Call selectDrills() with weights {numberSense: 0.5, spatial: 0.3, operations: 0.2} and count=100. Run 100 times. Verify distribution roughly 50/30/20. Verify variety: no more than 3 consecutive drills of same type.</approach>
+      </test>
+      <test ac="AC-3">
+        <name>drillSelector respects Quick (6) vs Full (12) drill counts</name>
+        <approach>Unit test: Call selectDrills() with count=6 → verify drillQueue.length === 6. Call with count=12 → verify drillQueue.length === 12.</approach>
+      </test>
+      <test ac="AC-4">
+        <name>Session persists to Dexie on START_TRAINING_SESSION</name>
+        <approach>Integration test: Mock Dexie with fake-indexeddb. Render TrainingSession, click "Start Training". Verify db.sessions.add() called with correct fields: timestamp (ISO 8601), module ('training'), status ('in_progress'), drillQueue.</approach>
+      </test>
+      <test ac="AC-5">
+        <name>No assessment redirects to /assessment route</name>
+        <approach>Integration test: Clear db.assessments. Navigate to /training. Verify useNavigate() called with '/assessment'. Verify toast notification shows "Please complete your assessment first".</approach>
+      </test>
+      <test ac="Manual Verification">
+        <name>CRITICAL: Manual browser testing before marking done</name>
+        <approach>Run npm run dev. Navigate to http://localhost:5173/training. Verify route accessible, UI renders correctly, session persists to Dexie (check DevTools → Application → IndexedDB). ALL manual verification steps in story file MUST be completed.</approach>
+      </test>
+    </ideas>
+  </tests>
+</story-context>

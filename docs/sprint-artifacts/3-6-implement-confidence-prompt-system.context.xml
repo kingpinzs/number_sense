@@ -1,0 +1,249 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>3</epicId>
+    <storyId>6</storyId>
+    <title>Implement Confidence Prompt System</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-23</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/22-story-36-implement-confidence-prompt-system.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user completing a training session</asA>
+    <iWant>to log how confident I felt before and after the session</iWant>
+    <soThat>the app can track my emotional progress alongside performance data</soThat>
+    <tasks>
+      - Create ConfidencePromptBefore.tsx component with 5 emoji options (😟 😐 🙂 😊 🤩)
+      - Create ConfidencePromptAfter.tsx component with same 5 emoji options
+      - Integrate prompts into TrainingSession flow (before first drill, after last drill)
+      - Store confidenceBefore and confidenceAfter in SessionContext
+      - Calculate and store confidenceChange (delta) in session record
+      - Create streakManager.ts service for streak calculation logic
+      - Build SessionCompletionSummary component with stats display
+      - Update session record in Dexie with confidence data
+      - Implement streak update logic in localStorage
+      - Add confetti animation for positive confidence change
+      - Write comprehensive tests for confidence components
+      - Manual verification in running dev server
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-1">
+      <given>drill session UI components are complete (Story 3.5 done)</given>
+      <when>I start a training session</when>
+      <then>the ConfidencePromptBefore component renders as modal before first drill with:
+        - Question: "How confident do you feel about math right now?"
+        - 5 emoji options (44px tap targets): 😟 😐 🙂 😊 🤩
+        - User selection required to continue
+        - Selected confidence stored in SessionContext as confidenceBefore: 1-5
+      </then>
+    </criterion>
+    <criterion id="AC-2">
+      <when>I complete all drills in the session</when>
+      <then>the ConfidencePromptAfter component renders as modal after final drill with:
+        - Question: "How do you feel about math now?"
+        - Same 5 emoji options (44px tap targets)
+        - User selection required
+        - Selected confidence stored as confidenceAfter: 1-5
+      </then>
+    </criterion>
+    <criterion id="AC-3">
+      <then>Confidence delta calculated as: confidenceChange = confidenceAfter - confidenceBefore
+        - Stored in session record
+        - Example: Started at 2 (😐), ended at 4 (😊) → +2 improvement
+      </then>
+    </criterion>
+    <criterion id="AC-4">
+      <then>Session completion summary shown after confidence prompt with:
+        - "Session Complete! 🎉"
+        - Stats displayed: "Drills completed: 12", "Accuracy: 85%", "Confidence boost: +2"
+        - "View Progress" button → navigates to /progress
+        - "Done" button → navigates to / (home)
+      </then>
+    </criterion>
+    <criterion id="AC-5">
+      <then>Full session record saved to Dexie sessions table with:
+        - id, timestamp, module: 'training', status: 'completed'
+        - drillCount, accuracy, confidenceBefore, confidenceAfter, confidenceChange, duration
+      </then>
+    </criterion>
+    <criterion id="AC-6">
+      <then>Streak updated in localStorage:
+        - If last session date = yesterday → increment streak
+        - If last session date = today → maintain streak (don't double-count)
+        - If last session date > 1 day ago → reset streak to 1
+      </then>
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/epic-3-tech-spec.md</path>
+        <title>Epic 3 Technical Specification - Training & Drill Engine</title>
+        <section>Detailed Design > Services and Modules</section>
+        <snippet>ConfidencePromptBefore.tsx: Pre-session confidence capture (1-5 emoji scale) → confidenceBefore: number. ConfidencePromptAfter.tsx: Post-session confidence capture → confidenceAfter: number. streakManager.ts: Streak calculation and localStorage updates.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epic-3-tech-spec.md</path>
+        <title>Epic 3 Technical Specification - Training & Drill Engine</title>
+        <section>Data Models and Contracts > Session Model</section>
+        <snippet>Session interface includes confidenceBefore: number (1-5), confidenceAfter: number (1-5), confidenceChange: number (delta), status: 'completed' | 'in_progress' | 'abandoned'.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epic-3-tech-spec.md</path>
+        <title>Epic 3 Technical Specification - Training & Drill Engine</title>
+        <section>APIs and Interfaces > Streak Manager Service</section>
+        <snippet>updateStreak(): Compares LAST_SESSION_DATE to today. If yesterday→increment, if today→maintain, if >1 day→reset to 1. Updates LAST_SESSION_DATE. getStreak(): Reads STREAK from localStorage.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epic-3-tech-spec.md</path>
+        <title>Epic 3 Technical Specification - Training & Drill Engine</title>
+        <section>Workflows and Sequencing > Training Session Flow</section>
+        <snippet>Step 3: Pre-Session Confidence Prompt → User selects emoji → Store in SessionContext → Log telemetry. Step 5: Post-Session Confidence Prompt → Calculate confidenceChange. Step 6: Update streak via streakManager.updateStreak().</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/context/SessionContext.tsx</path>
+        <kind>context</kind>
+        <symbol>SessionContext</symbol>
+        <lines>N/A</lines>
+        <reason>Needs extension to store confidenceBefore, confidenceAfter, confidenceChange in training session state</reason>
+      </artifact>
+      <artifact>
+        <path>src/services/storage/db.ts</path>
+        <kind>service</kind>
+        <symbol>db</symbol>
+        <lines>N/A</lines>
+        <reason>Dexie database instance for persisting session records with confidence data</reason>
+      </artifact>
+      <artifact>
+        <path>src/shared/components/ui/dialog.tsx</path>
+        <kind>component</kind>
+        <symbol>Dialog</symbol>
+        <lines>N/A</lines>
+        <reason>shadcn/ui Dialog component for modal display with closeOnOutsideClick={false}</reason>
+      </artifact>
+      <artifact>
+        <path>src/shared/components/ui/button.tsx</path>
+        <kind>component</kind>
+        <symbol>Button</symbol>
+        <lines>N/A</lines>
+        <reason>shadcn/ui Button component for emoji option buttons (min-h-[44px] tap targets)</reason>
+      </artifact>
+      <artifact>
+        <path>src/features/training/components/TrainingSession.tsx</path>
+        <kind>component</kind>
+        <symbol>TrainingSession</symbol>
+        <lines>N/A</lines>
+        <reason>Main session orchestrator that needs integration points for confidence prompts</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <npm>
+        <package name="react" version="19.2.0" usage="React components for confidence prompts"/>
+        <package name="react-dom" version="19.2.0" usage="Rendering confidence prompt modals"/>
+        <package name="dexie" version="4.2.1" usage="Persisting session records with confidence data"/>
+        <package name="framer-motion" version="12.23.24" usage="Confetti animation for positive confidence change"/>
+        <package name="date-fns" version="4.0.0" usage="Date comparisons for streak calculation"/>
+        <package name="lucide-react" version="^0.553.0" usage="Icons for completion summary"/>
+        <package name="tailwindcss" version="4.1.17" usage="Styling confidence prompt components"/>
+      </npm>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    - Emoji buttons must be 60px size with 44px minimum tap targets (WCAG 2.1 AA)
+    - Dialog must use closeOnOutsideClick={false} to force user selection
+    - Dialog must be modal (blocks interaction with background)
+    - All buttons must have clear aria-labels for accessibility
+    - Confidence values stored as integers 1-5 (not 0-indexed)
+    - Streak logic must handle edge cases: browser timezone changes, system date changes
+    - Session completion summary must show after confidence prompt (not before)
+    - Confetti animation must respect prefers-reduced-motion
+    - All Dexie writes must be wrapped in try-catch with localStorage fallback
+    - Streak data persists in localStorage with keys: "discalculas:streak", "discalculas:lastSessionDate"
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>SessionContext Extension</name>
+      <kind>React Context State</kind>
+      <signature>
+        interface TrainingSessionState {
+          confidenceBefore: number | null;  // 1-5 scale
+          confidenceAfter: number | null;   // 1-5 scale
+          confidenceChange: number | null;  // Delta (after - before)
+        }
+      </signature>
+      <path>src/context/SessionContext.tsx</path>
+    </interface>
+    <interface>
+      <name>Session Model (Dexie)</name>
+      <kind>Database Schema</kind>
+      <signature>
+        interface Session {
+          id: string;
+          timestamp: string;
+          module: 'training';
+          status: 'completed' | 'in_progress' | 'abandoned';
+          drillCount: number;
+          accuracy: number;
+          confidenceBefore: number;  // 1-5
+          confidenceAfter: number;   // 1-5
+          confidenceChange: number;  // Delta
+          duration: number;          // milliseconds
+        }
+      </signature>
+      <path>src/services/storage/schemas.ts</path>
+    </interface>
+    <interface>
+      <name>Streak Manager Service</name>
+      <kind>Service API</kind>
+      <signature>
+        function updateStreak(): number;  // Returns new streak count
+        function getStreak(): number;      // Returns current streak from localStorage
+      </signature>
+      <path>src/services/training/streakManager.ts</path>
+    </interface>
+    <interface>
+      <name>ConfidencePrompt Props</name>
+      <kind>Component Props</kind>
+      <signature>
+        interface ConfidencePromptProps {
+          onSelect: (confidence: number) => void;  // 1-5 callback
+          isOpen: boolean;
+        }
+      </signature>
+      <path>src/features/training/components/ConfidencePromptBefore.tsx</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Per Epic 3 tech spec: 100% test coverage required for all components and services. Use Vitest for unit tests, React Testing Library for component tests. Mock Dexie with fake-indexeddb. Test accessibility (keyboard nav, ARIA labels, screen reader). Respect prefers-reduced-motion in tests.
+    </standards>
+    <locations>
+      - src/features/training/components/*.test.tsx
+      - src/services/training/*.test.ts
+    </locations>
+    <ideas>
+      - AC-1: Test ConfidencePromptBefore renders with 5 emoji options, requires selection, stores value in SessionContext
+      - AC-2: Test ConfidencePromptAfter renders after session complete, captures selection
+      - AC-3: Test confidenceChange calculation (positive, negative, zero deltas)
+      - AC-4: Test SessionCompletionSummary displays correct stats (drillCount, accuracy, confidence boost)
+      - AC-5: Test session record persisted to Dexie with all confidence fields
+      - AC-6: Test streak logic - yesterday (increment), today (maintain), >1 day (reset)
+      - Test Dialog closeOnOutsideClick={false} prevents dismissal
+      - Test emoji buttons meet 44px tap target minimum
+      - Test confetti animation triggers only for positive confidenceChange
+      - Test localStorage fallback when Dexie write fails
+      - Test keyboard navigation through emoji options
+      - Test screen reader announcements for confidence prompts
+      - Integration test: Complete session → confidence prompts → streak update → Dexie persistence
+    </ideas>
+  </tests>
+</story-context>

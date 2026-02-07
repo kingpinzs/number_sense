@@ -1,0 +1,408 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>3</epicId>
+    <storyId>3.7</storyId>
+    <title>Implement Session Telemetry and Data Persistence</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-24</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/23-story-37-implement-session-telemetry-and-data-persistence.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>comprehensive session and drill data persisted to Dexie</iWant>
+    <soThat>future epics (Progress Tracking, Adaptive Intelligence) have rich data to analyze</soThat>
+    <tasks>
+- Create telemetry service (src/services/telemetry/logger.ts) with structured logging functions
+- Enhance TrainingSession to use db.transaction() for atomic multi-table session writes
+- Implement drillTypes distribution calculation in session completion
+- Add telemetry logging for session lifecycle events (session_start, drill_complete, session_end)
+- Create data export utility (src/services/storage/exportData.ts) with exportSessionData(sessionId) function
+- Implement database maintenance utility cleanOldSessions() to auto-delete sessions older than 365 days
+- Add comprehensive error handling with localStorage fallback for all Dexie operations
+- Enhance session persistence to include full drillTypes breakdown { number_line: N, spatial_rotation: N, math_operations: N }
+- Update TrainingSession to call telemetry logger for all session lifecycle events
+- Add toast notifications for Dexie write failures using sonner library
+- Test IndexedDB quota handling and fallback behavior
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+**Given** confidence prompts are implemented (Story 3.6 complete)
+**When** a user completes a training session
+**Then** all data is successfully persisted to Dexie:
+
+**Sessions Table:**
+```typescript
+await db.sessions.add({
+  id: auto-increment,
+  timestamp: sessionStartTime (ISO 8601),
+  module: 'training',
+  completionStatus: 'completed',
+  drillCount: 12,
+  accuracy: 85, // percentage (0-100)
+  confidenceBefore: 2, // 1-5 scale
+  confidenceAfter: 4, // 1-5 scale
+  confidenceChange: 2, // delta (after - before)
+  duration: 647000, // milliseconds
+  sessionType: 'quick' | 'full',
+  drillQueue: ['number_line', 'spatial_rotation', ...] // array of drill types
+});
+```
+
+**Drill Results Table:**
+Each drill result saved individually by drill components (already implemented in Stories 3.2-3.4):
+```typescript
+await db.drill_results.add({
+  id: auto-increment,
+  sessionId: currentSessionId,
+  timestamp: new Date().toISOString(),
+  module: 'number_line' | 'spatial_rotation' | 'math_operations',
+  difficulty: 'easy' | 'medium' | 'hard',
+  isCorrect: boolean,
+  timeToAnswer: number (ms),
+  accuracy: number (0-100),
+  userAnswer: number | null,
+  correctAnswer: number,
+  // Drill-specific fields...
+});
+```
+
+**Telemetry Logs Table:**
+Session lifecycle events logged by telemetry service:
+```typescript
+await db.telemetry_logs.bulkAdd([
+  {
+    id: auto-increment,
+    timestamp: sessionStart (ISO 8601),
+    event: 'session_start',
+    module: 'training',
+    data: { sessionType: 'quick', drillCount: 6 },
+    userId: 'local_user'
+  },
+  {
+    id: auto-increment,
+    timestamp: drillComplete (ISO 8601),
+    event: 'drill_complete',
+    module: 'number_line',
+    data: { accuracy: 95.7, difficulty: 'medium', isCorrect: true },
+    userId: 'local_user'
+  },
+  {
+    id: auto-increment,
+    timestamp: sessionEnd (ISO 8601),
+    event: 'session_end',
+    module: 'training',
+    data: { accuracy: 85, duration: 647000, confidenceChange: 2 },
+    userId: 'local_user'
+  }
+]);
+```
+
+**And** Error handling:
+- Wrap all Dexie operations in try-catch
+- If IndexedDB write fails: Log to console, show user toast notification (using sonner)
+- Fallback: Store session data in localStorage as backup (retrieve on next launch)
+
+**And** Data export utility (`src/services/storage/exportData.ts`):
+- Function: `exportSessionData(sessionId: number): Promise<object>`
+- Returns JSON object bundling session + all drill results
+- For debugging and user data portability
+
+**And** Database maintenance:
+- Auto-delete sessions older than 365 days (configurable)
+- Function: `cleanOldSessions(): Promise<number>` runs on app launch
+- Returns count of deleted sessions
+- Keeps database size manageable (<10MB typical)
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/epic-3-tech-spec.md</path>
+        <title>Epic 3: Training & Drill Engine Technical Specification</title>
+        <section>Data Models and Contracts</section>
+        <snippet>Defines Session, DrillResult, and TelemetryLog interfaces. Session includes id, timestamp, module, duration, completionStatus, confidenceBefore/After/Change, drillCount, accuracy, sessionType, drillQueue. DrillResult includes sessionId FK, module-specific fields. TelemetryLog structured with id, timestamp, event, module, data JSON, userId.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epic-3-tech-spec.md</path>
+        <title>Epic 3 Technical Specification</title>
+        <section>Observability - Telemetry Events Logged</section>
+        <snippet>Comprehensive telemetry specification with event types: session_start, drill_complete, session_pause, session_resume, session_end. Each event captures specific data: session_start logs sessionType/drillCount, drill_complete logs accuracy/timeToAnswer/difficulty/isCorrect, session_end logs accuracy/duration/confidenceChange/drillCount. All entries include id, timestamp (ISO 8601), event, module, data JSON.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epic-3-tech-spec.md</path>
+        <title>Epic 3 Technical Specification</title>
+        <section>Reliability/Availability - Error Handling</section>
+        <snippet>Session persistence patterns: Dexie write failures wrapped in try-catch, localStorage fallback for session_backup, toast notification for user ("Session data not saved"). Atomic session writes using db.transaction() for multi-table operations. Data integrity validation: check required fields (sessionId, module, isCorrect) before persistence. Auto-delete sessions older than 365 days via cleanOldSessions() on app launch to prevent quota exhaustion (<10MB typical DB size).</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>System Architecture</title>
+        <section>Data Architecture - Dexie Schema</section>
+        <snippet>DiscalculasDB extends Dexie with 8 tables: sessions (++id, timestamp, module, [timestamp+module]), drill_results (++id, sessionId, timestamp, module), telemetry_logs (++id, timestamp, event, [timestamp+event]). LocalStorage keys: STORAGE_KEYS.STREAK, LAST_SESSION_DATE, USER_SETTINGS, SESSION_BACKUP.</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>Instrumentation & Telemetry</section>
+        <snippet>Capture session start/end, step durations, dwell time, accuracy, streaks, self-reported confidence/anxiety deltas; persist locally and render in Progress dashboard. Provide CSV/JSON exports for journaling and snapshots. No cloud sync - all data stored in-browser IndexedDB + localStorage. Privacy: no PII collected, userId always "local_user".</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/services/storage/db.ts</path>
+        <kind>service</kind>
+        <symbol>DiscalculasDB, db, ensureDBHealth, queryWithTiming</symbol>
+        <reason>Dexie database instance with all 8 tables defined. Provides db.sessions, db.drill_results, db.telemetry_logs tables. Includes health check utility ensureDBHealth() and performance monitoring wrapper queryWithTiming(). Use this as base for all telemetry persistence operations.</reason>
+      </artifact>
+      <artifact>
+        <path>src/services/storage/schemas.ts</path>
+        <kind>interface</kind>
+        <symbol>Session, DrillResult, TelemetryLog</symbol>
+        <reason>TypeScript interfaces for database schemas. Session includes training-specific fields (sessionType, drillQueue, confidenceBefore/After/Change, drillCount, accuracy). DrillResult has module-specific optional fields (targetNumber, operation, problem, shapeType). TelemetryLog structure: id, timestamp, event, module, data (Record), userId.</reason>
+      </artifact>
+      <artifact>
+        <path>src/features/training/components/TrainingSession.tsx</path>
+        <kind>component</kind>
+        <symbol>TrainingSession</symbol>
+        <reason>Main session orchestrator. Already persists session to Dexie on start (lines 134-154) and updates on completion (lines 216-249). Has localStorage fallback pattern (lines 147-154, 239-249). Needs enhancement: add telemetry logging, use db.transaction() for atomic writes, calculate drillTypes distribution on completion.</reason>
+      </artifact>
+      <artifact>
+        <path>src/context/SessionContext.tsx</path>
+        <kind>context</kind>
+        <symbol>SessionContext, useSession, SessionState, SessionAction</symbol>
+        <reason>React Context managing in-memory session state. Provides sessionId, drillQueue, results array, confidenceBefore/After/Change. Exposes startTrainingSession, recordDrillResult, endSession, setConfidenceBefore/After methods. Session telemetry service will use this state to log events.</reason>
+      </artifact>
+      <artifact>
+        <path>src/features/training/drills/NumberLineDrill.tsx</path>
+        <kind>component</kind>
+        <symbol>NumberLineDrill</symbol>
+        <reason>Reference drill showing DrillResult persistence pattern. Uses db.drill_results.add() in try-catch block with localStorage fallback (lines 92-109). Pattern to replicate in telemetry service for consistent error handling.</reason>
+      </artifact>
+      <artifact>
+        <path>src/features/training/drills/MathOperationsDrill.tsx</path>
+        <kind>component</kind>
+        <symbol>MathOperationsDrill</symbol>
+        <reason>Another drill persistence reference. Shows db.drill_results.add() with try-catch and localStorage fallback (lines 88-97). Demonstrates DRILL_RESULTS_BACKUP localStorage key convention.</reason>
+      </artifact>
+      <artifact>
+        <path>src/services/storage/localStorage.ts</path>
+        <kind>service</kind>
+        <symbol>STORAGE_KEYS, getUserSettings, setUserSettings</symbol>
+        <reason>LocalStorage utility with namespaced keys (STORAGE_KEYS.STREAK, LAST_SESSION_DATE, USER_SETTINGS, etc.). Demonstrates type-safe localStorage access pattern with validation. Use STORAGE_KEYS for session backup keys to maintain consistency.</reason>
+      </artifact>
+      <artifact>
+        <path>src/services/training/streakManager.ts</path>
+        <kind>service</kind>
+        <symbol>getStreak, updateStreak, resetStreak</symbol>
+        <reason>Demonstrates localStorage-based service pattern with error handling (lines 18-26, 37-74). Includes try-catch wrapping with console.error logging and fallback return values. Good reference for telemetry service error handling approach.</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <react version="19.2.0">UI framework with hooks and concurrent rendering</react>
+        <dexie version="4.2.1">IndexedDB wrapper for persisting sessions, drill results, telemetry logs. Provides db.transaction() for atomic multi-table writes, bulkAdd() for batch inserts.</dexie>
+        <dexie-react-hooks version="4.2.0">React hooks for Dexie queries (useLiveQuery)</dexie-react-hooks>
+        <date-fns version="4.0.0">Date utilities for timestamp formatting, session duration calculations, old session cleanup (differenceInDays, subDays)</date-fns>
+        <sonner version="^2.0.7">Toast notification library for displaying Dexie write failure messages to users</sonner>
+        <fake-indexeddb version="^6.2.5">IndexedDB mock for Vitest unit tests, simulate Dexie operations and quota errors</fake-indexeddb>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+- MUST create telemetry service at src/services/telemetry/logger.ts with functions: logSessionStart, logDrillComplete, logSessionEnd
+- MUST create data export utility at src/services/storage/exportData.ts with exportSessionData(sessionId) function
+- MUST implement cleanOldSessions() function (can be in db.ts or separate maintenance.ts file)
+- Telemetry logs MUST include userId: 'local_user' for all entries (privacy requirement)
+- Session writes MUST use db.transaction() for atomic operations across multiple tables
+- Bulk inserts MUST use bulkAdd() for performance (NOT individual add() calls in loop)
+- All Dexie operations MUST be wrapped in try-catch with console.error and toast notification on failure
+- localStorage fallback keys MUST use STORAGE_KEYS namespace pattern (e.g., 'discalculas:sessionBackup')
+- cleanOldSessions() MUST be called on app initialization (src/App.tsx or TrainingSession useEffect)
+- Session data MUST include drillTypes distribution: { number_line: number, spatial_rotation: number, math_operations: number }
+- Telemetry event timestamps MUST be ISO 8601 format (new Date().toISOString())
+- exportSessionData MUST return JSON object with session + all related drill_results (JOIN operation)
+- Database size MUST be kept under 10MB via automatic cleanup (365-day retention configurable)
+- Toast notifications for errors MUST use sonner library (already in dependencies)
+- Error messages MUST be user-friendly ("Session data not saved" not "Dexie transaction failed")
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>Session</name>
+      <kind>Database Schema</kind>
+      <signature>
+interface Session {
+  id?: number;                        // Auto-increment PK
+  timestamp: string;                  // ISO 8601 session start (indexed)
+  module: string;                     // "training"
+  duration: number;                   // Milliseconds
+  completionStatus: "completed" | "abandoned" | "paused";
+  sessionType?: 'quick' | 'full';     // Training session type
+  drillQueue?: string[];              // Array of drill type strings
+  confidenceBefore?: number;          // 1-5 scale
+  confidenceAfter?: number;           // 1-5 scale
+  confidenceChange?: number;          // Delta (after - before)
+  drillCount?: number;                // Total drills completed
+  accuracy?: number;                  // Accuracy percentage (0-100)
+}
+      </signature>
+      <path>src/services/storage/schemas.ts</path>
+    </interface>
+    <interface>
+      <name>DrillResult</name>
+      <kind>Database Schema</kind>
+      <signature>
+interface DrillResult {
+  id?: number;                                        // Auto-increment PK
+  sessionId: number;                                  // FK to sessions.id
+  timestamp: string;                                  // ISO 8601
+  module: 'number_line' | 'spatial_rotation' | 'math_operations';
+  difficulty: 'easy' | 'medium' | 'hard';
+  isCorrect: boolean;
+  timeToAnswer: number;                               // Milliseconds
+  accuracy: number;                                   // Percentage (0-100)
+  userAnswer?: number;                                // User's answer
+  correctAnswer?: number;                             // Correct answer
+  // Module-specific fields (optional)
+  targetNumber?: number;                              // Number line
+  shapeType?: string;                                 // Spatial rotation
+  rotationDegrees?: number;                           // Spatial rotation
+  isMirrored?: boolean;                               // Spatial rotation
+  operation?: 'addition' | 'subtraction' | 'multiplication'; // Math operations
+  problem?: string;                                   // e.g., "12 + 7"
+}
+      </signature>
+      <path>src/services/storage/schemas.ts</path>
+    </interface>
+    <interface>
+      <name>TelemetryLog</name>
+      <kind>Database Schema</kind>
+      <signature>
+interface TelemetryLog {
+  id?: number;                                        // Auto-increment PK
+  timestamp: string;                                  // ISO 8601 (indexed)
+  event: string;                                      // 'session_start' | 'drill_complete' | 'session_end' | 'session_pause' | 'session_resume'
+  module: string;                                     // 'training' or specific drill type
+  data: Record<string, any>;                          // JSON payload with event-specific metrics
+  userId: string;                                     // Always 'local_user'
+}
+      </signature>
+      <path>src/services/storage/schemas.ts</path>
+    </interface>
+    <interface>
+      <name>Telemetry Service</name>
+      <kind>Service Functions</kind>
+      <signature>
+// src/services/telemetry/logger.ts
+export async function logSessionStart(sessionId: string | number, sessionType: 'quick' | 'full', drillCount: number): Promise<void>;
+export async function logDrillComplete(module: string, data: { accuracy: number; difficulty: string; isCorrect: boolean; timeToAnswer: number }): Promise<void>;
+export async function logSessionEnd(data: { accuracy: number; duration: number; confidenceChange: number | null; drillCount: number }): Promise<void>;
+export async function logSessionPause(currentDrillIndex: number): Promise<void>;
+export async function logSessionResume(): Promise<void>;
+      </signature>
+      <path>src/services/telemetry/logger.ts (TO BE CREATED)</path>
+    </interface>
+    <interface>
+      <name>Data Export Utility</name>
+      <kind>Service Function</kind>
+      <signature>
+// src/services/storage/exportData.ts
+export async function exportSessionData(sessionId: number): Promise<{
+  session: Session;
+  drillResults: DrillResult[];
+  telemetryLogs: TelemetryLog[];
+}>;
+      </signature>
+      <path>src/services/storage/exportData.ts (TO BE CREATED)</path>
+    </interface>
+    <interface>
+      <name>Database Maintenance</name>
+      <kind>Service Function</kind>
+      <signature>
+// src/services/storage/maintenance.ts or db.ts
+export async function cleanOldSessions(retentionDays?: number): Promise<number>;
+// Default retentionDays = 365
+// Returns count of deleted sessions
+      </signature>
+      <path>src/services/storage/db.ts or maintenance.ts (TO BE CREATED)</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+Use Vitest with React Testing Library for unit/integration tests. Use Playwright for E2E tests. Test files colocated with source (.test.ts/.test.tsx).
+
+**Dexie Testing:**
+- Use fake-indexeddb for mocking IndexedDB in Vitest
+- Test atomic transactions with db.transaction()
+- Test bulkAdd() operations
+- Simulate quota exceeded errors to test fallback behavior
+
+**Telemetry Testing:**
+- Mock Dexie db.telemetry_logs.add() calls
+- Verify correct event, module, data payload structure
+- Test error handling and localStorage fallback
+- Verify userId always set to 'local_user'
+
+**Export Testing:**
+- Test exportSessionData() joins session + drill_results + telemetry_logs correctly
+- Test with session ID that doesn't exist (should return null or empty)
+- Verify JSON structure matches interface
+
+**Maintenance Testing:**
+- Test cleanOldSessions() deletes only sessions older than retention period
+- Test with various dates (today, yesterday, 364 days ago, 365+ days ago)
+- Verify returns correct count of deleted sessions
+- Test with empty database (should return 0)
+
+**Error Handling Testing:**
+- Simulate Dexie write failures (throw error in mock)
+- Verify console.error called with descriptive message
+- Verify toast notification displayed (mock sonner toast)
+- Verify localStorage fallback data structure
+    </standards>
+    <locations>
+- Telemetry service tests: src/services/telemetry/logger.test.ts
+- Export utility tests: src/services/storage/exportData.test.ts
+- Maintenance tests: src/services/storage/maintenance.test.ts (or db.test.ts if added there)
+- Integration tests: src/features/training/components/TrainingSession.test.tsx (enhance existing)
+- E2E tests: tests/e2e/training-session-telemetry.spec.ts
+    </locations>
+    <ideas>
+**Telemetry Service Tests:**
+- AC: logSessionStart logs event to telemetry_logs table → Test: Call logSessionStart('sess-123', 'quick', 6), verify db.telemetry_logs.add called with { event: 'session_start', module: 'training', data: { sessionType: 'quick', drillCount: 6 }, userId: 'local_user' }
+- AC: logDrillComplete logs drill metrics → Test: Call logDrillComplete('number_line', { accuracy: 95.7, difficulty: 'medium', isCorrect: true, timeToAnswer: 3247 }), verify telemetry entry created
+- AC: logSessionEnd logs session summary → Test: Call logSessionEnd({ accuracy: 85, duration: 647000, confidenceChange: 2, drillCount: 12 }), verify telemetry entry
+- AC: Error handling with localStorage fallback → Test: Mock db.telemetry_logs.add to throw error, verify localStorage.setItem called with backup key, console.error logged, no exception thrown
+- AC: Toast notification on Dexie failure → Test: Mock Dexie failure, verify sonner toast() called with user-friendly message
+
+**Export Utility Tests:**
+- AC: exportSessionData returns session + all drill results → Test: Create session with ID=1, add 3 drill results with sessionId=1, call exportSessionData(1), verify returned object has session and drillResults array length 3
+- AC: Export includes telemetry logs → Test: Add telemetry logs for session, verify exportSessionData includes them
+- AC: Export with non-existent sessionId → Test: Call exportSessionData(9999), verify returns null or throws error with clear message
+- AC: Export JSON structure matches interfaces → Test: Validate returned object against Session/DrillResult/TelemetryLog TypeScript interfaces
+
+**Database Maintenance Tests:**
+- AC: cleanOldSessions deletes sessions older than 365 days → Test: Create sessions dated 366 days ago, 365 days ago, 364 days ago, call cleanOldSessions(365), verify only 366-day-old session deleted, returns 1
+- AC: Default retention 365 days → Test: Call cleanOldSessions() without argument, verify uses 365 days as default
+- AC: Returns count of deleted sessions → Test: Create 5 old sessions, verify cleanOldSessions() returns 5
+- AC: Preserves recent sessions → Test: Create session from today, call cleanOldSessions(), verify session still exists
+- AC: Empty database handling → Test: Call cleanOldSessions() on empty DB, verify returns 0, no errors
+
+**TrainingSession Integration Tests:**
+- AC: Session completion persists with drillTypes distribution → Test: Complete session with 2 number_line + 2 spatial_rotation + 2 math_operations drills, verify session.drillQueue persisted correctly
+- AC: db.transaction() used for atomic writes → Test: Spy on db.transaction, verify called when session completes
+- AC: Telemetry logged at session lifecycle events → Test: Start session, complete drill, end session, verify 3 telemetry entries created (session_start, drill_complete, session_end)
+
+**E2E Tests:**
+- AC: Complete session persists all data → Test: Navigate to /training, complete full session, open DevTools IndexedDB inspector, verify session + drill_results + telemetry_logs tables populated
+- AC: Data survives page refresh → Test: Complete half session, refresh page, verify data still in IndexedDB
+- AC: Export session data → Test: Complete session, call exportSessionData() from console, verify JSON structure correct
+- AC: Old sessions auto-cleaned on app launch → Test: Seed database with old sessions, reload app, verify cleanOldSessions() called and old data removed
+    </ideas>
+  </tests>
+</story-context>

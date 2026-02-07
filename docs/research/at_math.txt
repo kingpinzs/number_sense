@@ -1,0 +1,308 @@
+Title: Assistive technology for math
+
+URL Source: https://www.understood.org/en/articles/assistive-technology-for-math
+
+Published Time: 2019-08-05T15:07:39.230Z
+
+Markdown Content:
+Assistive technology for math
+
+===============
+
+[Skip to content](https://www.understood.org/en/articles/assistive-technology-for-math#maincontent)
+
+[](https://www.understood.org/en "Understood homepage")
+
+*   
+Explore resources 
+
+Differences 
+    *   [ADHD](https://www.understood.org/en/topics/adhd)
+    *   [Dyslexia](https://www.understood.org/en/topics/dyslexia)
+    *   [Dyscalculia](https://www.understood.org/en/topics/dyscalculia)
+    *   [Language disorders](https://www.understood.org/en/topics/language-disorder)
+    *   [Written expression disorder](https://www.understood.org/en/topics/written-expression-disorder)
+
+Popular topics
+
+    *   [Signs and symptoms](https://www.understood.org/en/topics/signs-and-symptoms)
+    *   [School supports](https://www.understood.org/en/topics/school-supports)
+    *   [IEPs](https://www.understood.org/en/topics/ieps)
+    *   [504 plans](https://www.understood.org/en/topics/504-plans)
+    *   [Workplace supports](https://www.understood.org/en/topics/workplace-supports)
+    *   [Assistive technology](https://www.understood.org/en/topics/assistive-technology)
+    *   [Managing emotions](https://www.understood.org/en/topics/managing-emotions)
+    *   [Staying organized](https://www.understood.org/en/topics/staying-organized)
+    *   [See all](https://www.understood.org/en/topics)
+
+Audiences
+
+    *   [Parents](https://www.understood.org/en/topics/parenting)
+    *   [Women with ADHD](https://www.understood.org/en/topics/adhd-women)
+    *   [Educators](https://www.understood.org/en/topics/educators)
+
+More support
+
+    *   [Newsletters](https://www.understood.org/en/newsletters)
+    *   [Podcasts](https://www.understood.org/en/podcasts)
+    *   [Through My Eyes](https://www.understood.org/en/through-my-eyes)
+    *   [Lessons for parents](https://www.understood.org/en/lessons)
+    *   [Behavior Tracker](https://www.understood.org/en/app)
+    *   [Take N.O.T.E. (tool for parents)](https://www.understood.org/en/take-note)
+    *   [News to know](https://www.understood.org/en/news)
+
+*   
+About us 
+
+About Understood
+----------------
+
+We are the leading nonprofit empowering the 70 million people with learning and thinking differences in the United States. We provide free, expert-vetted resources and support so people who learn and think differently can thrive — in school, at work, and throughout life. 
+
+    *   [Our mission](https://www.understood.org/en/mission)
+    *   [Our story](https://www.understood.org/en/our-story)
+    *   [Our team](https://www.understood.org/en/our-team)
+    *   [Our experts](https://www.understood.org/en/our-experts)
+    *   [Editorial standards](https://www.understood.org/en/editorial-standards)
+    *   [Contact us](https://www.understood.org/en/contact-us)
+    *   [Annual report](https://www.understood.org/en/annual-report)
+    *   [Knowledge hub](https://www.understood.org/en/knowledge-hub)
+    *   [Media center](https://www.understood.org/en/media-center)
+    *   [Blog](https://www.understood.org/en/blog)
+
+*   [Partner with us](https://www.understood.org/en/partner-with-us)
+
+[Donate](https://www.understood.org/en/donate)
+
+[](https://www.understood.org/en/assistant "Understood Assistant")
+
+Assistive technology for math
+=============================
+
+![Image 2](https://www.understood.org/_next/image?url=https%3A%2F%2Fcdn-images.understood.org%2Fp0qf7j048i0q%2F5NpItnYj8elb6jFEVVSYWn%2Fa7e72837b1b947882852d6b1bfb6efc2%2FUnderstood-Avatar-400x400-navy.png&w=3840&q=75)
+
+By [The Understood Team](https://www.understood.org/en/people/the-understood-team)
+
+Expert reviewed by [Shira Moskovitz, MA](https://www.understood.org/en/people/shira-moskovitz)
+
+Updated October 20, 2023
+
+[Español](https://www.understood.org/es-mx/articles/assistive-technology-for-math)
+
+When kids and adults have trouble with math, assistive technology (AT) can offer a lot of support. Many AT tools for math — like calculators— are common, inexpensive, and easy to get. Others are lesser known, but can be just as useful.
+
+Use this guide to learn about what tools are available, and where to get them.
+
+Dive deeper
+-----------
+
+**Types of assistive technology tools for math**
+
+Here are some of the most helpful AT tools for math.
+
+**Calculators** can help solve math problems, both simple and complex. Most people know about basic electronic calculators. But kids who struggle with math may prefer calculators that have buttons with large numbers and symbols. There are many kinds of calculators, from graphing calculators to computer apps. Some can even solve equations with variables.
+
+**Math notation tools** let you write or type out the special symbols and numbers used for math equations. For example, symbols like ±√+−∑%. Writing out equations by hand can be challenging for people who have trouble writing numbers and symbols. And most traditional word processors aren’t great at handling math symbols.
+
+**Graph paper** has a grid that makes it easier to line up numbers and symbols in math problems. That’s important when keeping track of things like place value. Students often write on traditional graph paper with a pencil. Some may prefer graph paper that has large squares. There’s also digital graph paper.
+
+**Graphing tools** help with graphing the path created by an equation. For example, graphing a parabola. Students who take algebra or calculus can use these tools to solve graphing problems.
+
+**Drawing tools** help with drawing lines, shapes, angles, and other geometric features. Traditional classroom tools like rulers, stencils, and protractors can help with drawing. There also are specific computer programs for drawing. Students who study geometry or trigonometry may find them helpful.
+
+**Equation-solving tools** are digital tools that help students work with equations. Unlike calculators, equation-solving tools don’t solve a problem. They help students figure out _how_ to solve a problem. For example, an equation-solving tool can help them figure out how to solve for _x_ in 3+_x_=11.
+
+**Manipulatives** are objects that let you solve math problems in alternative ways. They can also illustrate math concepts. A classic example is the number line. You can use a number line to add or subtract numbers without having to write down any numbers or symbols. Another example is an abacus, which lets you do calculations by moving beads. Manipulatives can also be virtual objects on a computer.
+
+**Graphic organizers** help break down and lay out the steps for solving math problems. For instance, a graphic organizer for a word problem may have spaces for writing and keeping track of important numbers. Graphic organizers can be digital or pen and paper.
+
+[**Text-to-speech**](https://www.understood.org/en/articles/text-to-speech-technology-what-it-is-and-how-it-works) (TTS) reads aloud numbers and calculations. When used for math, TTS is often combined with other tools, like a talking calculator.
+
+**Dictation** lets you write out math problems by speaking. Like TTS, dictation can be combined with other AT tools for math. For instance, math notation tools sometimes allow for dictating equations.
+
+Some families worry that using a tool like a calculator will prevent kids from learning math. However, experts say [math AT tools may help kids improve math skills](https://www.understood.org/en/articles/will-using-a-calculator-prevent-my-child-from-getting-better-at-math), as long as they aren’t overused.
+
+**Where to get assistive technology for math**
+
+There are many ways to get AT tools for math. You can find traditional “low-tech” classroom tools, like rulers, basic calculators, and graph paper at a school supply store. These stores may also sell calculators with large numbers and symbols, and graph paper with large squares. The school might provide these tools, too.
+
+The school may also provide tools like number lines and blocks. But you can also buy them online or even make your own.
+
+Today, many AT tools for math are being used on different [computer platforms](https://www.understood.org/en/articles/assistive-technology-platforms-basics):
+
+*   **Desktop and laptop computers:** Most computers have built-in AT options like calculators. You can try out software programs to help kids with math.
+
+*   **Mobile devices (like tablets and smartphones):** Mobile devices also have built-in AT. And you can add math tools to mobile devices with apps.
+
+Consider these [questions when choosing AT tools](https://www.understood.org/en/articles/questions-choosing-assistive-technology-tools). Learn [ways to tell if an AT tool is not effective for you](https://www.understood.org/en/articles/is-assistive-technology-tool-effective). And get tips on [how to learn to use an AT tool](https://www.understood.org/en/articles/tips-to-learn-assistive-technology-tool).
+
+Which of these is your main concern?
+------------------------------------
+
+*   Is there such a thing as a learning disability in math?
+*   My child struggles with even basic math. What can I do to help?
+*   Is it common for kids to be anxious about math?
+*   Ask your own question...
+
+Get answers to all your questions with the **Understood Assistant**.
+
+Introducing “Through My Eyes”
+-----------------------------
+
+![Image 3](https://cdn-images.understood.org/p0qf7j048i0q/6g7RcWs2WMEO3Cx0imXffs/a246ac3bbae953fafc6a48547b89a753/TME_img_1.svg)![Image 4](https://cdn-images.understood.org/p0qf7j048i0q/6g7RcWs2WMEO3Cx0imXffs/a246ac3bbae953fafc6a48547b89a753/TME_img_1.svg)
+
+### Step into their world
+
+Experience firsthand the daily challenges of kids with ADHD, dyslexia, and dyscalculia. See differently, so you can act differently.
+
+[Try it now](https://www.understood.org/en/through-my-eyes)
+
+Share
+-----
+
+[Share via Email](mailto:?subject=&body=There%20are%20many%20assistive%20technology%20(AT)%20tools%20that%20can%20help%20people%20with%20math.%20Use%20this%20guide%20to%20learn%20about%20options%20for%20math%20AT.%0D%0Ahttps://www.understood.org/en/articles/assistive-technology-for-math "Share via Email")
+
+Copy Link
+
+[](sms:?&body=%20https://www.understood.org/en/articles/assistive-technology-for-math)
+
+Explore related topics
+----------------------
+
+*   ![Image 5](https://cdn-images.understood.org/p0qf7j048i0q/64wpzp1UtFbMEwb4pylDlo/747e2cdf83fb7fefb7d68ffc1a013f88/Math.svg) [Math](https://www.understood.org/en/topics/math)  
+*   ![Image 6](https://cdn-images.understood.org/p0qf7j048i0q/48bbrLwTly1tO4mMNc6TfM/9330d73141d536aadefc9eeec29252a0/Assistive_Tech.svg) [Assistive technology](https://www.understood.org/en/topics/assistive-technology)  
+
+Read next
+---------
+
+*    ### [What is assistive technology?](https://www.understood.org/en/articles/assistive-technology)
+
+Assistive technology (AT) are tools that let people with differences work around challenges. They make tasks and activities accessible at school, work, and home. Learn how AT apps and software can help with reading, writing, math, and more. ![Image 7](https://www.understood.org/_next/image?url=https%3A%2F%2Fcdn-images.understood.org%2Fp0qf7j048i0q%2F6af39yD7U6ooYwbgJLGUTL%2F3e8d77cae218ace414efcfbfd9978662%2FG904540172.png&w=3840&q=75)   
+Assistive technology (AT) are tools that let people with differences work around challenges. They make tasks and activities accessible at school, work, and home. Learn how AT apps and software can help with reading, writing, math, and more.  
+*    ### [Assistive technology for writing](https://www.understood.org/en/articles/assistive-technology-for-writing) ![Image 8](https://www.understood.org/_next/image?url=https%3A%2F%2Fcdn-images.understood.org%2Fp0qf7j048i0q%2F7hwE0i0ag4UrYXmahVHtTC%2F696e0b091775ea54570da2d29309c646%2FG1014358140.jpg&w=3840&q=75)     
+*    ### [How software and apps can help with math challenges](https://www.understood.org/en/articles/assistive-technology-math-challenges) ![Image 9](https://www.understood.org/_next/image?url=https%3A%2F%2Fcdn-images.understood.org%2Fp0qf7j048i0q%2F2q0EAAqBMCHKlY6pJTky3s%2F2244958a499d4a010c8a6fc1af1a2abb%2FG1352734384.png&w=3840&q=75)    
+
+Which of these is your main concern?
+------------------------------------
+
+*   Is there such a thing as a learning disability in math?
+*   My child struggles with even basic math. What can I do to help?
+*   Is it common for kids to be anxious about math?
+*   Ask your own question...
+
+Thank you for subscribing!
+
+Discover what’s possible with Understood
+----------------------------------------
+
+Email address* 
+
+Please enter a valid email
+
+Subscribe
+
+*   [Our mission](https://www.understood.org/en/mission)
+*   [Our story](https://www.understood.org/en/our-story)
+*   [Our team](https://www.understood.org/en/our-team)
+*   [Our experts](https://www.understood.org/en/our-experts)
+*   [Annual report](https://www.understood.org/en/annual-report)
+*   [Join our team](https://www.understood.org/en/join-our-team)
+*   [Media center](https://www.understood.org/en/media-center)
+*   [Blog](https://www.understood.org/en/blog)
+
+*   [Donation and giving](https://www.understood.org/en/donate)
+*   [Glossary](https://www.understood.org/en/glossary)
+*   [Contact us](https://www.understood.org/en/contact-us)
+*   [Editorial standards](https://www.understood.org/en/editorial-standards)
+*   [Accessibility standards](https://www.understood.org/en/accessibility)
+*   [Privacy policy](https://www.understood.org/en/privacy-policy)
+*   [Terms of use](https://www.understood.org/en/terms-of-use)
+*   [Fundraising disclosure](https://www.understood.org/en/fundraising-disclosure)
+
+Follow us
+---------
+
+*   [Facebook](https://www.facebook.com/understood)
+*   [Instagram](https://www.instagram.com/understoodorg)
+*   [Tiktok](https://www.tiktok.com/@understood.org)
+*   [Pinterest](https://www.pinterest.com/understoodorg/)
+*   [Linkedin](https://www.linkedin.com/company/understood)
+
+Copyright © Understood for All, Inc.
+
+Understood is a tax-exempt 501(c)(3) charitable organization (tax identification number 83-2365235). Donations are tax-deductible as allowed by law. Understood does not provide medical or other professional advice. The health and medical related resources on this website are provided solely for informational and educational purposes and are not a substitute for a professional diagnosis or for medical or professional advice.
+
+Use of this website is subject to our [Terms of Use](https://www.understood.org/en/terms-of-use) and [Privacy Policy](https://www.understood.org/en/privacy-policy).
+
+**Understood for All, Inc.**
+
+96 Morton Street, Floor 5
+
+New York, New York 10014
+
+Media inquiries:[media@understood.org](mailto:media@understood.org)(preferred) or[646-757-3100](tel:+16467573100)
+
+Copyright © Understood for All, Inc.
+
+Understood is a tax-exempt 501(c)(3) charitable organization (tax identification number 83-2365235). Donations are tax-deductible as allowed by law. Understood does not provide medical or other professional advice. The health and medical related resources on this website are provided solely for informational and educational purposes and are not a substitute for a professional diagnosis or for medical or professional advice.
+
+Use of this website is subject to our [Terms of Use](https://www.understood.org/en/terms-of-use) and [Privacy Policy](https://www.understood.org/en/privacy-policy).
+
+**Understood for All, Inc.**
+
+96 Morton Street, Floor 5
+
+New York, New York 10014
+
+Media inquiries:[media@understood.org](mailto:media@understood.org)(preferred) or[646-757-3100](tel:+16467573100)
+
+*       *   [Español](https://www.understood.org/es-mx/articles/assistive-technology-for-math)
+
+*   Search 
+*   
+    *   Explore resources 
+        *   Differences
+        *   Popular topics
+        *   Audiences
+        *   More support
+
+    *   About us
+    *   [Partner with us](https://www.understood.org/en/partner-with-us)
+    *   [Donate](https://www.understood.org/en/donate)
+
+**Enjoying this article?** We’ll email you our most helpful stories and resources.
+
+Email address* 
+
+ Subscribe
+
+No thanks, I’ll just print the article
+
+**Share**Assistive technology for math
+
+*   Facebook 
+*   X 
+*   Pinterest 
+*   [Email](mailto:?subject=Assistive%20technology%20for%20math&body=There%20are%20many%20assistive%20technology%20(AT)%20tools%20that%20can%20help%20people%20with%20math.%20Use%20this%20guide%20to%20learn%20about%20options%20for%20math%20AT.%0D%0Ahttps://www.understood.org/en/articles/assistive-technology-for-math) 
+*   Copy Link  
+*   [Google Classroom Opens in a new tab](https://classroom.google.com/u/0/share?url=https://www.understood.org/en/articles/assistive-technology-for-math)
+
+**Enjoying this article?** We’ll email you our most helpful stories and resources.
+
+Email address* 
+
+ Subscribe
+
+No thanks, I’ll just print the article
+
+**Share**Assistive technology for math
+
+*   Facebook 
+*   X 
+*   Pinterest 
+*   [Email](mailto:?subject=Assistive%20technology%20for%20math&body=There%20are%20many%20assistive%20technology%20(AT)%20tools%20that%20can%20help%20people%20with%20math.%20Use%20this%20guide%20to%20learn%20about%20options%20for%20math%20AT.%0D%0Ahttps://www.understood.org/en/articles/assistive-technology-for-math) 
+*   Copy Link  
+*   [Google Classroom Opens in a new tab](https://classroom.google.com/u/0/share?url=https://www.understood.org/en/articles/assistive-technology-for-math)
+
+![Image 14](https://bat.bing.com/action/0?ti=343000689&Ver=2&mid=bb1cd8a5-120f-48ee-881d-f88c6b035603&bo=1&sid=5bef6980bd3411f09a67c525200b9d67&vid=5bef98d0bd3411f0a9089fe987975a5f&vids=1&msclkid=N&pi=918639831&lg=en-US&sw=800&sh=600&sc=24&tl=Assistive%20technology%20for%20math&p=https%3A%2F%2Fwww.understood.org%2Fen%2Farticles%2Fassistive-technology-for-math&r=&lt=1002&evt=pageLoad&sv=2&cdb=AQAQ&rn=515650)
+

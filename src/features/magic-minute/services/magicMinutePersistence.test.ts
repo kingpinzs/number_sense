@@ -128,13 +128,13 @@ describe('magicMinutePersistence', () => {
         { id: 2, sessionId: 42, timestamp: '2025-01-02', targetedMistakes: [], challengesGenerated: 8, challengesCompleted: 8, successRate: 0.75, duration: 55000 },
       ];
       vi.mocked(db.magic_minute_sessions.where).mockReturnThis();
-      vi.mocked(db.magic_minute_sessions.equals).mockReturnThis();
+      vi.mocked((db.magic_minute_sessions as any).equals).mockReturnThis();
       vi.mocked(db.magic_minute_sessions.toArray).mockResolvedValue(mockSessions);
 
       const result = await getMagicMinuteSessions(42);
 
       expect(db.magic_minute_sessions.where).toHaveBeenCalledWith('sessionId');
-      expect(db.magic_minute_sessions.equals).toHaveBeenCalledWith(42);
+      expect((db.magic_minute_sessions as any).equals).toHaveBeenCalledWith(42);
       expect(result).toEqual(mockSessions);
     });
 

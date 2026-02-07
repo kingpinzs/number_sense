@@ -1,0 +1,212 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>6</storyId>
+    <title>Build Results Summary Visualization</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-22</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/15-story-26-build-results-summary-visualization.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user who completed the assessment</asA>
+    <iWant>a clear visual summary of my strengths and weaknesses</iWant>
+    <soThat>I understand what areas need focus and feel motivated to start training</soThat>
+    <tasks>
+      <task id="1">Create ResultsSummary.tsx component in src/features/assessment/components/</task>
+      <task id="2">Implement header section with title, subtitle, and completion time display</task>
+      <task id="3">Build domain cards using shadcn/ui Card components (Number Sense, Spatial Awareness, Operations)</task>
+      <task id="4">Add score visualization bars using Progress component with custom colors (coral/yellow/mint)</task>
+      <task id="5">Implement color coding logic based on score thresholds (≤2.5 weak, 2.6-3.5 moderate, >3.5 strong)</task>
+      <task id="6">Add domain icons and labels (🎯 Needs Focus, 🌱 Growing, ✨ Strength)</task>
+      <task id="7">Create "Start Training" CTA button that navigates to /training with pre-loaded plan weights</task>
+      <task id="8">Store results in Dexie before rendering summary</task>
+      <task id="9">Add celebration confetti animation using Framer Motion on summary render</task>
+      <task id="10">Implement accessibility features (screen reader announcements for each domain score)</task>
+      <task id="11">Write component tests for ResultsSummary</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <given>the scoring algorithm is implemented (Story 2.5 complete)</given>
+    <when>I complete the final assessment question</when>
+    <then>
+      <criteria id="AC1">Header displays "Your Number Sense Profile" title</criteria>
+      <criteria id="AC2">Subtitle shows "Here's what we discovered about your strengths"</criteria>
+      <criteria id="AC3">Completion time displays in format "Completed in X minutes, Y seconds"</criteria>
+      <criteria id="AC4">Three domain cards render (Number Sense, Spatial Awareness, Operations)</criteria>
+      <criteria id="AC5">Each card shows domain name</criteria>
+      <criteria id="AC6">Each card shows horizontal score bar (0-5 scale, filled to score level)</criteria>
+      <criteria id="AC7">Weak domains (≤2.5) show coral (#E87461) background and "Needs Focus" label with 🎯 icon</criteria>
+      <criteria id="AC8">Moderate domains (2.6-3.5) show yellow (#FFD56F) background and "Growing" label with 🌱 icon</criteria>
+      <criteria id="AC9">Strong domains (>3.5) show mint (#A8E6CF) background and "Strength" label with ✨ icon</criteria>
+      <criteria id="AC10">"Start Training" CTA button displays (primary coral color with arrow icon →)</criteria>
+      <criteria id="AC11">Button navigates to /training route with plan weights pre-loaded</criteria>
+      <criteria id="AC12">Results stored in Dexie before showing summary (prevents data loss on navigation)</criteria>
+      <criteria id="AC13">Confetti burst animation plays on summary render using Framer Motion</criteria>
+      <criteria id="AC14">Screen reader announces each domain score for accessibility</criteria>
+    </then>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/architecture.md">
+        <section name="Technology Stack - Chart Library">
+          Recharts 3.3.0 provides React chart components for Progress visualization (Epic: Progress). Radar chart for Confidence x Time visualization. React-based, responsive, accessible.
+        </section>
+        <section name="Technology Stack - Animation Library">
+          Framer Motion 12.23.24 provides animation library with reduced-motion support. Used for confetti animations, timers, toasts. Celebration animations for assessment completion.
+        </section>
+        <section name="Epic to Architecture Mapping - Assessment">
+          Assessment maps to `features/assessment/` and `routes/AssessmentRoute.tsx`. Stores results in `assessments` table (Dexie). Multi-step wizard pattern with React Hook Form.
+        </section>
+      </doc>
+      <doc path="docs/ux-design-specification.md">
+        <section name="Color System - Balanced Warmth Theme">
+          Primary coral (#E87461) for main CTAs. Secondary mint (#A8E6CF) for calm accents. Accent yellow (#FFD56F) for celebrations. Success green (#66BB6A) for correct answers and milestones.
+        </section>
+        <section name="Semantic Color Usage - Feedback States">
+          Correct answer: Success green with checkmark, subtle celebration animation. Session complete: Accent yellow burst with confetti. Weak domains use coral, moderate use yellow, strong use mint.
+        </section>
+        <section name="Assessment Flow - Results Summary">
+          Step 13 displays celebration "Assessment Complete! 🎉", summary cards (2-column grid) showing domain scores (e.g., "Number Sense: 3/5 stars visual"), key insight identifying primary focus area, "Start My First Training" CTA button (coral, 48px).
+        </section>
+        <section name="Cognitive Accessibility">
+          WCAG 2.1 AA compliance mandatory. Clear language, consistent patterns, generous spacing, calm aesthetic. Visual hierarchy with clear headings. Critical for dyscalculia users to reduce overwhelm.
+        </section>
+      </doc>
+      <doc path="docs/sprint-artifacts/tech-spec-epic-2.md">
+        <section name="Services and Modules - ResultsSummary">
+          ResultsSummary module displays visualization of strengths/weaknesses. Takes scoring output, produces visual display and training weights. Part of assessment completion flow.
+        </section>
+        <section name="Data Models - DomainScores">
+          DomainScores interface has number_sense, spatial, operations properties. Each contains: score (0-100), questionsCorrect, totalQuestions, averageResponseTime, isWeakness boolean (score &lt; 60).
+        </section>
+        <section name="Data Models - TrainingWeights">
+          TrainingWeights has number_sense, spatial, operations weights (0.5 for strength to 2.0 for weakness), normalized to sum=1.0. Generated by ScoringService after assessment completion.
+        </section>
+        <section name="Acceptance Criteria - AC-2.10">
+          Results summary displays strengths (green checkmark) and weaknesses (orange warning) with domain labels. Clear visual distinction between performance levels.
+        </section>
+      </doc>
+    </docs>
+    <code>
+      <artifact path="src/services/assessment/scoring.ts">
+        <purpose>Pure functions for scoring: calculateDomainScore, identifyWeaknesses, generateWeights</purpose>
+        <keyPattern>calculateDomainScore returns 0-5 scale. identifyWeaknesses categorizes by thresholds: ≤2.5 weak, 2.6-3.5 moderate, &gt;3.5 strong. generateWeights assigns 2.0x (weak), 1.0x (moderate), 0.5x (strong), then normalizes to sum=1.0</keyPattern>
+        <interfaces>DomainScores, TrainingWeights, WeaknessCategories, QuestionForScoring</interfaces>
+      </artifact>
+      <artifact path="src/features/assessment/components/AssessmentWizard.tsx">
+        <purpose>Multi-step assessment wizard shell. Shows how assessment questions are orchestrated</purpose>
+        <keyPattern>Uses React Hook Form with Zod validation. Progress component shows completion percentage. Sheet component for full-screen modal. Navigation with Previous/Next buttons. onComplete callback receives all answers</keyPattern>
+        <usage>ResultsSummary will be called from onComplete handler after final question</usage>
+      </artifact>
+      <artifact path="src/shared/components/ui/progress.tsx">
+        <purpose>shadcn/ui Progress bar component using Radix UI</purpose>
+        <keyPattern>Accepts value prop (0-100), renders horizontal bar with bg-primary/20 background and bg-primary fill. Smooth transition animation on value changes</keyPattern>
+        <usage>Use for horizontal score bars showing 0-5 scale per domain. Convert score to percentage: (score/5)*100</usage>
+      </artifact>
+      <artifact path="src/shared/components/ui/card.tsx">
+        <purpose>shadcn/ui Card components for structured content display</purpose>
+        <keyPattern>Card wrapper with rounded-xl, border, shadow. CardHeader, CardTitle, CardDescription, CardContent, CardFooter sub-components. Flexible layout system</keyPattern>
+        <usage>Use Card for each domain (Number Sense, Spatial, Operations). CardHeader for domain name, CardContent for score bar and label</usage>
+      </artifact>
+      <artifact path="src/shared/components/ui/button.tsx">
+        <purpose>shadcn/ui Button component with variant system</purpose>
+        <keyPattern>Variants: default (bg-primary), secondary (bg-secondary), destructive, outline, ghost, link. Size variants: default, sm, lg, icon. Focus-visible ring for accessibility</keyPattern>
+        <usage>"Start Training" CTA uses default variant (coral primary color). Ensure min-h-[44px] for touch targets</usage>
+      </artifact>
+    </code>
+    <dependencies>
+      <package name="framer-motion" version="12.23.24">
+        <usage>Confetti animation on results summary render</usage>
+        <example>Use motion components for celebration burst effect</example>
+      </package>
+      <package name="lucide-react" version="^0.553.0">
+        <usage>Icons for domain labels: Target icon for "Needs Focus", Sprout for "Growing", Sparkles for "Strength", ArrowRight for CTA button</usage>
+      </package>
+      <package name="dexie" version="4.2.1">
+        <usage>Store assessment results before rendering summary (AC12). Use db.assessments table</usage>
+        <pattern>Import db from services/storage. Call db.assessments.add() with full Assessment record before showing ResultsSummary</pattern>
+      </package>
+      <package name="react-router" version="7.9.5">
+        <usage>Navigate to /training route with training weights pre-loaded (AC11)</usage>
+        <pattern>Use useNavigate hook to navigate. Pass state with training weights</pattern>
+      </package>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="architecture">
+      Component location: src/features/assessment/components/ResultsSummary.tsx per task 1 and architecture feature-based organization
+    </constraint>
+    <constraint type="design-system">
+      Must use shadcn/ui components: Card, Progress, Button. Follow Balanced Warmth color theme: coral #E87461 (weak), yellow #FFD56F (moderate), mint #A8E6CF (strong)
+    </constraint>
+    <constraint type="accessibility">
+      WCAG 2.1 AA compliance: 4.5:1 contrast ratios, ARIA labels for screen readers (AC14), keyboard navigation, 44px+ touch targets
+    </constraint>
+    <constraint type="data-flow">
+      Must store results in Dexie BEFORE rendering summary (AC12) to prevent data loss. Assessment completion triggers: score calculation → Dexie save → ResultsSummary display
+    </constraint>
+    <constraint type="performance">
+      Confetti animation must respect prefers-reduced-motion. Target 60fps for animations. Component render &lt;100ms
+    </constraint>
+    <constraint type="testing">
+      100% test coverage required per architecture. Component tests in ResultsSummary.test.tsx (task 11). Test all acceptance criteria including screen reader announcements
+    </constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="ResultsSummaryProps">
+      <description>Props for ResultsSummary component</description>
+      <properties>
+        <prop name="domainScores" type="DomainScores" required="true">Scores for all three domains from scoring service</prop>
+        <prop name="completionTime" type="{ minutes: number; seconds: number }" required="true">Assessment duration for display (AC3)</prop>
+        <prop name="onStartTraining" type="() => void" required="true">Callback when Start Training button clicked (AC11)</prop>
+      </properties>
+    </interface>
+    <interface name="DomainScores">
+      <description>From src/services/assessment/scoring.ts - already implemented</description>
+      <properties>
+        <prop name="number_sense" type="number">Score 0-5 for number sense domain</prop>
+        <prop name="spatial" type="number">Score 0-5 for spatial domain</prop>
+        <prop name="operations" type="number">Score 0-5 for operations domain</prop>
+      </properties>
+    </interface>
+    <interface name="TrainingWeights">
+      <description>From src/services/assessment/scoring.ts - passed to /training route</description>
+      <properties>
+        <prop name="number_sense" type="number">Normalized weight 0-1 for number sense training prioritization</prop>
+        <prop name="spatial" type="number">Normalized weight 0-1 for spatial training prioritization</prop>
+        <prop name="operations" type="number">Normalized weight 0-1 for operations training prioritization</prop>
+      </properties>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      <standard>100% code coverage (statements, branches, functions, lines) per architecture requirement</standard>
+      <standard>Vitest + React Testing Library for component tests. Co-located test file: ResultsSummary.test.tsx</standard>
+      <standard>WCAG 2.1 AA compliance verified with axe accessibility testing</standard>
+      <standard>All acceptance criteria (AC1-AC14) must have corresponding test cases</standard>
+    </standards>
+    <locations>
+      <location path="src/features/assessment/components/ResultsSummary.test.tsx">Component tests for ResultsSummary</location>
+      <location path="src/services/assessment/scoring.test.ts">Already exists - scoring algorithm tests (reference for domain score logic)</location>
+    </locations>
+    <ideas>
+      <idea priority="high">Test AC1-AC3: Verify header displays "Your Number Sense Profile", subtitle, and formatted completion time ("Completed in 3 minutes, 45 seconds")</idea>
+      <idea priority="high">Test AC4-AC6: Render three domain cards (Number Sense, Spatial Awareness, Operations), each with domain name and horizontal score bar (0-5 scale)</idea>
+      <idea priority="high">Test AC7-AC9: Color coding logic - weak (≤2.5) shows coral bg + "Needs Focus" 🎯, moderate (2.6-3.5) yellow bg + "Growing" 🌱, strong (&gt;3.5) mint bg + "Strength" ✨</idea>
+      <idea priority="high">Test AC10-AC11: "Start Training" button renders with coral color, arrow icon, and calls onStartTraining callback when clicked</idea>
+      <idea priority="high">Test AC13: Confetti animation plays on component mount (mock framer-motion to verify animation triggered)</idea>
+      <idea priority="high">Test AC14: Screen reader accessibility - verify aria-live regions announce each domain score, aria-labels present on all interactive elements</idea>
+      <idea priority="medium">Test score bar fill percentages: score 2.5 = 50% filled, score 5.0 = 100% filled</idea>
+      <idea priority="medium">Test edge cases: all domains weak, all domains strong, mixed scores</idea>
+      <idea priority="medium">Test reduced-motion preference: confetti animation disabled when prefers-reduced-motion: reduce</idea>
+      <idea priority="low">Test responsive layout: cards stack vertically on mobile, display side-by-side on larger screens</idea>
+    </ideas>
+  </tests>
+</story-context>
