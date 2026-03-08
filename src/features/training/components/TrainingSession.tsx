@@ -56,6 +56,8 @@ import { processSessionEnd } from '@/services/adaptiveDifficulty/difficultyEngin
 export default function TrainingSession() {
   const [sessionGoal, setSessionGoal] = useState<string>('');
   const [trainingWeights, setTrainingWeights] = useState<TrainingPlanWeights | null>(null);
+  const [weightsLoading, setWeightsLoading] = useState(true);
+  const [selectedSessionType, setSelectedSessionType] = useState<'quick' | 'full'>('quick');
 
   // Story 3.6: Confidence prompt and completion states
   const [showConfidenceBefore, setShowConfidenceBefore] = useState(false);
@@ -135,6 +137,11 @@ export default function TrainingSession() {
         }
       } catch (error) {
         console.error('Error loading assessment and weights:', error);
+        toast.error('Failed to load training data', {
+          description: 'Please try again or retake the assessment.',
+        });
+      } finally {
+        setWeightsLoading(false);
       }
     }
 
@@ -164,18 +171,15 @@ export default function TrainingSession() {
   const handleStartTraining = async () => {
     // Ensure we have training weights loaded
     if (!trainingWeights) {
-      console.error('Training weights not loaded');
+      toast.error('Training data still loading', {
+        description: 'Please wait a moment and try again.',
+      });
       return;
     }
 
-    // Generate session ID
-    const sessionId = crypto.randomUUID();
-
-    // Select drills using loaded training weights
-    const drillQueue = await selectDrills(trainingWeights, 6); // Quick session = 6 drills
-
-    // Start training session in context with drill queue
-    startTrainingSession(sessionId, 'quick', drillQueue);
+    // Select drills: Quick = 6, Full = 12
+    const drillCount = selectedSessionType === 'quick' ? 6 : 12;
+    const drillQueue = await selectDrills(trainingWeights, drillCount);
 
     // Story 3.4: Reset used problems tracking for new session
     usedProblemsRef.current = new Set<string>();
@@ -190,17 +194,21 @@ export default function TrainingSession() {
     // Story 3.6: Show confidence before prompt
     setShowConfidenceBefore(true);
 
-    // Story 3.7: Persist session to Dexie and log telemetry
+    // Persist session to Dexie FIRST to get numeric ID (consistent numeric IDs per Epic 5 retro)
     try {
       const newDbId = await db.sessions.add({
         timestamp: new Date().toISOString(),
         module: 'training',
         duration: 0,
         completionStatus: 'paused', // Will update to 'completed' when session ends
-        sessionType: 'quick',
+        sessionType: selectedSessionType,
         drillQueue: drillQueue,  // Store drill queue for session resume capability
       });
-      setDbSessionId(newDbId as number);
+      const sessionId = newDbId as number;
+      setDbSessionId(sessionId);
+
+      // Start training session in context with Dexie's numeric ID
+      startTrainingSession(sessionId, selectedSessionType, drillQueue);
 
       // Log session start telemetry
       await logSessionStart(sessionId, 'quick', drillQueue.length);
@@ -212,12 +220,17 @@ export default function TrainingSession() {
         description: 'Your progress may not be recorded. Please check your browser storage settings.'
       });
 
+      // Fallback: use timestamp-based numeric ID and start context
+      const fallbackId = Date.now();
+      setDbSessionId(fallbackId);
+      startTrainingSession(fallbackId, selectedSessionType, drillQueue);
+
       // Fallback to localStorage backup if Dexie fails
       localStorage.setItem(STORAGE_KEYS.SESSION_BACKUP, JSON.stringify({
-        sessionId,
+        sessionId: fallbackId,
         timestamp: new Date().toISOString(),
         module: 'training',
-        sessionType: 'quick',
+        sessionType: selectedSessionType,
         drillQueue: drillQueue,
       }));
     }
@@ -563,8 +576,8 @@ export default function TrainingSession() {
 
   // Default: Show session setup screen
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mx-auto flex h-screen max-w-4xl flex-col">
+    <div className="bg-background pb-20">
+      <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-4xl flex-col">
         {/* Header */}
         <div className="border-b bg-background p-6">
           <div className="flex items-center justify-between">
@@ -599,17 +612,27 @@ export default function TrainingSession() {
                 Based on your assessment, we've created a personalized training plan to help strengthen your skills.
               </p>
 
-              {/* Session type selection (optional for v1) */}
+              {/* Session type selection */}
               <div className="space-y-2">
                 <p className="text-sm font-medium">Session Type:</p>
                 <div className="grid grid-cols-2 gap-2">
-                  <Button variant="outline" className="h-auto flex-col gap-1 py-3">
+                  <Button
+                    variant={selectedSessionType === 'quick' ? 'default' : 'outline'}
+                    className="h-auto flex-col gap-1 py-3"
+                    onClick={() => setSelectedSessionType('quick')}
+                    data-testid="session-type-quick"
+                  >
                     <span className="font-semibold">Quick</span>
-                    <span className="text-xs text-muted-foreground">5 min</span>
+                    <span className="text-xs opacity-70">6 drills</span>
                   </Button>
-                  <Button variant="outline" className="h-auto flex-col gap-1 py-3">
+                  <Button
+                    variant={selectedSessionType === 'full' ? 'default' : 'outline'}
+                    className="h-auto flex-col gap-1 py-3"
+                    onClick={() => setSelectedSessionType('full')}
+                    data-testid="session-type-full"
+                  >
                     <span className="font-semibold">Full</span>
-                    <span className="text-xs text-muted-foreground">15 min</span>
+                    <span className="text-xs opacity-70">12 drills</span>
                   </Button>
                 </div>
               </div>
@@ -618,10 +641,10 @@ export default function TrainingSession() {
               <Button
                 onClick={handleStartTraining}
                 className="w-full min-h-[44px] bg-primary hover:bg-primary/90"
-                disabled={sessionState.sessionStatus === 'active'}
+                disabled={weightsLoading || sessionState.sessionStatus === 'active'}
                 data-testid="start-training-button"
               >
-                Start Training
+                {weightsLoading ? 'Loading...' : 'Start Training'}
               </Button>
             </CardContent>
           </Card>

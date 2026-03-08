@@ -1,12 +1,16 @@
-// ProgressRoute - Story 5.1, 5.2
-// Displays user progress with confidence radar chart and session history
+// ProgressRoute - Story 5.1, 5.2, 5.4, 5.5, 6.1
+// Displays user progress with confidence radar chart, insights, coach guidance, session history, and data export
 // Architecture: Route component with data fetching
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { LoadingSpinner } from '@/shared/components/LoadingSpinner';
 import ConfidenceRadar, { ConfidenceRadarEmpty } from '@/features/progress/components/ConfidenceRadar';
 import { useConfidenceData } from '@/features/progress/hooks/useConfidenceData';
+import InsightsPanel from '@/features/progress/components/InsightsPanel';
 import SessionHistory from '@/features/progress/components/SessionHistory';
+import DataExport from '@/features/progress/components/DataExport';
+import CoachCard from '@/features/coach/components/CoachCard';
+import { useCoachGuidance } from '@/features/coach/hooks/useCoachGuidance';
 
 /**
  * ProgressRoute - Main progress tracking page
@@ -24,6 +28,7 @@ export default function ProgressRoute() {
     hasEnoughData,
     error,
   } = useConfidenceData();
+  const { guidance, dismiss } = useCoachGuidance();
 
   return (
     <div className="min-h-screen bg-background">
@@ -71,8 +76,22 @@ export default function ProgressRoute() {
           </CardContent>
         </Card>
 
+        {/* Insights (Story 5.4) */}
+        <InsightsPanel />
+
+        {/* Coach Guidance (Story 6.1) */}
+        {guidance && (
+          <CoachCard
+            guidance={guidance}
+            onDismiss={() => dismiss(guidance.triggerId)}
+          />
+        )}
+
         {/* Session History (Story 5.2) */}
         <SessionHistory />
+
+        {/* Data Export (Story 5.5) */}
+        <DataExport />
       </div>
     </div>
   );

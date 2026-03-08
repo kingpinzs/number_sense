@@ -303,6 +303,17 @@
     <template-output file="{default_output_file}">
     story_completion_status</template-output>
 
+    <!-- MANDATORY VERIFICATION SUBTASK -->
+    <critical>Every story MUST include a verification subtask as the FINAL task in Tasks/Subtasks</critical>
+    <action>Add the following as the LAST task in the Tasks/Subtasks section:
+      "- [ ] **VERIFICATION: Manual Browser Testing** [MANDATORY - cannot be skipped]
+        - [ ] Run dev server (`npm run dev`) and open app in browser
+        - [ ] Verify EVERY Acceptance Criterion visually in the running app
+        - [ ] Test edge cases: empty states, error states, boundary values
+        - [ ] Verify accessibility: keyboard nav, focus indicators, 44px touch targets, reduced-motion
+        - [ ] Document verification results in Dev Agent Record"
+    </action>
+
     <!-- CRITICAL: Set status to ready-for-dev -->
     <action>Set story Status to: "ready-for-dev"</action>
     <action>Add completion note: "Ultimate

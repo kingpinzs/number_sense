@@ -6,6 +6,62 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '../../../../tests/test-utils';
 import { AssessmentWizard } from './AssessmentWizard';
 
+// Mock all question components to render a simple answer button
+// This isolates the wizard shell tests from question component internals
+vi.mock('./QuantityComparison', () => ({
+  QuantityComparison: function MockQuantityComparison(props: any) {
+    const React = require('react');
+    const [answered, setAnswered] = React.useState(false);
+    return React.createElement('button', {
+      'data-testid': 'demo-answer-button',
+      onClick: () => { setAnswered(true); props.onAnswer('mock-answer'); },
+    }, answered ? 'Answer Provided' : 'Click to Answer');
+  },
+}));
+
+vi.mock('./NumberLineEstimation', () => ({
+  NumberLineEstimation: () => null,
+}));
+
+vi.mock('./MentalRotation', () => ({
+  MentalRotation: () => null,
+}));
+
+vi.mock('./PatternMatching', () => ({
+  PatternMatching: () => null,
+}));
+
+vi.mock('./BasicOperations', () => ({
+  BasicOperations: () => null,
+}));
+
+vi.mock('./WordProblem', () => ({
+  WordProblem: () => null,
+}));
+
+// Mock question generators to always return quantity-comparison type
+// so the mocked QuantityComparison renders for every step
+vi.mock('../content/questions', () => ({
+  generateNumberSenseQuestions: () => Array.from({ length: 4 }, (_, i) => ({
+    type: 'quantity-comparison',
+    id: `q${i + 1}`,
+    leftCount: 5,
+    rightCount: 10,
+  })),
+  generateSpatialQuestions: () => Array.from({ length: 3 }, (_, i) => ({
+    type: 'quantity-comparison',
+    id: `q${i + 5}`,
+    leftCount: 5,
+    rightCount: 10,
+  })),
+  generateOperationsQuestions: () => Array.from({ length: 3 }, (_, i) => ({
+    type: 'quantity-comparison',
+    id: `q${i + 8}`,
+    leftCount: 5,
+    rightCount: 10,
+  })),
+}));
+
 // Mock callbacks
 const mockOnOpenChange = vi.fn();
 const mockOnComplete = vi.fn();

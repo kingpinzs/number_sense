@@ -47,9 +47,33 @@
       "Bash(python3:*)",
       "Bash(xargs:*)",
       "Bash(npx shadcn@latest add accordion:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(ls \"c:\\\\Users\\\\Jeremy\\\\Desktop\\\\workspace\\\\discalculas\\\\docs\\\\sprint-artifacts\"\" 2>&1 && echo \"---\" && ls \"c:UsersJeremyDesktopworkspacediscalculasdocsstories\"\")",
+      "Bash(npx vite:*)",
+      "Bash(npx playwright:*)",
+      "Bash(Select-String \"FAIL\")",
+      "Bash(Select-Object -First 10)",
+      "Bash(bash /c/Users/Jeremy/Desktop/workspace/discalculas/.claude/hooks/play-tts.sh \"Starting create-story workflow for story 6-5, implementing memory grid mini-game. Loading config and instructions now.\")",
+      "Bash(.claude/hooks/play-tts.sh \"Resuming create-story workflow for Story 7.1 PWA config. Continuing from Step 3, architecture analysis.\")",
+      "WebFetch(domain:vite-pwa-org.netlify.app)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(ls -la dist/sw.js dist/workbox-*.js)",
+      "Bash(npx kill-port 4173)",
+      "WebFetch(domain:evilmartians.com)",
+      "WebFetch(domain:web.dev)",
+      "WebFetch(domain:github.com)",
+      "mcp__agentvibes__text_to_speech",
+      "Bash(npm run generate-icons)",
+      "Bash(.claude/hooks/play-tts.sh \"Completing create-story workflow, validating story and updating sprint status\")",
+      "Bash(.claude/hooks/play-tts.sh \"Running test suite for Story 7.3. TypeScript passed clean. Now verifying all 1861 existing tests plus new install prompt tests pass without regressions\")",
+      "Bash(.claude/hooks/play-tts.sh \"Resuming Story 8.1 completion — updating story status to review, writing Dev Agent Record, and updating sprint-status\")",
+      "Bash(.claude/hooks/play-tts.sh \"Story 8.1 complete and moved to review. Dev Agent Record written. Sprint status updated. Task 7 manual browser testing awaits Jeremy.\")"
     ],
     "deny": [],
     "ask": []
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "agentvibes"
+  ]
 }

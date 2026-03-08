@@ -22,7 +22,7 @@ export type SessionStatus = 'idle' | 'active' | 'paused' | 'completed';
  */
 export interface SessionState {
   currentModule: string | null;
-  sessionId: string | null;
+  sessionId: number | null;
   sessionStatus: SessionStatus;
   startTime: string | null;
 
@@ -50,8 +50,8 @@ export interface SessionState {
  * Extended in Story 4.2 to support Magic Minute
  */
 export type SessionAction =
-  | { type: 'START_SESSION'; payload: { module: string; sessionId: string } }
-  | { type: 'START_TRAINING_SESSION'; payload: { sessionId: string; sessionType: 'quick' | 'full'; drillQueue: DrillType[] } }
+  | { type: 'START_SESSION'; payload: { module: string; sessionId: number } }
+  | { type: 'START_TRAINING_SESSION'; payload: { sessionId: number; sessionType: 'quick' | 'full'; drillQueue: DrillType[] } }
   | { type: 'NEXT_DRILL' }
   | { type: 'RECORD_DRILL_RESULT'; payload: DrillResult }
   | { type: 'END_SESSION' }
@@ -209,8 +209,8 @@ interface SessionContextValue {
   state: SessionState;
   dispatch: Dispatch<SessionAction>;
   // Convenience methods
-  startSession: (module: string, sessionId: string) => void;
-  startTrainingSession: (sessionId: string, sessionType: 'quick' | 'full', drillQueue: DrillType[]) => void;
+  startSession: (module: string, sessionId: number) => void;
+  startTrainingSession: (sessionId: number, sessionType: 'quick' | 'full', drillQueue: DrillType[]) => void;
   nextDrill: () => void;
   recordDrillResult: (result: DrillResult) => void;
   endSession: () => void;
@@ -238,12 +238,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(sessionReducer, initialState);
 
   // Convenience methods that wrap dispatch
-  const startSession = (module: string, sessionId: string) => {
+  const startSession = (module: string, sessionId: number) => {
     dispatch({ type: 'START_SESSION', payload: { module, sessionId } });
   };
 
   // Story 3.1: Training session convenience methods
-  const startTrainingSession = (sessionId: string, sessionType: 'quick' | 'full', drillQueue: DrillType[]) => {
+  const startTrainingSession = (sessionId: number, sessionType: 'quick' | 'full', drillQueue: DrillType[]) => {
     dispatch({ type: 'START_TRAINING_SESSION', payload: { sessionId, sessionType, drillQueue } });
   };
 

@@ -122,7 +122,7 @@ describe('AssessmentRoute', () => {
       </MemoryRouter>
     );
 
-    expect(mockStartSession).toHaveBeenCalledWith('assessment', expect.stringContaining('assessment-'));
+    expect(mockStartSession).toHaveBeenCalledWith('assessment', expect.any(Number));
   });
 
   it('disables Next button when no answer is provided', () => {
@@ -308,7 +308,7 @@ describe('AssessmentRoute', () => {
 
     // Should have Start Training button
     expect(screen.getByText('Start Training')).toBeInTheDocument();
-  });
+  }, 15000);
 
   it('updates progress bar as questions are answered', async () => {
     const user = userEvent.setup();

@@ -9,6 +9,10 @@ import AssessmentRoute from '@/routes/AssessmentRoute';
 import TrainingRoute from '@/routes/TrainingRoute';
 import ProgressRoute from '@/routes/ProgressRoute';
 import ProfileRoute from '@/routes/ProfileRoute';
+import CognitionRoute from '@/routes/CognitionRoute';
+import { useServiceWorker } from '@/services/pwa/useServiceWorker';
+import { InstallPrompt } from '@/shared/components/InstallPrompt';
+import { SyncIndicator } from '@/shared/components/SyncIndicator';
 
 /**
  * App - Main application component
@@ -21,9 +25,15 @@ import ProfileRoute from '@/routes/ProfileRoute';
  * 3. Session state initializes last
  * 4. Routes are rendered with full context access
  */
+function ServiceWorkerRegistration() {
+  useServiceWorker();
+  return null;
+}
+
 function App() {
   return (
     <ErrorBoundary>
+      <ServiceWorkerRegistration />
       <UserSettingsProvider>
         <AppProvider>
           <SessionProvider>
@@ -32,10 +42,13 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/assessment" element={<AssessmentRoute />} />
                 <Route path="/training" element={<TrainingRoute />} />
+                <Route path="/cognition" element={<CognitionRoute />} />
                 <Route path="/progress" element={<ProgressRoute />} />
                 <Route path="/profile" element={<ProfileRoute />} />
               </Routes>
               <BottomNav />
+              <InstallPrompt />
+              <SyncIndicator />
             </div>
           </SessionProvider>
         </AppProvider>

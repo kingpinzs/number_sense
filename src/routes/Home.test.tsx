@@ -1,5 +1,5 @@
-// Home.test.tsx - Story 5.3
-// Tests for streak counter integration on Home screen
+// Home.test.tsx - Story 5.3 + Story 6.2
+// Tests for streak counter, coach card, and quick actions integration on Home screen
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '../../tests/test-utils';
@@ -35,6 +35,25 @@ vi.mock('@/services/storage/db', () => ({
   },
 }));
 
+// Mock useCoachGuidance hook
+vi.mock('@/features/coach/hooks/useCoachGuidance', () => ({
+  useCoachGuidance: vi.fn().mockReturnValue({
+    guidance: null,
+    isLoading: false,
+    dismiss: vi.fn(),
+  }),
+}));
+
+// Mock CoachCard component (prop-aware for integration tests)
+vi.mock('@/features/coach/components/CoachCard', () => ({
+  default: ({ guidance }: any) => guidance ? <div data-testid="coach-card">{guidance.title}</div> : null,
+}));
+
+// Mock QuickActions component
+vi.mock('@/features/coach/components/QuickActions', () => ({
+  default: () => <div data-testid="quick-actions">Quick Actions</div>,
+}));
+
 // Mock useNavigate
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
@@ -47,8 +66,9 @@ vi.mock('react-router-dom', async () => {
 
 // Access mocked modules
 import { getCurrentStreak, checkMilestone } from '@/services/training/streakManager';
-import { getLastSessionDate } from '@/services/storage/localStorage';
+import { getLastSessionDate, addMilestoneShown } from '@/services/storage/localStorage';
 import { db } from '@/services/storage/db';
+import { useCoachGuidance } from '@/features/coach/hooks/useCoachGuidance';
 
 describe('Home - Streak Counter Integration', () => {
   beforeEach(() => {
@@ -148,6 +168,29 @@ describe('Home - Streak Counter Integration', () => {
     });
   });
 
+  it('calls addMilestoneShown when milestone modal is dismissed', async () => {
+    const user = userEvent.setup();
+    vi.mocked(getCurrentStreak).mockReturnValue(7);
+    vi.mocked(checkMilestone).mockReturnValue({
+      streak: 7,
+      title: 'One Week Streak!',
+      emoji: '🎉',
+      message: 'Amazing consistency! Keep it up!',
+    });
+
+    render(<Home />);
+
+    await waitFor(() => {
+      expect(screen.getByText('One Week Streak!')).toBeInTheDocument();
+    });
+
+    // Close the dialog
+    const closeButton = screen.getByRole('button', { name: /close/i });
+    await user.click(closeButton);
+
+    expect(addMilestoneShown).toHaveBeenCalledWith(7);
+  });
+
   it('shows 0 streak with dimmed flame when streak is broken', async () => {
     vi.mocked(getCurrentStreak).mockReturnValue(0);
     vi.mocked(getLastSessionDate).mockReturnValue('2026-01-01T00:00:00.000Z');
@@ -169,5 +212,55 @@ describe('Home - Streak Counter Integration', () => {
     const flame = screen.getByRole('img', { name: /fire emoji/i });
     expect(flame).toHaveClass('opacity-30');
     expect(flame).toHaveClass('grayscale');
+  });
+
+  it('renders CoachCard when coach guidance is available', async () => {
+    vi.mocked(useCoachGuidance).mockReturnValue({
+      guidance: {
+        id: 'after-3-sessions',
+        triggerId: 'after-3-sessions',
+        title: 'Great Progress!',
+        message: "You're building consistency!",
+        icon: '🎓',
+        priority: 4,
+      },
+      isLoading: false,
+      dismiss: vi.fn(),
+    });
+
+    render(<Home />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Welcome Back')).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId('coach-card')).toBeInTheDocument();
+    expect(screen.getByText('Great Progress!')).toBeInTheDocument();
+  });
+
+  it('renders QuickActions for returning users', async () => {
+    render(<Home />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Welcome Back')).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId('quick-actions')).toBeInTheDocument();
+  });
+
+  it('does NOT render QuickActions for first-time users', async () => {
+    vi.mocked(db.assessments.where).mockReturnValue({
+      equals: vi.fn().mockReturnValue({
+        count: vi.fn().mockResolvedValue(0),
+      }),
+    } as any);
+
+    render(<Home />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Welcome to Discalculas')).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId('quick-actions')).not.toBeInTheDocument();
   });
 });

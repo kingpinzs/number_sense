@@ -345,11 +345,16 @@ describe('NumberLineDrill', () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       (db.drill_results.add as any).mockRejectedValue(new Error('Dexie error'));
 
+      const originalLocalStorage = window.localStorage;
       const localStorageMock = {
         getItem: vi.fn(() => null),
         setItem: vi.fn(),
+        clear: vi.fn(),
+        removeItem: vi.fn(),
+        length: 0,
+        key: vi.fn(() => null),
       };
-      Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock, configurable: true });
 
       render(
         <NumberLineDrill
@@ -378,6 +383,8 @@ describe('NumberLineDrill', () => {
         );
       });
 
+      // Restore original localStorage so subsequent tests don't break
+      Object.defineProperty(window, 'localStorage', { value: originalLocalStorage, configurable: true });
       consoleErrorSpy.mockRestore();
     });
 

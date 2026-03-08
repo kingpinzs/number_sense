@@ -17,6 +17,7 @@
     "test:ui": "vitest --ui",
     "test:e2e": "playwright test",
     "lint": "eslint . --ext ts,tsx --max-warnings=0",
+    "generate-icons": "node scripts/generate-icons.mjs",
     "postinstall": "patch-package"
   },
   "dependencies": {
@@ -69,8 +70,10 @@
     "fake-indexeddb": "^6.2.5",
     "jsdom": "27.1.0",
     "patch-package": "^8.0.1",
+    "png-to-ico": "^3.0.1",
     "postcss": "8.5.6",
     "shadcn": "3.5.0",
+    "sharp": "^0.34.5",
     "tailwindcss": "4.1.17",
     "typescript": "5.9.3",
     "vite": "7.2.2",

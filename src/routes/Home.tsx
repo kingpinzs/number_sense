@@ -1,6 +1,8 @@
 // Home - Main dashboard route
 // Shows personalized content based on user's assessment status
 // Story 5.3: Integrated StreakCounter with milestone celebrations
+// Story 6.1: Integrated CoachCard with contextual guidance
+// Story 6.2: Integrated QuickActions with dynamic action cards
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +14,9 @@ import { StreakCounter } from '@/shared/components/StreakCounter';
 import { getCurrentStreak, checkMilestone } from '@/services/training/streakManager';
 import { addMilestoneShown, getLastSessionDate } from '@/services/storage/localStorage';
 import { MilestoneModal } from '@/features/progress';
+import CoachCard from '@/features/coach/components/CoachCard';
+import QuickActions from '@/features/coach/components/QuickActions';
+import { useCoachGuidance } from '@/features/coach/hooks/useCoachGuidance';
 import type { Milestone } from '@/services/training/streakManager';
 
 /**
@@ -27,6 +32,7 @@ export default function Home() {
   const [displayStreak, setDisplayStreak] = useState(0);
   const [noSessions, setNoSessions] = useState(false);
   const [milestone, setMilestone] = useState<Milestone | null>(null);
+  const { guidance, dismiss } = useCoachGuidance();
 
   // Check if user has completed an assessment
   useEffect(() => {
@@ -79,9 +85,10 @@ export default function Home() {
   }
 
   // First-time user: Show assessment prompt
+  // Note: CoachCard intentionally omitted — first-time view already has assessment CTA
   if (!hasAssessment) {
     return (
-      <main className="min-h-screen bg-background p-6">
+      <main className="min-h-screen bg-background p-6 pb-24">
         <div className="mx-auto max-w-lg">
           {/* Welcome Header */}
           <div className="mb-8 text-center">
@@ -154,7 +161,7 @@ export default function Home() {
 
   // Returning user: Show dashboard with quick actions
   return (
-    <main className="min-h-screen bg-background p-6">
+    <main className="min-h-screen bg-background p-6 pb-24">
       <div className="mx-auto max-w-lg">
         {/* Streak Counter */}
         <div className="mb-4 flex justify-center">
@@ -175,64 +182,16 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Quick Start Training */}
-        <Card className="mb-6 border-primary/30 bg-gradient-to-br from-primary/10 to-background">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Dumbbell className="h-5 w-5 text-primary" />
-              Start Training
-            </CardTitle>
-            <CardDescription>
-              Jump into a personalized training session
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button
-              size="lg"
-              onClick={() => navigate('/training')}
-              className="w-full min-h-[48px]"
-            >
-              Begin Session
-            </Button>
-          </CardContent>
-        </Card>
+        {/* Coach Guidance */}
+        {guidance && (
+          <CoachCard
+            guidance={guidance}
+            onDismiss={() => dismiss(guidance.triggerId)}
+          />
+        )}
 
-        {/* Quick Actions */}
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Card
-            className="cursor-pointer transition-colors hover:border-primary/50"
-            onClick={() => navigate('/progress')}
-          >
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <TrendingUp className="h-5 w-5 text-secondary" />
-                View Progress
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                See your improvement over time
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card
-            className="cursor-pointer transition-colors hover:border-primary/50"
-            onClick={() => navigate('/assessment')}
-          >
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Target className="h-5 w-5 text-accent" />
-                New Assessment
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Retake to update your plan
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Quick Actions - Story 6.2 */}
+        <QuickActions />
       </div>
 
       {/* Milestone Celebration Modal */}

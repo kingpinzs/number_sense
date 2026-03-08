@@ -139,7 +139,8 @@ describe('UserSettingsContext', () => {
         reducedMotion: false,
         soundEnabled: false,
         dailyGoalMinutes: 60,
-        researchModeEnabled: false
+        researchModeEnabled: false,
+        showAdaptiveToasts: true
       });
     });
 

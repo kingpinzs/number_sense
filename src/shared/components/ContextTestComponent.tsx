@@ -60,7 +60,7 @@ export function ContextTestComponent() {
           <div className="flex flex-wrap gap-2">
             <Button
               size="sm"
-              onClick={() => startSession('training', `session-${Date.now()}`)}
+              onClick={() => startSession('training', Date.now())}
               disabled={sessionState.sessionStatus === 'active'}
             >
               Start

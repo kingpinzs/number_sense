@@ -24,8 +24,8 @@ describe('DiscalculasDB', () => {
       expect(testDB.name).toBe('DiscalculasDB');
     });
 
-    it('has version 1', () => {
-      expect(testDB.verno).toBe(1);
+    it('has version 2', () => {
+      expect(testDB.verno).toBe(2);
     });
 
     it('defines all 8 tables', () => {

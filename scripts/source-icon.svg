@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#E87461"/>
+  <!-- Bold "D" as path data — font-independent, horizontally centered -->
+  <path d="M 140 96 L 140 416 L 252 416 Q 372 416 372 256 Q 372 96 252 96 Z M 188 144 L 252 144 Q 324 144 324 256 Q 324 368 252 368 L 188 368 Z" fill="white" fill-rule="evenodd"/>
+</svg>

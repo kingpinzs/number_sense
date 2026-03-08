@@ -9,17 +9,20 @@ import * as localStorageService from '@/services/storage/localStorage';
 
 // Test component that uses AppContext
 function TestComponent() {
-  const { state, setStreak, updateOnlineStatus, setLastSync } = useApp();
+  const { state, setStreak, updateOnlineStatus, setLastSync, setPendingSyncCount } = useApp();
 
   return (
     <div>
       <div data-testid="streak">{state.streak}</div>
       <div data-testid="online-status">{state.onlineStatus.toString()}</div>
       <div data-testid="last-sync">{state.lastSyncTimestamp || 'null'}</div>
+      <div data-testid="pending-sync-count">{state.pendingSyncCount}</div>
       <button onClick={() => setStreak(10)}>Set Streak 10</button>
       <button onClick={() => updateOnlineStatus(false)}>Go Offline</button>
       <button onClick={() => setLastSync('2025-11-10T12:00:00Z')}>Set Sync</button>
       <button onClick={() => setLastSync(null)}>Clear Sync</button>
+      <button onClick={() => setPendingSyncCount(5)}>Set Pending 5</button>
+      <button onClick={() => setPendingSyncCount(0)}>Clear Pending</button>
     </div>
   );
 }
@@ -43,6 +46,7 @@ describe('AppContext', () => {
       expect(screen.getByTestId('streak')).toHaveTextContent('0');
       expect(screen.getByTestId('online-status')).toHaveTextContent('true');
       expect(screen.getByTestId('last-sync')).toHaveTextContent('null');
+      expect(screen.getByTestId('pending-sync-count')).toHaveTextContent('0');
     });
 
     it('throws error when useApp used outside provider', () => {
@@ -158,6 +162,44 @@ describe('AppContext', () => {
       // Clear timestamp
       fireEvent.click(screen.getByText('Clear Sync'));
       expect(screen.getByTestId('last-sync')).toHaveTextContent('null');
+    });
+  });
+
+  describe('Pending Sync Count Management', () => {
+    it('initializes pendingSyncCount to 0', () => {
+      render(
+        <AppProvider>
+          <TestComponent />
+        </AppProvider>
+      );
+
+      expect(screen.getByTestId('pending-sync-count')).toHaveTextContent('0');
+    });
+
+    it('updates pendingSyncCount when setPendingSyncCount is called', () => {
+      render(
+        <AppProvider>
+          <TestComponent />
+        </AppProvider>
+      );
+
+      fireEvent.click(screen.getByText('Set Pending 5'));
+
+      expect(screen.getByTestId('pending-sync-count')).toHaveTextContent('5');
+    });
+
+    it('resets pendingSyncCount to 0 when cleared', () => {
+      render(
+        <AppProvider>
+          <TestComponent />
+        </AppProvider>
+      );
+
+      fireEvent.click(screen.getByText('Set Pending 5'));
+      expect(screen.getByTestId('pending-sync-count')).toHaveTextContent('5');
+
+      fireEvent.click(screen.getByText('Clear Pending'));
+      expect(screen.getByTestId('pending-sync-count')).toHaveTextContent('0');
     });
   });
 

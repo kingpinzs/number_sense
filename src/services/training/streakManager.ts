@@ -1,15 +1,15 @@
 // streakManager - Streak calculation and localStorage persistence
-// Story 3.6: Implement Confidence Prompt System
+// Story 3.6: Streak update logic | Story 5.3: getCurrentStreak, milestones
 // Handles daily training streak tracking with date comparison logic
 
 import { startOfDay, differenceInDays, parseISO } from 'date-fns';
-import { getMilestonesShown } from '@/services/storage/localStorage';
+import { STORAGE_KEYS, getMilestonesShown, getLastSessionDate as getLastSessionDateStr } from '@/services/storage/localStorage';
 
 /**
- * localStorage keys for streak data
+ * localStorage keys for streak data — sourced from shared STORAGE_KEYS
  */
-const STREAK_KEY = 'discalculas:streak';
-const LAST_SESSION_DATE_KEY = 'discalculas:lastSessionDate';
+const STREAK_KEY = STORAGE_KEYS.STREAK;
+const LAST_SESSION_DATE_KEY = STORAGE_KEYS.LAST_SESSION_DATE;
 
 /**
  * Get current streak count from localStorage
@@ -86,7 +86,7 @@ export function updateStreak(): number {
  */
 export function getCurrentStreak(): number {
   try {
-    const lastSessionDateStr = localStorage.getItem(LAST_SESSION_DATE_KEY);
+    const lastSessionDateStr = getLastSessionDateStr();
     if (!lastSessionDateStr) return 0;
 
     const today = startOfDay(new Date());

@@ -136,7 +136,7 @@ export interface Experiment {
  */
 export interface ExperimentObservation {
   id?: number;
-  experimentId: number;
+  experimentId: string;  // Story 8.1: String experiment key (e.g., 'drill-timer-visibility')
   variantId: string;
   timestamp: string;
   metric: string;               // e.g., "completion_rate", "confidence_delta"

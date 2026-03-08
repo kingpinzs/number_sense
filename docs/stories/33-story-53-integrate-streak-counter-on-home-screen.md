@@ -1,6 +1,6 @@
 # Story 5.3: Integrate Streak Counter on Home Screen
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -423,11 +423,21 @@ Claude Opus 4.6
 
 ### Test Summary
 
-- **92 tests passing** across 5 Story 5.3 test files:
+- **94 tests passing** across 5 Story 5.3 test files:
   - `localStorage.test.ts`: 41 tests (6 new milestone tests)
   - `streakManager.test.ts`: 22 tests (10 new: 4 getCurrentStreak + 6 checkMilestone)
   - `StreakCounter.test.tsx`: 17 tests (5 new for enhanced features)
-  - `MilestoneModal.test.tsx`: 6 tests (all new)
-  - `Home.test.tsx`: 6 tests (all new)
+  - `MilestoneModal.test.tsx`: 7 tests (all new, incl. reduced-motion test)
+  - `Home.test.tsx`: 7 tests (all new, incl. handleMilestoneClose test)
 - TypeScript compiles with zero errors (`tsc --noEmit` clean)
 - All pre-existing test failures are unrelated to Story 5.3
+
+### Code Review Fixes Applied (2026-02-07)
+
+- **[HIGH] Fixed**: MilestoneModal emoji animation now respects `prefers-reduced-motion` (was unconditionally animating)
+- **[MEDIUM] Fixed**: Added `handleMilestoneClose` integration test verifying `addMilestoneShown()` is called on dismiss
+- **[MEDIUM] Fixed**: `getMilestonesShown()` now validates parsed JSON with `Array.isArray()` and `typeof` filter
+- **[MEDIUM] Fixed**: Deduplicated localStorage key constants — `streakManager.ts` now imports `STORAGE_KEYS` from `localStorage.ts`
+- **[MEDIUM] Fixed**: `getCurrentStreak()` now uses shared `getLastSessionDate()` helper instead of direct localStorage access
+- **[LOW] Fixed**: Updated `streakManager.ts` file header to mention Story 5.3
+- **[LOW] Fixed**: Added reduced-motion test for MilestoneModal confetti/emoji

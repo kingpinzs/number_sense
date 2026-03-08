@@ -1,4 +1,19 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(pkill -f \"vite.*5175\")",
+      "Bash(.claude/hooks/play-tts.sh \"Story 7.3 complete. Install prompt implemented with hook, component, iOS modal, telemetry. 28 new tests, 1887 total passing, build clean.\")",
+      "Bash(.claude/hooks/play-tts.sh \"Resuming code review for Story 7.3 - reading remaining files then executing adversarial review with full AC validation\")",
+      "Bash(.claude/hooks/play-tts.sh \"Code review complete. Found 4 issues including one HIGH bug: dismissPrompt cannot hide the banner due to React bail-out. iOS dialog is uncloseable. Awaiting user decision.\")",
+      "Bash(.claude/hooks/play-tts.sh \"Resuming dev-story workflow for Story 7.4: Implement Ambient Sync Indicator. Reading story file and beginning implementation of sync queue, AppContext extension, and SyncIndicator component.\")",
+      "Bash(.claude/hooks/play-tts.sh \"Resuming code review fixes, starting Fix 3: adding AppContext tests for pendingSyncCount and setPendingSyncCount, then Fix 4 dot size, then running full test suite to verify all changes\")",
+      "Bash(.claude/hooks/play-tts.sh \"Resuming 3rd review fixes: applying L3 test isolation and L4 docs, then running tsc and tests to verify all changes\")",
+      "Bash(.claude/hooks/play-tts.sh \"All 3rd review fixes complete. tsc: zero errors. 1933 tests passing. Story 7-4 is review-blocked only on Task 9 manual browser verification\")",
+      "Bash(.claude/hooks/play-tts.sh \"Starting create-story workflow: loading config, instructions, sprint status, and epics to identify the next story\")",
+      "Bash(ls c:/Users/Jeremy/Desktop/workspace/discalculas/docs/*.md)"
+    ]
+  },
   "hooks": {
     "SessionStart": [
       {
@@ -10,6 +25,5 @@
         ]
       }
     ]
-  },
-  "$schema": "https://json.schemastore.org/claude-code-settings.json"
+  }
 }

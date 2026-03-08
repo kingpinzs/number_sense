@@ -67,6 +67,43 @@ development_status:
 
 </step>
 
+<step n="2.5" goal="Retrospective Completion Gate">
+<critical>Before allowing stories from a new epic, verify all previous retrospective action items are complete</critical>
+
+<action>Search for retrospective files in docs/sprint-artifacts/ (pattern: epic-*-retro-*.md)</action>
+<action>For the most recent retrospective, extract all Action Items</action>
+<action>Check completion status of each action item:
+  - Look for evidence in code, documentation, and workflow files
+  - Items marked as "CRITICAL" MUST be complete before proceeding
+</action>
+
+<check if="CRITICAL retro action items are incomplete">
+  <output>**RETRO COMPLETION GATE - BLOCKED**
+
+  The following CRITICAL retrospective action items must be completed before starting a new epic:
+
+  {{incomplete_critical_items}}
+
+  **Options:**
+  1. Complete the outstanding items before proceeding
+  2. Get explicit Project Lead approval to defer specific items
+  3. Convert outstanding items to stories in the new epic
+
+  Epic cannot start until this gate is cleared.
+  </output>
+  <ask>Choose option [1], [2], or [3]:</ask>
+</check>
+
+<check if="non-critical retro items are incomplete">
+  <output>**Note:** The following non-critical retrospective items are still outstanding:
+
+  {{incomplete_noncritical_items}}
+
+  These should be tracked but do not block epic start.
+  </output>
+</check>
+</step>
+
 <step n="3" goal="Apply intelligent status detection">
 <action>For each story, detect current status by checking files:</action>
 

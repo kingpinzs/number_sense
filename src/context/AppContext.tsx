@@ -12,6 +12,7 @@ export interface AppState {
   streak: number;
   onlineStatus: boolean;
   lastSyncTimestamp: string | null;
+  pendingSyncCount: number;
 }
 
 /**
@@ -20,7 +21,8 @@ export interface AppState {
 export type AppAction =
   | { type: 'SET_STREAK'; payload: number }
   | { type: 'UPDATE_ONLINE_STATUS'; payload: boolean }
-  | { type: 'SET_LAST_SYNC'; payload: string | null };
+  | { type: 'SET_LAST_SYNC'; payload: string | null }
+  | { type: 'SET_PENDING_SYNC_COUNT'; payload: number };
 
 /**
  * Create initial state - Loaded from localStorage where applicable
@@ -30,7 +32,8 @@ function createInitialState(): AppState {
   return {
     streak: getStreak(),
     onlineStatus: typeof navigator !== 'undefined' ? navigator.onLine : true,
-    lastSyncTimestamp: null
+    lastSyncTimestamp: null,
+    pendingSyncCount: 0 // Hydrated by useSyncIndicator on mount
   };
 }
 
@@ -55,6 +58,9 @@ function appReducer(state: AppState, action: AppAction): AppState {
     case 'SET_LAST_SYNC':
       return { ...state, lastSyncTimestamp: action.payload };
 
+    case 'SET_PENDING_SYNC_COUNT':
+      return { ...state, pendingSyncCount: action.payload };
+
     default:
       return state;
   }
@@ -70,6 +76,7 @@ interface AppContextValue {
   setStreak: (streak: number) => void;
   updateOnlineStatus: (isOnline: boolean) => void;
   setLastSync: (timestamp: string | null) => void;
+  setPendingSyncCount: (count: number) => void;
 }
 
 // Create context (not exported - use useApp hook instead)
@@ -97,6 +104,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'SET_LAST_SYNC', payload: timestamp });
   };
 
+  const setPendingSyncCount = useCallback((count: number) => {
+    dispatch({ type: 'SET_PENDING_SYNC_COUNT', payload: count });
+  }, []);
+
   // Listen for online/offline events with proper cleanup
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -122,7 +133,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dispatch,
     setStreak: setStreakFn,
     updateOnlineStatus,
-    setLastSync
+    setLastSync,
+    setPendingSyncCount
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

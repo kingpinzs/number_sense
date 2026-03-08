@@ -7,6 +7,17 @@ import userEvent from '@testing-library/user-event';
 import { MilestoneModal } from './MilestoneModal';
 import type { Milestone } from '@/services/training/streakManager';
 
+// Mock framer-motion's useReducedMotion
+vi.mock('framer-motion', async () => {
+  const actual = await vi.importActual<typeof import('framer-motion')>('framer-motion');
+  return {
+    ...actual,
+    useReducedMotion: vi.fn().mockReturnValue(false),
+  };
+});
+
+import { useReducedMotion } from 'framer-motion';
+
 const mockMilestone: Milestone = {
   streak: 7,
   title: 'One Week Streak!',
@@ -72,6 +83,24 @@ describe('MilestoneModal', () => {
     expect(screen.getByText('One Month Streak!')).toBeInTheDocument();
     expect(screen.getByText('🔥')).toBeInTheDocument();
     expect(screen.getByText('30 Days')).toBeInTheDocument();
+  });
+
+  it('respects prefers-reduced-motion for confetti and emoji', () => {
+    vi.mocked(useReducedMotion).mockReturnValue(true);
+
+    render(
+      <MilestoneModal milestone={mockMilestone} open={true} onClose={vi.fn()} />
+    );
+
+    // Modal still renders content
+    expect(screen.getByText('One Week Streak!')).toBeInTheDocument();
+    expect(screen.getByText('🎉')).toBeInTheDocument();
+
+    // Particles still exist in DOM (animation is just empty)
+    const particles = screen.getAllByTestId('confetti-particle');
+    expect(particles.length).toBe(12);
+
+    vi.mocked(useReducedMotion).mockReturnValue(false);
   });
 
   it('renders 100-day milestone correctly', () => {

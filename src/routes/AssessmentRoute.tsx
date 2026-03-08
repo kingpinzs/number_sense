@@ -103,7 +103,7 @@ export default function AssessmentRoute() {
   useEffect(() => {
     if (!sessionStartedRef.current) {
       sessionStartedRef.current = true;
-      const sessionId = `assessment-${Date.now()}`;
+      const sessionId = Date.now();
       startSession('assessment', sessionId);
       setValue('startTime', new Date().toISOString());
     }

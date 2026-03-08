@@ -115,7 +115,7 @@ export function AssessmentWizard({
   useEffect(() => {
     if (open && !sessionStartedRef.current) {
       sessionStartedRef.current = true;
-      const sessionId = `assessment-${Date.now()}`;
+      const sessionId = Date.now();
       startSession('assessment', sessionId);
       setValue('startTime', new Date().toISOString());
       setValue('answers', Array(TOTAL_QUESTIONS).fill(undefined));

@@ -282,7 +282,7 @@ describe('Schema Interfaces', () => {
     it('accepts valid observation', () => {
       const observation: ExperimentObservation = {
         id: 1,
-        experimentId: 42,
+        experimentId: 'drill-timer-visibility', // Story 8.1: string key
         variantId: 'variant_a',
         timestamp: '2025-11-10T10:30:00.000Z',
         metric: 'completion_rate',
@@ -290,14 +290,14 @@ describe('Schema Interfaces', () => {
         userId: 'local_user'
       };
 
-      expect(observation.experimentId).toBe(42);
+      expect(observation.experimentId).toBe('drill-timer-visibility');
       expect(observation.variantId).toBe('variant_a');
       expect(observation.value).toBe(0.85);
       expect(observation.userId).toBe('local_user');
     });
 
     it('links to experiment via experimentId', () => {
-      const experimentId = 123;
+      const experimentId = 'drill-timer-visibility'; // Story 8.1: string key
       const observations: ExperimentObservation[] = [
         {
           experimentId,
@@ -351,7 +351,7 @@ describe('Schema Interfaces', () => {
 
     it('enforces local_user for ExperimentObservation', () => {
       const observation: ExperimentObservation = {
-        experimentId: 1,
+        experimentId: 'confidence-scale', // Story 8.1: string key
         variantId: 'control',
         timestamp: '2025-11-10T10:00:00.000Z',
         metric: 'test_metric',

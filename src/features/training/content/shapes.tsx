@@ -159,6 +159,96 @@ export const Star: React.FC<ShapeProps> = ({ className, style }) => (
   </svg>
 );
 
+// Z-Shape (zigzag tetromino, asymmetric — confusable with S-shape)
+export const ZShape: React.FC<ShapeProps> = ({ className, style }) => (
+  <svg
+    viewBox="0 0 120 120"
+    fill="currentColor"
+    stroke="currentColor"
+    strokeWidth="2"
+    className={className}
+    style={style}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M 30 30 L 70 30 L 70 50 L 90 50 L 90 70 L 50 70 L 50 50 L 30 50 Z" />
+  </svg>
+);
+
+// S-Shape (reverse zigzag, mirror of Z — confusable pair)
+export const SShape: React.FC<ShapeProps> = ({ className, style }) => (
+  <svg
+    viewBox="0 0 120 120"
+    fill="currentColor"
+    stroke="currentColor"
+    strokeWidth="2"
+    className={className}
+    style={style}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M 50 30 L 90 30 L 90 50 L 70 50 L 70 70 L 30 70 L 30 50 L 50 50 Z" />
+  </svg>
+);
+
+// Hook-Shape (J-hook, asymmetric)
+export const HookShape: React.FC<ShapeProps> = ({ className, style }) => (
+  <svg
+    viewBox="0 0 120 120"
+    fill="currentColor"
+    stroke="currentColor"
+    strokeWidth="2"
+    className={className}
+    style={style}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M 50 30 L 70 30 L 70 70 L 90 70 L 90 90 L 50 90 Z" />
+  </svg>
+);
+
+// U-Shape (open top, asymmetric when rotated)
+export const UShape: React.FC<ShapeProps> = ({ className, style }) => (
+  <svg
+    viewBox="0 0 120 120"
+    fill="currentColor"
+    stroke="currentColor"
+    strokeWidth="2"
+    className={className}
+    style={style}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M 25 30 L 50 30 L 50 65 L 70 65 L 70 30 L 95 30 L 95 90 L 25 90 Z" />
+  </svg>
+);
+
+// F-Shape (F-pentomino, complex asymmetric)
+export const FShape: React.FC<ShapeProps> = ({ className, style }) => (
+  <svg
+    viewBox="0 0 120 120"
+    fill="currentColor"
+    stroke="currentColor"
+    strokeWidth="2"
+    className={className}
+    style={style}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M 50 25 L 90 25 L 90 45 L 70 45 L 70 95 L 50 95 L 50 65 L 30 65 L 30 45 L 50 45 Z" />
+  </svg>
+);
+
+// W-Shape (staircase, asymmetric — hard to mentally rotate)
+export const WShape: React.FC<ShapeProps> = ({ className, style }) => (
+  <svg
+    viewBox="0 0 120 120"
+    fill="currentColor"
+    stroke="currentColor"
+    strokeWidth="2"
+    className={className}
+    style={style}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M 30 30 L 50 30 L 50 50 L 70 50 L 70 70 L 90 70 L 90 90 L 50 90 L 50 70 L 30 70 Z" />
+  </svg>
+);
+
 // Shape type definitions
 export type ShapeType =
   | 'square'
@@ -170,7 +260,13 @@ export type ShapeType =
   | 'lshape'
   | 'tshape'
   | 'arrow'
-  | 'star';
+  | 'star'
+  | 'zshape'
+  | 'sshape'
+  | 'hookshape'
+  | 'ushape'
+  | 'fshape'
+  | 'wshape';
 
 // Map of shape names to components
 export const SHAPES: Record<ShapeType, React.FC<ShapeProps>> = {
@@ -184,6 +280,12 @@ export const SHAPES: Record<ShapeType, React.FC<ShapeProps>> = {
   tshape: TShape,
   arrow: Arrow,
   star: Star,
+  zshape: ZShape,
+  sshape: SShape,
+  hookshape: HookShape,
+  ushape: UShape,
+  fshape: FShape,
+  wshape: WShape,
 };
 
 // Difficulty-based shape sets

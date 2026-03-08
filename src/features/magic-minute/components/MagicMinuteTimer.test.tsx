@@ -200,7 +200,7 @@ describe('MagicMinuteTimer', () => {
     expect(screen.getByText(/Magic Minute/i)).toBeInTheDocument();
   });
 
-  // Instruction text displays
+  // Instruction text displays (only visible when no challenge is active)
   it('displays instruction text about challenges', () => {
     const onComplete = vi.fn();
     render(
@@ -208,6 +208,7 @@ describe('MagicMinuteTimer', () => {
         mistakePatterns={mockMistakePatterns}
         sessionId={1}
         onComplete={onComplete}
+        enableChallenges={false}
       />
     );
 

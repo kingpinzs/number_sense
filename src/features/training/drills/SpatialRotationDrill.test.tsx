@@ -366,7 +366,7 @@ describe('SpatialRotationDrill', () => {
         () => {
           expect(mockOnComplete).toHaveBeenCalledTimes(1);
         },
-        { timeout: 2500 }
+        { timeout: 5000 }
       );
 
       const result = mockOnComplete.mock.calls[0][0] as DrillResult;

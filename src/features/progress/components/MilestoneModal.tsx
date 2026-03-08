@@ -55,8 +55,8 @@ export function MilestoneModal({ milestone, open, onClose }: MilestoneModalProps
         <DialogHeader className="items-center">
           <motion.div
             className="text-6xl mb-2"
-            initial={{ scale: 0 }}
-            animate={{ scale: [0, 1.3, 1] }}
+            initial={{ scale: shouldReduceMotion ? 1 : 0 }}
+            animate={shouldReduceMotion ? {} : { scale: [0, 1.3, 1] }}
             transition={{ duration: 0.5, ease: 'easeOut' }}
           >
             {milestone.emoji}

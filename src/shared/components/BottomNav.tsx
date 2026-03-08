@@ -1,8 +1,8 @@
-// BottomNav - Mobile navigation bar with 4 tabs
+// BottomNav - Mobile navigation bar with 5 tabs
 // Uses React Router for navigation, WCAG 2.1 AA compliant
 
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, Dumbbell, BarChart3, User } from 'lucide-react';
+import { Home, Dumbbell, Brain, BarChart3, User } from 'lucide-react';
 
 export interface BottomNavProps {
   className?: string;
@@ -17,6 +17,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { path: '/', label: 'Home', icon: Home },
   { path: '/training', label: 'Training', icon: Dumbbell },
+  { path: '/cognition', label: 'Games', icon: Brain },
   { path: '/progress', label: 'Progress', icon: BarChart3 },
   { path: '/profile', label: 'Profile', icon: User },
 ];
@@ -24,7 +25,7 @@ const navItems: NavItem[] = [
 /**
  * BottomNav component - Mobile-optimized bottom navigation bar
  * Features:
- * - 4 tabs: Home, Training, Progress, Profile
+ * - 5 tabs: Home, Training, Games, Progress, Profile
  * - Active state highlighting with coral primary color
  * - 44px minimum tap targets for mobile accessibility
  * - Full keyboard navigation (Tab + Enter/Space)
@@ -49,7 +50,8 @@ export function BottomNav({ className = '' }: BottomNavProps) {
     <nav
       role="navigation"
       aria-label="Main navigation"
-      className={`fixed bottom-0 left-0 right-0 bg-background border-t border-border ${className}`}
+      style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 9999, backgroundColor: 'var(--background, #fdfbf9)' }}
+      className={`border-t border-border shadow-[0_-2px_8px_rgba(0,0,0,0.1)] ${className}`}
     >
       <div className="flex justify-around items-center h-16 max-w-md mx-auto">
         {navItems.map((item) => {

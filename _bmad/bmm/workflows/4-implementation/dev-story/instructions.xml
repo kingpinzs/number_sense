@@ -370,6 +370,47 @@
     <action if="definition-of-done validation fails">HALT - Address DoD failures before completing</action>
   </step>
 
+  <step n="9.5" goal="Triple-Check Verification Protocol">
+    <critical>MANDATORY: This step CANNOT be skipped. Visual verification catches bugs that tests miss.</critical>
+    <critical>Epic 4 and Epic 5 retrospectives identified that dev agents skip visual verification, leading to HIGH-severity bugs caught only in code review.</critical>
+
+    <!-- VISUAL VERIFICATION -->
+    <action>Run `npm run dev` (or project's dev server command) and open the app in browser</action>
+    <action>For EACH Acceptance Criterion in the story:
+      1. Navigate to the relevant screen/component in the running app
+      2. Visually confirm the AC is implemented and working correctly
+      3. Interact with the feature as a real user would
+      4. Document: "AC [number]: Verified in browser - [observation]"
+    </action>
+
+    <!-- EDGE CASE VERIFICATION -->
+    <action>Test edge cases in the browser:
+      1. Empty states - what happens with no data?
+      2. Error states - what happens when things go wrong?
+      3. Boundary values - min/max inputs, long text, special characters
+      4. Loading states - slow network simulation if applicable
+    </action>
+
+    <!-- ACCESSIBILITY VERIFICATION -->
+    <action>Verify accessibility:
+      1. Tab through interactive elements - is keyboard navigation logical?
+      2. Check that focus indicators are visible
+      3. Verify touch targets are at least 44px (mobile viewport)
+      4. Test with `prefers-reduced-motion` if animations are present
+    </action>
+
+    <!-- VERIFICATION LOG -->
+    <action>Add to Dev Agent Record → Completion Notes:
+      "Triple-Check Verification:
+      - Visual verification: [PASS/FAIL] [details]
+      - Edge cases tested: [list]
+      - Accessibility verified: [PASS/FAIL] [details]"
+    </action>
+
+    <action if="ANY verification fails">HALT - Fix issues before proceeding to completion</action>
+    <action if="dev server cannot start">HALT - "Cannot verify: dev server failed to start"</action>
+  </step>
+
   <step n="10" goal="Completion communication and user support">
     <action>Execute the enhanced definition-of-done checklist using the validation framework</action>
     <action>Prepare a concise summary in Dev Agent Record → Completion Notes</action>

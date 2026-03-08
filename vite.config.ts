@@ -9,20 +9,42 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       devOptions: { enabled: true },
+      includeAssets: ['favicon.ico', 'robots.txt', 'icons/*.png'],
       manifest: {
-        name: 'Discalculas',
+        name: 'Discalculas - Dyscalculia Self-Therapy',
         short_name: 'Discalculas',
-        description: 'Offline-first dyscalculia training companion',
+        description: 'Personalized math training for dyscalculia',
         theme_color: '#E87461',
-        background_color: '#0D0F12',
+        background_color: '#FFFFFF',
         display: 'standalone',
+        orientation: 'portrait',
         start_url: '/',
         icons: [
+          { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: '/icons/icon-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+        ]
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        runtimeCaching: [
           {
-            src: '/vite.svg',
-            sizes: '192x192',
-            type: 'image/svg+xml',
-            purpose: 'any maskable'
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-cache',
+              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              cacheableResponse: { statuses: [0, 200] }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'gstatic-fonts-cache',
+              expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              cacheableResponse: { statuses: [0, 200] }
+            }
           }
         ]
       }
@@ -49,7 +71,7 @@ export default defineConfig({
         functions: 100,
         lines: 100
       },
-      exclude: ['tests/**', '**/*.test.tsx', '**/*.config.ts', '**/index.ts']
+      exclude: ['tests/**', '**/*.test.tsx', '**/*.test.ts', '**/*.config.ts', '**/index.ts']
     }
   }
 });

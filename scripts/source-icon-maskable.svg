@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#E87461"/>
+  <!-- Bold "D" scaled down for maskable safe zone, horizontally centered -->
+  <path d="M 160 128 L 160 384 L 256 384 Q 352 384 352 256 Q 352 128 256 128 Z M 200 168 L 256 168 Q 312 168 312 256 Q 312 344 256 344 L 200 344 Z" fill="white" fill-rule="evenodd"/>
+</svg>

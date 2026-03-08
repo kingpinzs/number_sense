@@ -131,7 +131,7 @@ describe('SVG Shape Components', () => {
       shapeComponents.forEach((ShapeComponent) => {
         const { container } = render(<ShapeComponent />);
         const svg = container.querySelector('svg');
-        expect(svg?.getAttribute('strokeWidth')).toBe('2');
+        expect(svg?.getAttribute('stroke-width')).toBe('2');
       });
     });
 

@@ -19,7 +19,7 @@ function TestComponent() {
       <div data-testid="module">{state.currentModule || 'null'}</div>
       <div data-testid="session-id">{state.sessionId || 'null'}</div>
       <div data-testid="start-time">{state.startTime || 'null'}</div>
-      <button onClick={() => startSession('training', 'session-123')}>Start Session</button>
+      <button onClick={() => startSession('training', 123)}>Start Session</button>
       <button onClick={() => pauseSession()}>Pause Session</button>
       <button onClick={() => resumeSession()}>Resume Session</button>
       <button onClick={() => endSession()}>End Session</button>
@@ -70,7 +70,7 @@ describe('SessionContext', () => {
       // Verify session started
       expect(screen.getByTestId('status')).toHaveTextContent('active');
       expect(screen.getByTestId('module')).toHaveTextContent('training');
-      expect(screen.getByTestId('session-id')).toHaveTextContent('session-123');
+      expect(screen.getByTestId('session-id')).toHaveTextContent('123');
       // startTime should be set (not null)
       expect(screen.getByTestId('start-time')).not.toHaveTextContent('null');
     });
@@ -125,7 +125,7 @@ describe('SessionContext', () => {
 
       // Verify module and sessionId preserved for telemetry
       expect(screen.getByTestId('module')).toHaveTextContent('training');
-      expect(screen.getByTestId('session-id')).toHaveTextContent('session-123');
+      expect(screen.getByTestId('session-id')).toHaveTextContent('123');
     });
   });
 
@@ -213,7 +213,7 @@ describe('SessionContext', () => {
 
       const handleStartTraining = () => {
         const drillQueue: DrillType[] = ['number_line', 'spatial_rotation', 'math_operations'];
-        startTrainingSession('training-session-456', 'quick', drillQueue);
+        startTrainingSession(456, 'quick', drillQueue);
       };
 
       const handleNextDrill = () => {
@@ -269,7 +269,7 @@ describe('SessionContext', () => {
       // Verify training session started
       expect(screen.getByTestId('status')).toHaveTextContent('active');
       expect(screen.getByTestId('module')).toHaveTextContent('training');
-      expect(screen.getByTestId('session-id')).toHaveTextContent('training-session-456');
+      expect(screen.getByTestId('session-id')).toHaveTextContent('456');
       expect(screen.getByTestId('session-type')).toHaveTextContent('quick');
       expect(screen.getByTestId('drill-queue')).toHaveTextContent('number_line,spatial_rotation,math_operations');
       expect(screen.getByTestId('current-drill-index')).toHaveTextContent('0');
@@ -366,7 +366,7 @@ describe('SessionContext', () => {
       expect(screen.getByTestId('status')).toHaveTextContent('completed');
 
       // Verify session data preserved for telemetry
-      expect(screen.getByTestId('session-id')).toHaveTextContent('training-session-456');
+      expect(screen.getByTestId('session-id')).toHaveTextContent('456');
       expect(screen.getByTestId('results-count')).toHaveTextContent('2');
     });
   });

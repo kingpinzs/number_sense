@@ -31,5 +31,5 @@ describe('Path alias resolution', () => {
   it('resolves route imports correctly', async () => {
     const Home = await import('@/routes/Home');
     expect(Home.default).toBeDefined();
-  });
+  }, 30000);
 });

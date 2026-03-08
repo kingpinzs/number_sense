@@ -60,35 +60,30 @@ describe('Module exports and placeholders', () => {
     });
   });
 
-  describe('Route placeholders', () => {
-    it('Home route is a minimal component stub', () => {
+  describe('Route components', () => {
+    it('Home route exports a default function component', () => {
       const content = readFileSync(join(projectRoot, 'src/routes/Home.tsx'), 'utf-8');
       expect(content).toContain('export default function Home()');
-      expect(content).toContain('return <div>Home</div>');
     });
 
-    it('AssessmentRoute is a minimal component stub', () => {
+    it('AssessmentRoute exports a default function component', () => {
       const content = readFileSync(join(projectRoot, 'src/routes/AssessmentRoute.tsx'), 'utf-8');
       expect(content).toContain('export default function AssessmentRoute()');
-      expect(content).toContain('return <div>Assessment</div>');
     });
 
-    it('TrainingRoute is a minimal component stub', () => {
+    it('TrainingRoute exports a default function component', () => {
       const content = readFileSync(join(projectRoot, 'src/routes/TrainingRoute.tsx'), 'utf-8');
       expect(content).toContain('export default function TrainingRoute()');
-      expect(content).toContain('return <div>Training</div>');
     });
 
-    it('ProgressRoute is a minimal component stub', () => {
+    it('ProgressRoute exports a default function component', () => {
       const content = readFileSync(join(projectRoot, 'src/routes/ProgressRoute.tsx'), 'utf-8');
       expect(content).toContain('export default function ProgressRoute()');
-      expect(content).toContain('return <div>Progress</div>');
     });
 
-    it('ProfileRoute is a minimal component stub', () => {
+    it('ProfileRoute exports a default function component', () => {
       const content = readFileSync(join(projectRoot, 'src/routes/ProfileRoute.tsx'), 'utf-8');
       expect(content).toContain('export default function ProfileRoute()');
-      expect(content).toContain('return <div>Profile</div>');
     });
   });
 });

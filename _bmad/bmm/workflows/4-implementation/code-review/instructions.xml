@@ -41,6 +41,36 @@
     <action>Load {project_context} for coding standards (if exists)</action>
   </step>
 
+  <step n="1.5" goal="Retrospective Action Item Gate">
+    <critical>Check that relevant retrospective action items have been addressed before reviewing code</critical>
+
+    <action>Search for the most recent retrospective file in docs/sprint-artifacts/ (pattern: epic-*-retro-*.md)</action>
+    <action>If found, read the Action Items section and identify items relevant to this story:
+      - Items related to the same feature area
+      - Items about testing patterns or coding standards
+      - Items about workflow compliance (triple-check protocol, visual verification)
+    </action>
+
+    <check if="relevant retro action items exist">
+      <action>For EACH relevant retro item, check if it was addressed:
+        1. Was the action item completed? (check story file, code, documentation)
+        2. If not completed, flag as HIGH severity finding
+      </action>
+
+      <action>If story does NOT include a verification subtask (manual browser testing):
+        Flag as HIGH severity: "Missing MANDATORY verification subtask - required by Epic 5 retrospective"
+      </action>
+    </check>
+
+    <action>Check if {project_context} exists and verify story follows documented patterns:
+      - Testing patterns (useEffect timing, mock cleanup, date handling)
+      - Coding conventions (pure functional services, shadcn/ui imports, touch targets)
+      - Triple-check protocol compliance
+    </action>
+
+    <action>Store retro compliance findings for inclusion in review output</action>
+  </step>
+
   <step n="2" goal="Build review attack plan">
     <action>Extract ALL Acceptance Criteria from story</action>
     <action>Extract ALL Tasks/Subtasks with completion status ([x] vs [ ])</action>

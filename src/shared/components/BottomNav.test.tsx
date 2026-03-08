@@ -25,20 +25,21 @@ describe('BottomNav', () => {
     mockPathname = '/';
   });
 
-  // Test 1: Renders all 4 tabs with icons and labels
-  it('renders 4 tabs with icons and labels', () => {
+  // Test 1: Renders all 5 tabs with icons and labels
+  it('renders 5 tabs with icons and labels', () => {
     // Arrange & Act
     render(<BottomNav />);
 
-    // Assert - All 4 tab labels are present
+    // Assert - All 5 tab labels are present
     expect(screen.getByText('Home')).toBeInTheDocument();
     expect(screen.getByText('Training')).toBeInTheDocument();
+    expect(screen.getByText('Games')).toBeInTheDocument();
     expect(screen.getByText('Progress')).toBeInTheDocument();
     expect(screen.getByText('Profile')).toBeInTheDocument();
 
     // Assert - All tabs are buttons
     const buttons = screen.getAllByRole('button');
-    expect(buttons).toHaveLength(4);
+    expect(buttons).toHaveLength(5);
   });
 
   // Test 2: Active state highlighting for Home tab
@@ -98,6 +99,22 @@ describe('BottomNav', () => {
     // Assert
     const profileButton = screen.getByRole('button', { name: /profile/i });
     expect(profileButton).toHaveAttribute('aria-current', 'page');
+  });
+
+  // Test 5b: Active state for Games tab
+  it('highlights Games tab when on /cognition path', () => {
+    // Arrange
+    mockPathname = '/cognition';
+
+    // Act
+    render(<BottomNav />);
+
+    // Assert
+    const gamesButton = screen.getByRole('button', { name: /games/i });
+    expect(gamesButton).toHaveAttribute('aria-current', 'page');
+
+    const homeButton = screen.getByRole('button', { name: /home/i });
+    expect(homeButton).not.toHaveAttribute('aria-current');
   });
 
   // Test 6: Navigates on click
@@ -212,6 +229,10 @@ describe('BottomNav', () => {
     // Act & Assert - Training
     await user.click(screen.getByRole('button', { name: /training/i }));
     expect(mockNavigate).toHaveBeenCalledWith('/training');
+
+    // Act & Assert - Games
+    await user.click(screen.getByRole('button', { name: /games/i }));
+    expect(mockNavigate).toHaveBeenCalledWith('/cognition');
 
     // Act & Assert - Progress
     await user.click(screen.getByRole('button', { name: /progress/i }));
