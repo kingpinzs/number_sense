@@ -1,7 +1,7 @@
 // Date Formatters Tests - Story 5.2
 // Tests for session date, time, duration formatting and date grouping
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   formatSessionDate,
   formatSessionTime,
@@ -77,12 +77,31 @@ describe('formatDuration', () => {
 });
 
 describe('groupSessionsByDate', () => {
+  // Pin to a Wednesday so "yesterday" is always within the same week (weekStartsOn: 1 = Monday)
+  const FIXED_NOW = new Date('2026-03-11T12:00:00.000Z'); // Wednesday
+
+  function daysBeforeFixed(days: number): string {
+    const d = new Date(FIXED_NOW);
+    d.setDate(d.getDate() - days);
+    d.setHours(14, 30, 0, 0);
+    return d.toISOString();
+  }
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(FIXED_NOW);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('groups sessions into Today, This Week, Earlier', () => {
     const sessions = [
-      { timestamp: daysAgo(0) } as Session,   // Today
-      { timestamp: daysAgo(1) } as Session,   // This Week (Yesterday)
-      { timestamp: daysAgo(3) } as Session,   // This Week
-      { timestamp: daysAgo(14) } as Session,  // Earlier
+      { timestamp: daysBeforeFixed(0) } as Session,   // Today (Wed)
+      { timestamp: daysBeforeFixed(1) } as Session,   // This Week (Tue)
+      { timestamp: daysBeforeFixed(2) } as Session,   // This Week (Mon)
+      { timestamp: daysBeforeFixed(14) } as Session,  // Earlier
     ];
 
     const groups = groupSessionsByDate(sessions);
@@ -91,8 +110,9 @@ describe('groupSessionsByDate', () => {
     expect(keys).toContain('Today');
     expect(groups.get('Today')).toHaveLength(1);
 
-    // Yesterday and 3 days ago should be in "This Week" (or "Yesterday" for 1 day ago)
-    // "Earlier" should contain the 14-day-old session
+    expect(keys).toContain('This Week');
+    expect(groups.get('This Week')).toHaveLength(2);
+
     expect(keys).toContain('Earlier');
     expect(groups.get('Earlier')).toHaveLength(1);
   });
@@ -104,7 +124,7 @@ describe('groupSessionsByDate', () => {
 
   it('puts yesterday in This Week group', () => {
     const sessions = [
-      { timestamp: daysAgo(1) } as Session,
+      { timestamp: daysBeforeFixed(1) } as Session,
     ];
 
     const groups = groupSessionsByDate(sessions);
@@ -114,7 +134,7 @@ describe('groupSessionsByDate', () => {
 
   it('only creates groups that have sessions', () => {
     const sessions = [
-      { timestamp: daysAgo(30) } as Session,
+      { timestamp: daysBeforeFixed(30) } as Session,
     ];
 
     const groups = groupSessionsByDate(sessions);
