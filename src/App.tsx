@@ -1,5 +1,7 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { Capacitor } from '@capacitor/core';
+import { App as CapApp } from '@capacitor/app';
 import { UserSettingsProvider } from '@/context/UserSettingsContext';
 import { AppProvider } from '@/context/AppContext';
 import { SessionProvider } from '@/context/SessionContext';
@@ -10,6 +12,8 @@ import { useServiceWorker } from '@/services/pwa/useServiceWorker';
 import { InstallPrompt } from '@/shared/components/InstallPrompt';
 import { SyncIndicator } from '@/shared/components/SyncIndicator';
 import { useInstallPrompt } from '@/services/pwa/useInstallPrompt';
+
+const isNative = Capacitor.isNativePlatform();
 
 const Home = lazy(() => import('@/routes/Home'));
 const AssessmentRoute = lazy(() => import('@/routes/AssessmentRoute'));
@@ -37,6 +41,19 @@ function ServiceWorkerRegistration() {
 
 function AppContent() {
   const { shouldShowPrompt } = useInstallPrompt();
+
+  useEffect(() => {
+    if (!isNative) return;
+    const listener = CapApp.addListener('backButton', ({ canGoBack }) => {
+      if (canGoBack) {
+        window.history.back();
+      } else {
+        CapApp.exitApp();
+      }
+    });
+    return () => { listener.then(l => l.remove()); };
+  }, []);
+
   return (
     <div
       className="min-h-screen bg-background pb-20"
@@ -54,8 +71,8 @@ function AppContent() {
         </Routes>
       </Suspense>
       <BottomNav />
-      <InstallPrompt />
-      <SyncIndicator />
+      {!isNative && <InstallPrompt />}
+      {!isNative && <SyncIndicator />}
     </div>
   );
 }

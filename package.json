@@ -18,9 +18,14 @@
     "test:e2e": "playwright test",
     "lint": "eslint . --max-warnings=0",
     "generate-icons": "node scripts/generate-icons.mjs",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "cap:build": "npm run build && npx cap sync android"
   },
   "dependencies": {
+    "@capacitor/android": "^8.2.0",
+    "@capacitor/app": "^8.0.1",
+    "@capacitor/cli": "^8.2.0",
+    "@capacitor/core": "^8.2.0",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-dialog": "^1.1.15",
