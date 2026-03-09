@@ -160,6 +160,7 @@ describe('Telemetry Logger Service', () => {
 
   describe('Error handling and localStorage fallback', () => {
     it('should fallback to localStorage when Dexie fails', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       // Mock Dexie to throw an error
       const originalAdd = db.telemetry_logs.add.bind(db.telemetry_logs);
       db.telemetry_logs.add = vi.fn().mockRejectedValue(new Error('IndexedDB quota exceeded'));
@@ -176,9 +177,11 @@ describe('Telemetry Logger Service', () => {
 
       // Restore original
       db.telemetry_logs.add = originalAdd;
+      consoleSpy.mockRestore();
     });
 
     it('should show toast notification on Dexie failure', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       const { toast } = await import('sonner');
       const originalAdd = db.telemetry_logs.add.bind(db.telemetry_logs);
       db.telemetry_logs.add = vi.fn().mockRejectedValue(new Error('Write failed'));
@@ -193,6 +196,7 @@ describe('Telemetry Logger Service', () => {
       );
 
       db.telemetry_logs.add = originalAdd;
+      consoleSpy.mockRestore();
     });
   });
 

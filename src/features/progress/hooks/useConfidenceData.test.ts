@@ -1,10 +1,23 @@
 // useConfidenceData Hook Tests - Story 5.1
 // Tests for data fetching hook
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useConfidenceData } from './useConfidenceData';
 import type { Session } from '@/services/storage/schemas';
+
+// Suppress React act() warnings from async state updates settling after test assertions
+const originalConsoleError = console.error;
+beforeAll(() => {
+  console.error = (...args: unknown[]) => {
+    const msg = String(args[0]);
+    if (msg.includes('not wrapped in act(')) return;
+    originalConsoleError(...args);
+  };
+});
+afterAll(() => {
+  console.error = originalConsoleError;
+});
 
 // Mock Dexie database
 vi.mock('@/services/storage/db', () => ({
@@ -117,6 +130,7 @@ describe('useConfidenceData', () => {
   });
 
   it('handles fetch errors gracefully', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     // Setup mock to reject
     const sessionsChain = {
       equals: vi.fn().mockReturnThis(),
@@ -134,6 +148,7 @@ describe('useConfidenceData', () => {
 
     expect(result.current.error).toBe('Failed to load confidence data');
     expect(result.current.current).toBeNull();
+    consoleSpy.mockRestore();
   });
 
   it('provides refetch function', async () => {

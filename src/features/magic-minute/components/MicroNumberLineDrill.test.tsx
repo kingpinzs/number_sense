@@ -21,7 +21,7 @@ vi.mock('framer-motion', () => {
   });
   return {
     motion: {
-      div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+      div: ({ children, dragConstraints: _dragConstraints, dragElastic: _dragElastic, dragMomentum: _dragMomentum, whileTap: _whileTap, ...props }: any) => <div {...props}>{children}</div>,
     },
     useMotionValue: (initial: number) => motionValue(initial),
     useTransform: (_value: any, transform: (x: number) => number) => {

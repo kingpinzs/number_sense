@@ -1,7 +1,7 @@
 // Data Export Utility Tests - Story 3.7
 // Tests for exporting session data for debugging and user data portability
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import 'fake-indexeddb/auto';
 import { db } from './db';
 import {
@@ -21,8 +21,10 @@ describe('Data Export Utility', () => {
 
   describe('exportSessionData', () => {
     it('should return null for non-existent session', async () => {
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const result = await exportSessionData(9999);
       expect(result).toBeNull();
+      consoleSpy.mockRestore();
     });
 
     it('should export session with all related drill results', async () => {

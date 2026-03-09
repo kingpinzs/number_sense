@@ -2,10 +2,23 @@
 // Tests for insights data fetching hook
 // Pattern: Cloned from useConfidenceData.test.ts
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useInsights } from './useInsights';
 import type { Session, DrillResult } from '@/services/storage/schemas';
+
+// Suppress React act() warnings from async state updates settling after test assertions
+const originalConsoleError = console.error;
+beforeAll(() => {
+  console.error = (...args: unknown[]) => {
+    const msg = String(args[0]);
+    if (msg.includes('not wrapped in act(')) return;
+    originalConsoleError(...args);
+  };
+});
+afterAll(() => {
+  console.error = originalConsoleError;
+});
 
 // Mock Dexie database
 vi.mock('@/services/storage/db', () => ({
@@ -159,6 +172,7 @@ describe('useInsights', () => {
   });
 
   it('handles fetch errors gracefully', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const sessionsChain = {
       equals: vi.fn().mockReturnThis(),
       reverse: vi.fn().mockReturnThis(),
@@ -175,6 +189,7 @@ describe('useInsights', () => {
 
     expect(result.current.error).toBe('Failed to generate insights');
     expect(result.current.insights).toEqual([]);
+    consoleSpy.mockRestore();
   });
 
   it('queries training sessions from Dexie', async () => {

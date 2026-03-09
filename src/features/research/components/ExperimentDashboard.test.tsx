@@ -1,10 +1,23 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, beforeAll, afterAll } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ExperimentDashboard from './ExperimentDashboard';
 import { db } from '@/services/storage/db';
 import { exportObservationsAsCSV } from '../utils/exportObservations';
 import type { ExperimentObservation } from '@/services/storage/schemas';
+
+// Suppress React act() warnings from async state updates in observation count effects
+const originalConsoleError = console.error;
+beforeAll(() => {
+  console.error = (...args: unknown[]) => {
+    const msg = String(args[0]);
+    if (msg.includes('not wrapped in act(')) return;
+    originalConsoleError(...args);
+  };
+});
+afterAll(() => {
+  console.error = originalConsoleError;
+});
 
 // ─── Mocks ───────────────────────────────────────────────────────────────────
 

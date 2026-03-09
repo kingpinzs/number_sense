@@ -268,6 +268,7 @@ describe('useSessionHistory', () => {
   });
 
   it('handles fetch errors gracefully', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const sessionsChain = {
       equals: vi.fn().mockReturnThis(),
       reverse: vi.fn().mockReturnThis(),
@@ -285,6 +286,7 @@ describe('useSessionHistory', () => {
 
     expect(result.current.error).toBe('Failed to load session history');
     expect(result.current.sessions).toEqual([]);
+    consoleSpy.mockRestore();
   });
 
   it('queries with correct Dexie chain', async () => {

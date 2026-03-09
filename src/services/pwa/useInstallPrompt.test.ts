@@ -1,7 +1,20 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useInstallPrompt } from './useInstallPrompt';
 import { db } from '@/services/storage/db';
+
+// Suppress React act() warnings from async effects (db.sessions.count) settling after unmount
+const originalConsoleError = console.error;
+beforeAll(() => {
+  console.error = (...args: unknown[]) => {
+    const msg = String(args[0]);
+    if (msg.includes('not wrapped in act(')) return;
+    originalConsoleError(...args);
+  };
+});
+afterAll(() => {
+  console.error = originalConsoleError;
+});
 
 // Mock Dexie db — session count and telemetry writes
 vi.mock('@/services/storage/db', () => ({

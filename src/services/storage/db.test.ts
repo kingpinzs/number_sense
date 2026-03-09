@@ -1,9 +1,22 @@
 // Tests for Dexie database layer
 // Testing: Database initialization, CRUD operations, indexes, health checks
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
 import { DiscalculasDB, db, ensureDBHealth, queryWithTiming } from './db';
 import type { Session } from './schemas';
+
+// Suppress Dexie "Another connection wants to delete database" and slow query warnings
+const originalWarn = console.warn;
+beforeAll(() => {
+  console.warn = (...args: unknown[]) => {
+    const msg = String(args[0]);
+    if (msg.includes('Another connection wants to delete database') || msg.includes('Slow query:')) return;
+    originalWarn(...args);
+  };
+});
+afterAll(() => {
+  console.warn = originalWarn;
+});
 
 describe('DiscalculasDB', () => {
   // Use test database instance

@@ -1,5 +1,5 @@
 // Tests for TrainingRoute - Story 3.1
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, beforeAll, afterAll } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { UserSettingsProvider } from '@/context/UserSettingsContext';
@@ -8,6 +8,19 @@ import { SessionProvider } from '@/context/SessionContext';
 import TrainingRoute from './TrainingRoute';
 import { db } from '@/services/storage/db';
 import type { Assessment } from '@/services/storage/schemas';
+
+// Suppress React act() warnings from async state updates settling after test assertions
+const originalConsoleError = console.error;
+beforeAll(() => {
+  console.error = (...args: unknown[]) => {
+    const msg = String(args[0]);
+    if (msg.includes('not wrapped in act(')) return;
+    originalConsoleError(...args);
+  };
+});
+afterAll(() => {
+  console.error = originalConsoleError;
+});
 
 // Mock database
 vi.mock('@/services/storage/db', () => ({
@@ -145,6 +158,7 @@ describe('TrainingRoute', () => {
   });
 
   it('redirects to /assessment on database error', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     // Arrange: Mock database error
     const mockFirst = vi.fn().mockRejectedValue(new Error('Database error'));
     const mockReverse = vi.fn().mockReturnValue({ first: mockFirst });
@@ -158,5 +172,6 @@ describe('TrainingRoute', () => {
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith('/assessment', { replace: true });
     });
+    consoleSpy.mockRestore();
   });
 });

@@ -1,10 +1,23 @@
 // Integration tests for Dexie React hooks
 // Testing: useLiveQuery() reactive updates
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { DiscalculasDB } from '@/services/storage/db';
+
+// Suppress React act() warnings from Dexie live query async updates
+const originalConsoleError = console.error;
+beforeAll(() => {
+  console.error = (...args: unknown[]) => {
+    const msg = String(args[0]);
+    if (msg.includes('not wrapped in act(')) return;
+    originalConsoleError(...args);
+  };
+});
+afterAll(() => {
+  console.error = originalConsoleError;
+});
 
 describe('Database Integration with React', () => {
   let testDB: DiscalculasDB;

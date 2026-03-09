@@ -206,6 +206,7 @@ describe('useCoachGuidance', () => {
   });
 
   it('handles database errors gracefully', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const assessmentsChain = {
       equals: vi.fn().mockReturnThis(),
       count: vi.fn().mockRejectedValue(new Error('DB error')),
@@ -219,6 +220,7 @@ describe('useCoachGuidance', () => {
     });
 
     expect(result.current.guidance).toBeNull();
+    consoleSpy.mockRestore();
   });
 
   it('filters dismissed tips from guidance', async () => {

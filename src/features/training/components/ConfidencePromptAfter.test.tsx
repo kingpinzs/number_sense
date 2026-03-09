@@ -11,10 +11,22 @@
  * - User interactions (click handling)
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, beforeAll, afterAll } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ConfidencePromptAfter from './ConfidencePromptAfter';
+
+const originalWarn = console.warn;
+beforeAll(() => {
+  console.warn = (...args: unknown[]) => {
+    const msg = String(args[0]);
+    if (msg.includes('Missing `Description`') || msg.includes('DialogTitle')) return;
+    originalWarn(...args);
+  };
+});
+afterAll(() => {
+  console.warn = originalWarn;
+});
 
 describe('ConfidencePromptAfter', () => {
   const mockOnSelect = vi.fn();

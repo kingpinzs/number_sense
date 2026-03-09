@@ -28,10 +28,12 @@ describe('streakManager', () => {
     });
 
     it('should return 0 on localStorage error', () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
         throw new Error('localStorage error');
       });
       expect(getStreak()).toBe(0);
+      consoleSpy.mockRestore();
     });
   });
 
@@ -94,12 +96,14 @@ describe('streakManager', () => {
     });
 
     it('should return 1 on localStorage error (fallback)', () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
         throw new Error('localStorage error');
       });
 
       const streak = updateStreak();
       expect(streak).toBe(1); // Fallback value
+      consoleSpy.mockRestore();
     });
   });
 
@@ -188,11 +192,13 @@ describe('streakManager', () => {
     });
 
     it('should handle localStorage errors gracefully', () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
         throw new Error('localStorage error');
       });
 
       expect(() => resetStreak()).not.toThrow();
+      consoleSpy.mockRestore();
     });
   });
 });

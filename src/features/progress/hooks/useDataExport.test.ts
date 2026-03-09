@@ -2,10 +2,23 @@
 // Tests for data export hook
 // Pattern: Cloned from useInsights.test.ts
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { useDataExport } from './useDataExport';
 import type { Session } from '@/services/storage/schemas';
+
+// Suppress React act() warnings from async state updates settling after test assertions
+const originalConsoleError = console.error;
+beforeAll(() => {
+  console.error = (...args: unknown[]) => {
+    const msg = String(args[0]);
+    if (msg.includes('not wrapped in act(')) return;
+    originalConsoleError(...args);
+  };
+});
+afterAll(() => {
+  console.error = originalConsoleError;
+});
 
 // Mock Dexie database
 vi.mock('@/services/storage/db', () => ({
@@ -261,6 +274,7 @@ describe('useDataExport', () => {
   });
 
   it('shows error toast when export fails', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     setupMocks(mockSessions);
 
     const { result } = renderHook(() => useDataExport());
@@ -278,6 +292,7 @@ describe('useDataExport', () => {
 
     expect(toast.error).toHaveBeenCalledWith('Export failed. Please try again.');
     expect(downloadCSVData).not.toHaveBeenCalled();
+    consoleSpy.mockRestore();
   });
 
   it('hasData remains true when date range changes (global check per AC-8)', async () => {

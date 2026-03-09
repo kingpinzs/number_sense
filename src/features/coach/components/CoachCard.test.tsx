@@ -10,7 +10,7 @@ import type { CoachMessage } from '../types';
 // Mock framer-motion to avoid animation timing issues
 vi.mock('framer-motion', () => ({
   motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+    div: ({ children, initial: _initial, animate: _animate, exit: _exit, transition: _transition, ...props }: any) => <div {...props}>{children}</div>,
   },
   AnimatePresence: ({ children }: any) => children,
   useReducedMotion: vi.fn(() => false),

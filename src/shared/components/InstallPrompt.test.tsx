@@ -1,6 +1,19 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, beforeAll, afterAll } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { InstallPrompt } from './InstallPrompt';
+
+// Suppress Radix Dialog warnings about missing Description/DialogTitle
+const originalWarn = console.warn;
+beforeAll(() => {
+  console.warn = (...args: unknown[]) => {
+    const msg = String(args[0]);
+    if (msg.includes('Missing `Description`') || msg.includes('DialogTitle')) return;
+    originalWarn(...args);
+  };
+});
+afterAll(() => {
+  console.warn = originalWarn;
+});
 
 // Mock the hook — component tests should isolate UI from business logic
 vi.mock('@/services/pwa/useInstallPrompt', () => ({
