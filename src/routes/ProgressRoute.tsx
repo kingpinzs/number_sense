@@ -31,7 +31,7 @@ export default function ProgressRoute() {
   const { guidance, dismiss } = useCoachGuidance();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-24">
       <div className="mx-auto max-w-4xl p-6">
         {/* Header */}
         <h1 className="text-2xl font-semibold text-foreground mb-6">

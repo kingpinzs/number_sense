@@ -39,7 +39,7 @@ function AppContent() {
   const { shouldShowPrompt } = useInstallPrompt();
   return (
     <div
-      className="min-h-screen bg-background pb-16"
+      className="min-h-screen bg-background pb-20"
       style={shouldShowPrompt ? { paddingBottom: '280px' } : undefined}
     >
       <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><LoadingSpinner size="large" /></div>}>

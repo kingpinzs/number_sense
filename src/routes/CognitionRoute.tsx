@@ -51,7 +51,7 @@ export default function CognitionRoute() {
   // Game selection screen
   if (!selectedGame) {
     return (
-      <div className="max-w-md mx-auto px-4 py-6">
+      <div className="max-w-md mx-auto px-4 py-6 pb-24">
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-1">
             <Brain className="w-7 h-7 text-primary" />
