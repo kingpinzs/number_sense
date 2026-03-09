@@ -6,11 +6,11 @@ import MemoryGridGame from './MemoryGridGame';
 vi.mock('framer-motion', () => ({
   motion: {
     div: ({ children, ...props }: Record<string, unknown>) => {
-      const { animate, transition, whileHover, whileTap, ...rest } = props as Record<string, unknown>;
+      const { animate: _a, transition: _t, whileHover: _wh, whileTap: _wt, ...rest } = props as Record<string, unknown>;
       return <div {...(rest as React.HTMLAttributes<HTMLDivElement>)}>{children as React.ReactNode}</div>;
     },
     button: ({ children, ...props }: Record<string, unknown>) => {
-      const { animate, transition, whileHover, whileTap, ...rest } = props as Record<string, unknown>;
+      const { animate: _a, transition: _t, whileHover: _wh, whileTap: _wt, ...rest } = props as Record<string, unknown>;
       return <button {...(rest as React.ButtonHTMLAttributes<HTMLButtonElement>)}>{children as React.ReactNode}</button>;
     },
   },

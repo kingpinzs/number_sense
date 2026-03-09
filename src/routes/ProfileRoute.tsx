@@ -2,7 +2,7 @@
 // Story 8.4: Implement Research Mode Settings Toggle
 
 import { useState } from 'react';
-import { Volume2, Accessibility, Lightbulb, FlaskConical, Moon } from 'lucide-react';
+import { Volume2, Accessibility, Lightbulb, FlaskConical, Moon, Zap } from 'lucide-react';
 import type { ThemePreference } from '@/services/storage/localStorage';
 import { useUserSettings } from '@/context/UserSettingsContext';
 import { Switch } from '@/shared/components/ui/switch';
@@ -157,6 +157,32 @@ export default function ProfileRoute() {
               onChange={(e) => updateSettings({ dailyGoalMinutes: Number(e.target.value) })}
               className="w-16 rounded-md border border-input bg-background px-2 py-1 text-sm text-right ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               aria-label="Daily Goal Minutes"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Boost Round (Magic Minute) */}
+      <Card className="mb-4">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Zap className="h-5 w-5 text-accent" aria-hidden="true" />
+            Boost Round
+          </CardTitle>
+          <CardDescription>
+            Quick targeted practice that activates when the app notices a pattern in your answers. You can turn it off if you find it disruptive.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between min-h-[44px]">
+            <label htmlFor="magic-minute-switch" className="text-sm font-medium">
+              Enable Boost Round
+            </label>
+            <Switch
+              id="magic-minute-switch"
+              checked={settings.magicMinuteEnabled}
+              onCheckedChange={(checked) => updateSettings({ magicMinuteEnabled: checked })}
+              aria-label="Enable Boost Round"
             />
           </div>
         </CardContent>

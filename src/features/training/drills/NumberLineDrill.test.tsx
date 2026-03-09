@@ -134,7 +134,7 @@ describe('NumberLineDrill', () => {
       expect(screen.getByRole('heading', { level: 2 })).toBeInTheDocument();
 
       // Verify range indicators (0 and 100 for easy/medium)
-      expect(screen.getByText('0')).toBeInTheDocument();
+      expect(screen.getAllByText('0').length).toBeGreaterThanOrEqual(1);
       expect(screen.getByText('100')).toBeInTheDocument();
 
       // Verify number line slider
@@ -258,7 +258,7 @@ describe('NumberLineDrill', () => {
 
       // Should show feedback
       await waitFor(() => {
-        expect(screen.getByText(/Correct!|Try again!/i)).toBeInTheDocument();
+        expect(screen.getByText(/Correct!|Almost there!/i)).toBeInTheDocument();
       });
 
       // Auto-advance after 1.5 seconds (wait for real timeout)
@@ -548,7 +548,7 @@ describe('NumberLineDrill', () => {
       await user.keyboard('{Enter}');
 
       await waitFor(() => {
-        expect(screen.getByText(/Correct!|Try again!/i)).toBeInTheDocument();
+        expect(screen.getByText(/Correct!|Almost there!/i)).toBeInTheDocument();
       });
     });
 

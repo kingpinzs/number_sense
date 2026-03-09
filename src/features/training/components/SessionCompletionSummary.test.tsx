@@ -148,14 +148,14 @@ describe('SessionCompletionSummary', () => {
       expect(screen.getByTestId('confidence-change')).toHaveTextContent('Confidence: No change');
     });
 
-    it('shows "Keep practicing!" for negative change', () => {
+    it('shows "Tough session — every practice builds your skills!" for negative change', () => {
       render(
         <Wrapper>
           <SessionCompletionSummary isOpen={true} drillCount={12} accuracy={85} confidenceChange={-1} />
         </Wrapper>
       );
 
-      expect(screen.getByTestId('confidence-change')).toHaveTextContent('Keep practicing!');
+      expect(screen.getByTestId('confidence-change')).toHaveTextContent('Tough session — every practice builds your skills!');
     });
 
     it('does not show confidence section when confidenceChange is null', () => {
@@ -232,34 +232,44 @@ describe('SessionCompletionSummary', () => {
       expect(screen.getByTestId('confetti')).toBeInTheDocument();
     });
 
-    it('does not show confetti for zero change', () => {
+    it('does not show confetti for zero change and low accuracy', () => {
+      render(
+        <Wrapper>
+          <SessionCompletionSummary isOpen={true} drillCount={12} accuracy={50} confidenceChange={0} />
+        </Wrapper>
+      );
+
+      expect(screen.queryByTestId('confetti')).not.toBeInTheDocument();
+    });
+
+    it('does not show confetti for negative change and low accuracy', () => {
+      render(
+        <Wrapper>
+          <SessionCompletionSummary isOpen={true} drillCount={12} accuracy={50} confidenceChange={-1} />
+        </Wrapper>
+      );
+
+      expect(screen.queryByTestId('confetti')).not.toBeInTheDocument();
+    });
+
+    it('does not show confetti when confidenceChange is null and low accuracy', () => {
+      render(
+        <Wrapper>
+          <SessionCompletionSummary isOpen={true} drillCount={12} accuracy={50} confidenceChange={null} />
+        </Wrapper>
+      );
+
+      expect(screen.queryByTestId('confetti')).not.toBeInTheDocument();
+    });
+
+    it('shows confetti for accuracy milestone even with zero confidence change', () => {
       render(
         <Wrapper>
           <SessionCompletionSummary isOpen={true} drillCount={12} accuracy={85} confidenceChange={0} />
         </Wrapper>
       );
 
-      expect(screen.queryByTestId('confetti')).not.toBeInTheDocument();
-    });
-
-    it('does not show confetti for negative change', () => {
-      render(
-        <Wrapper>
-          <SessionCompletionSummary isOpen={true} drillCount={12} accuracy={85} confidenceChange={-1} />
-        </Wrapper>
-      );
-
-      expect(screen.queryByTestId('confetti')).not.toBeInTheDocument();
-    });
-
-    it('does not show confetti when confidenceChange is null', () => {
-      render(
-        <Wrapper>
-          <SessionCompletionSummary isOpen={true} drillCount={12} accuracy={85} confidenceChange={null} />
-        </Wrapper>
-      );
-
-      expect(screen.queryByTestId('confetti')).not.toBeInTheDocument();
+      expect(screen.getByTestId('confetti')).toBeInTheDocument();
     });
   });
 
@@ -329,7 +339,7 @@ describe('SessionCompletionSummary', () => {
         </Wrapper>
       );
 
-      expect(screen.getByTestId('confidence-change')).toHaveTextContent('Keep practicing!');
+      expect(screen.getByTestId('confidence-change')).toHaveTextContent('Tough session — every practice builds your skills!');
     });
 
     it('renders correctly when reopened', () => {

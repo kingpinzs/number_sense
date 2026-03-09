@@ -20,6 +20,7 @@ import * as UserSettingsContext from '@/context/UserSettingsContext';
 vi.mock('framer-motion', () => ({
   motion: {
     div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+    p: ({ children, ...props }: any) => <p {...props}>{children}</p>,
   },
 }));
 
@@ -62,6 +63,7 @@ describe('SessionFeedback', () => {
         researchModeEnabled: false,
         showAdaptiveToasts: true,
         theme: 'system',
+        magicMinuteEnabled: true,
       },
       updateSettings: vi.fn(),
     });
@@ -102,7 +104,7 @@ describe('SessionFeedback', () => {
     it('does not show correct answer text when answer is correct', () => {
       render(<SessionFeedback isCorrect={true} correctAnswer="42" />);
 
-      expect(screen.queryByText(/Correct answer:/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/The answer was/)).not.toBeInTheDocument();
     });
 
     it('shows streak pulse when showStreakPulse=true', () => {
@@ -140,6 +142,7 @@ describe('SessionFeedback', () => {
           researchModeEnabled: false,
           showAdaptiveToasts: true,
           theme: 'system',
+          magicMinuteEnabled: true,
         },
         updateSettings: vi.fn(),
       });
@@ -151,11 +154,11 @@ describe('SessionFeedback', () => {
   });
 
   describe('Incorrect Answer Feedback', () => {
-    it('renders red X for incorrect answer', () => {
+    it('renders yellow X for incorrect answer', () => {
       render(<SessionFeedback isCorrect={false} />);
 
       const container = screen.getByTestId('session-feedback');
-      const xIcon = container.querySelector('.text-red-600');
+      const xIcon = container.querySelector('.text-yellow-600');
       expect(xIcon).toBeInTheDocument();
     });
 
@@ -174,7 +177,7 @@ describe('SessionFeedback', () => {
     it('shows correct answer text when provided', () => {
       render(<SessionFeedback isCorrect={false} correctAnswer="42" />);
 
-      expect(screen.getByText(/Correct answer:/)).toBeInTheDocument();
+      expect(screen.getByText(/The answer was/)).toBeInTheDocument();
       expect(screen.getByText('42')).toBeInTheDocument();
     });
 
@@ -194,7 +197,7 @@ describe('SessionFeedback', () => {
     it('does not show correct answer text when not provided', () => {
       render(<SessionFeedback isCorrect={false} />);
 
-      expect(screen.queryByText(/Correct answer:/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/The answer was/)).not.toBeInTheDocument();
     });
 
     it('does not play sound when incorrect', () => {
@@ -242,10 +245,10 @@ describe('SessionFeedback', () => {
       expect(circle).toHaveClass('w-20', 'h-20', 'rounded-full');
     });
 
-    it('X icon has red background circle', () => {
+    it('X icon has yellow background circle', () => {
       const { container } = render(<SessionFeedback isCorrect={false} />);
 
-      const circle = container.querySelector('.bg-red-100');
+      const circle = container.querySelector('.bg-yellow-100');
       expect(circle).toBeInTheDocument();
       expect(circle).toHaveClass('w-20', 'h-20', 'rounded-full');
     });

@@ -119,7 +119,7 @@ test.describe('Assessment Flow - First-Time User Journey', () => {
     await expect(page.getByTestId('basic-operations')).toBeVisible();
 
     // Read the problem to get the correct answer
-    const problemText = await page.getByTestId('problem-display').textContent();
+    const _problemText = await page.getByTestId('problem-display').textContent();
 
     // Input answer using number keypad (use a simple answer like 5)
     await page.getByTestId('digit-5').click();

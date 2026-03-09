@@ -262,19 +262,19 @@ export default function SpatialRotationDrill({ difficulty, sessionId, onComplete
                 <div className="flex items-center justify-center gap-2">
                   <X className="h-6 w-6" />
                   <div>
-                    <p className="text-lg font-semibold">Not quite!</p>
+                    <p className="text-lg font-semibold">Good try!</p>
                     <p className="mt-1 text-sm">
                       {problem.correctAnswer
-                        ? `These are the same shape ${
+                        ? `Look closely — these are actually the same shape${
                             problem.isMirrored && problem.rotationDegrees > 0
-                              ? `(mirrored and rotated ${problem.rotationDegrees}°)`
+                              ? `. One is mirrored (flipped like a reflection) and rotated ${problem.rotationDegrees}°`
                               : problem.isMirrored
-                              ? '(mirrored)'
+                              ? '. One is mirrored — imagine flipping it like a reflection'
                               : problem.rotationDegrees > 0
-                              ? `(rotated ${problem.rotationDegrees}°)`
+                              ? `. One is rotated ${problem.rotationDegrees}° — try turning it in your mind`
                               : ''
                           }`
-                        : 'These are different shapes'}
+                        : 'These are actually different shapes — look for small differences in the edges or angles'}
                     </p>
                   </div>
                 </div>

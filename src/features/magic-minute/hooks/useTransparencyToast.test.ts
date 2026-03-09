@@ -23,6 +23,7 @@ const mockSettings = {
   dailyGoalMinutes: 60,
   researchModeEnabled: false,
   theme: 'system' as const,
+  magicMinuteEnabled: true,
 };
 
 vi.mock('@/context/UserSettingsContext', () => ({

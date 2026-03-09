@@ -48,6 +48,7 @@ import {
 } from '@/features/magic-minute';
 // Story 4.4: Adaptive difficulty imports
 import { processSessionEnd } from '@/services/adaptiveDifficulty/difficultyEngine';
+import { useUserSettings } from '@/context/UserSettingsContext';
 
 /**
  * TrainingSession component
@@ -88,6 +89,7 @@ export default function TrainingSession() {
   // Story 4.5: TransparencyToast displays messages like "Difficulty increased because you're doing great!"
   const { showTransparencyToast } = useTransparencyToast();
 
+  const { settings } = useUserSettings();
   const { state: sessionState, startTrainingSession, nextDrill, endSession, setConfidenceBefore, setConfidenceAfter, triggerMagicMinute, completeMagicMinute } = useSession();
 
   // Story 3.7: Initialize telemetry and database maintenance on mount
@@ -249,8 +251,8 @@ export default function TrainingSession() {
     const analysisResult = sessionAnalyzer.addDrillResult(result);
     const drillNumber = (sessionState.currentDrillIndex ?? 0) + 1;
 
-    // Check if Magic Minute should trigger
-    if (analysisResult && analysisResult.patterns.length > 0) {
+    // Check if Magic Minute (Boost Round) should trigger — respects user setting
+    if (settings.magicMinuteEnabled && analysisResult && analysisResult.patterns.length > 0) {
       const triggered = checkTrigger(drillNumber, analysisResult.patterns);
       if (triggered) {
         setMagicMinutePatterns(analysisResult.patterns);
@@ -644,7 +646,12 @@ export default function TrainingSession() {
                 disabled={weightsLoading || sessionState.sessionStatus === 'active'}
                 data-testid="start-training-button"
               >
-                {weightsLoading ? 'Loading...' : 'Start Training'}
+                {weightsLoading ? (
+                  <span className="flex items-center gap-2">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    Preparing your session…
+                  </span>
+                ) : 'Start Training'}
               </Button>
             </CardContent>
           </Card>

@@ -16,7 +16,7 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:e2e": "playwright test",
-    "lint": "eslint . --ext ts,tsx --max-warnings=0",
+    "lint": "eslint . --max-warnings=0",
     "generate-icons": "node scripts/generate-icons.mjs",
     "postinstall": "patch-package"
   },

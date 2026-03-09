@@ -240,7 +240,7 @@ describe('SpatialRotationDrill', () => {
       // Wait for feedback to appear
       await waitFor(
         () => {
-          expect(screen.getByText(/Not quite!/i)).toBeInTheDocument();
+          expect(screen.getByText(/Good try!/i)).toBeInTheDocument();
         },
         { timeout: 2500 }
       );
@@ -345,6 +345,7 @@ describe('SpatialRotationDrill', () => {
     }, 10000);
 
     it('calls onComplete after 1.5 second delay', async () => {
+      vi.useFakeTimers();
       vi.mocked(db.drill_results.add).mockResolvedValue(1);
 
       render(
@@ -361,17 +362,16 @@ describe('SpatialRotationDrill', () => {
       // onComplete should not be called immediately
       expect(mockOnComplete).not.toHaveBeenCalled();
 
-      // Wait for onComplete to be called after 1.5s delay
-      await waitFor(
-        () => {
-          expect(mockOnComplete).toHaveBeenCalledTimes(1);
-        },
-        { timeout: 5000 }
-      );
+      // Advance fake timers past the 1.5s delay (async variant flushes microtasks)
+      await vi.advanceTimersByTimeAsync(1500);
+
+      expect(mockOnComplete).toHaveBeenCalledTimes(1);
 
       const result = mockOnComplete.mock.calls[0][0] as DrillResult;
       expect(result.module).toBe('spatial_rotation');
-    }, 10000);
+
+      vi.useRealTimers();
+    });
   });
 
   describe('AC-5: Difficulty Progression', () => {

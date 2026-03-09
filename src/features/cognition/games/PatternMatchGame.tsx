@@ -288,7 +288,7 @@ export default function PatternMatchGame({ onBack }: PatternMatchGameProps) {
         }
       }
     },
-    [isChecking, gamePhase, tiles, selectedTiles, startTimer]
+    [isChecking, gamePhase, tiles, selectedTiles, startTimer, moves]
   );
 
   // Log telemetry on game complete

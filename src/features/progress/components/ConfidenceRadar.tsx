@@ -190,6 +190,23 @@ function ConfidenceRadar({
           />
         </RadarChart>
       </ResponsiveContainer>
+
+      {/* Text summary for accessibility and users who prefer reading numbers */}
+      <div className="mt-4 space-y-1 text-sm" role="table" aria-label="Confidence scores by domain">
+        {chartData.map((d) => (
+          <div key={d.domain} className="flex justify-between px-4">
+            <span className="text-muted-foreground">{d.domain}</span>
+            <span className="font-medium text-foreground">
+              {d.current.toFixed(1)} / 5
+              {baseline && d.baseline !== d.current && (
+                <span className={d.current >= d.baseline ? 'ml-1 text-green-600' : 'ml-1 text-yellow-600'}>
+                  ({d.current >= d.baseline ? '+' : ''}{(d.current - d.baseline).toFixed(1)})
+                </span>
+              )}
+            </span>
+          </div>
+        ))}
+      </div>
     </motion.div>
   );
 }

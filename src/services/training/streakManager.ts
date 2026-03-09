@@ -104,20 +104,44 @@ export function getCurrentStreak(): number {
 }
 
 /**
- * Milestone definition for streak celebrations
+ * Milestone definition for celebrations (streaks, accuracy, confidence)
  */
 export interface Milestone {
   streak: number;
   title: string;
   emoji: string;
   message: string;
+  type?: 'streak' | 'accuracy' | 'confidence';
 }
 
 const MILESTONES: Milestone[] = [
-  { streak: 7, title: 'One Week Streak!', emoji: '🎉', message: 'Amazing consistency! Keep it up!' },
-  { streak: 30, title: 'One Month Streak!', emoji: '🔥', message: 'Incredible dedication!' },
-  { streak: 100, title: 'Century Streak!', emoji: '💯', message: 'Legendary! 100 days of practice!' },
+  { streak: 7, title: 'One Week Streak!', emoji: '🎉', message: 'Amazing consistency! Keep it up!', type: 'streak' },
+  { streak: 30, title: 'One Month Streak!', emoji: '🔥', message: 'Incredible dedication!', type: 'streak' },
+  { streak: 100, title: 'Century Streak!', emoji: '💯', message: 'Legendary! 100 days of practice!', type: 'streak' },
 ];
+
+/**
+ * Accuracy milestones — triggered by session accuracy percentage
+ */
+export const ACCURACY_MILESTONES: Milestone[] = [
+  { streak: 80, title: 'Sharp Mind!', emoji: '🎯', message: '80% accuracy — your skills are growing!', type: 'accuracy' },
+  { streak: 90, title: 'Precision Star!', emoji: '⭐', message: '90% accuracy — outstanding focus!', type: 'accuracy' },
+  { streak: 100, title: 'Perfect Score!', emoji: '🏆', message: '100% accuracy — flawless session!', type: 'accuracy' },
+];
+
+/**
+ * Check if a session accuracy triggers a milestone
+ * @param accuracy - Session accuracy percentage (0-100)
+ * @returns Milestone or null
+ */
+export function checkAccuracyMilestone(accuracy: number): Milestone | null {
+  // Find the highest accuracy milestone achieved
+  const achieved = ACCURACY_MILESTONES
+    .filter(m => accuracy >= m.streak)
+    .sort((a, b) => b.streak - a.streak);
+
+  return achieved.length > 0 ? achieved[0] : null;
+}
 
 /**
  * Check if current streak triggers a milestone celebration

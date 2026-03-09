@@ -159,7 +159,7 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
         confidenceBefore: action.payload
       };
 
-    case 'SET_CONFIDENCE_AFTER':
+    case 'SET_CONFIDENCE_AFTER': {
       // Story 3.6: Set post-session confidence and calculate delta
       const confidenceChange = state.confidenceBefore !== null && state.confidenceBefore !== undefined
         ? action.payload - state.confidenceBefore
@@ -169,6 +169,7 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
         confidenceAfter: action.payload,
         confidenceChange
       };
+    }
 
     // Story 4.2: Magic Minute actions
     case 'TRIGGER_MAGIC_MINUTE':

@@ -63,22 +63,17 @@ export function queueEvent(event: TelemetryEventPayload): void {
  * @throws Re-throws write errors so callers can handle sync failure
  */
 export async function flushQueue(): Promise<number> {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.SYNC_QUEUE);
-    if (!raw) return 0;
-    const queue: TelemetryEventPayload[] = JSON.parse(raw);
-    if (!Array.isArray(queue) || queue.length === 0) return 0;
+  const raw = localStorage.getItem(STORAGE_KEYS.SYNC_QUEUE);
+  if (!raw) return 0;
+  const queue: TelemetryEventPayload[] = JSON.parse(raw);
+  if (!Array.isArray(queue) || queue.length === 0) return 0;
 
-    // bulkAdd wraps all inserts in a single IndexedDB transaction (atomic).
-    // If any write fails, the entire batch rolls back — no partial writes,
-    // no duplicate events on retry.
-    await db.telemetry_logs.bulkAdd(queue);
-    clearQueue();
-    return queue.length;
-  } catch (err) {
-    // Leave queue intact for retry on next reconnect
-    throw err;
-  }
+  // bulkAdd wraps all inserts in a single IndexedDB transaction (atomic).
+  // If any write fails, the entire batch rolls back — no partial writes,
+  // no duplicate events on retry. Error propagates to caller for sync failure handling.
+  await db.telemetry_logs.bulkAdd(queue);
+  clearQueue();
+  return queue.length;
 }
 
 /**

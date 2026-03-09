@@ -141,7 +141,8 @@ describe('UserSettingsContext', () => {
         dailyGoalMinutes: 60,
         researchModeEnabled: false,
         showAdaptiveToasts: true,
-        theme: 'system'
+        theme: 'system',
+        magicMinuteEnabled: true
       });
     });
 

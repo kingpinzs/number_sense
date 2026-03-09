@@ -61,13 +61,13 @@ vi.spyOn(Storage.prototype, 'setItem').mockImplementation(
 );
 
 // Mock spatialFlipUtils to return predictable questions
-let mockQuestionCallCount = 0;
+let _mockQuestionCallCount = 0;
 vi.mock('../utils/spatialFlipUtils', async () => {
   const actual = await vi.importActual('../utils/spatialFlipUtils');
   return {
     ...actual,
     generateQuestion: () => {
-      mockQuestionCallCount++;
+      _mockQuestionCallCount++;
       return {
         referenceShape: 'lshape',
         choices: [
@@ -92,7 +92,7 @@ describe('SpatialFlipGame', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockReducedMotion = false;
-    mockQuestionCallCount = 0;
+    _mockQuestionCallCount = 0;
     Object.keys(mockStorage).forEach(key => delete mockStorage[key]);
   });
 

@@ -136,20 +136,30 @@ export default function SessionFeedback({ isCorrect, correctAnswer, showStreakPu
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-            className="flex items-center justify-center w-20 h-20 rounded-full bg-red-100"
+            className="flex items-center justify-center w-20 h-20 rounded-full bg-yellow-100"
           >
-            <X className="w-12 h-12 text-red-600" strokeWidth={3} />
+            <X className="w-12 h-12 text-yellow-600" strokeWidth={3} />
           </motion.div>
+
+          {/* Encouragement message */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className="text-base font-medium text-foreground"
+          >
+            Almost there — keep going!
+          </motion.p>
 
           {/* Show correct answer */}
           {correctAnswer !== undefined && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="text-lg text-gray-700"
+              transition={{ delay: 0.3 }}
+              className="text-sm text-muted-foreground"
             >
-              Correct answer: <span className="font-semibold">{correctAnswer}</span>
+              The answer was <span className="font-semibold text-foreground">{correctAnswer}</span>
             </motion.div>
           )}
         </>

@@ -393,7 +393,7 @@ export const REAL_WORLD_TIPS: RealWorldTip[] = [
     module: 'general',
     category: 'daily_life',
     title: "Reframe 'I Can't' to 'I'm Learning'",
-    activity: "Every time you catch yourself thinking 'I can\'t do math', replace it with 'I\'m learning math'.",
+    activity: "Every time you catch yourself thinking 'I can't do math', replace it with 'I'm learning math'.",
     why: 'Growth mindset research shows this simple reframe measurably improves learning outcomes.',
     difficulty: 'easy',
   },

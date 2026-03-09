@@ -58,7 +58,8 @@ describe('LocalStorage Wrapper', () => {
         dailyGoalMinutes: 90,
         researchModeEnabled: true,
         showAdaptiveToasts: false,
-        theme: 'dark'
+        theme: 'dark',
+        magicMinuteEnabled: true
       };
 
       localStorage.setItem(STORAGE_KEYS.USER_SETTINGS, JSON.stringify(customSettings));
@@ -120,7 +121,8 @@ describe('LocalStorage Wrapper', () => {
         dailyGoalMinutes: 120,
         researchModeEnabled: true,
         showAdaptiveToasts: false,
-        theme: 'dark'
+        theme: 'dark',
+        magicMinuteEnabled: true
       };
 
       setUserSettings(newSettings);
@@ -140,7 +142,8 @@ describe('LocalStorage Wrapper', () => {
         dailyGoalMinutes: 60,
         researchModeEnabled: false,
         showAdaptiveToasts: true,
-        theme: 'system'
+        theme: 'system',
+        magicMinuteEnabled: true
       });
 
       // Update only one field
@@ -296,7 +299,8 @@ describe('LocalStorage Wrapper', () => {
         dailyGoalMinutes: 60,
         researchModeEnabled: false,
         showAdaptiveToasts: true,
-        theme: 'system'
+        theme: 'system',
+        magicMinuteEnabled: true
       });
     });
   });

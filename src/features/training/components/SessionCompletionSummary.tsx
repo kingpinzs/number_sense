@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/shared/components/ui/dialog';
 import { Button } from '@/shared/components/ui/button';
 import Confetti from 'react-confetti-boom';
+import { checkAccuracyMilestone } from '@/services/training/streakManager';
 
 export interface SessionCompletionSummaryProps {
   isOpen: boolean;
@@ -52,12 +53,13 @@ export default function SessionCompletionSummary({
     } else if (confidenceChange === 0) {
       return 'Confidence: No change';
     } else {
-      return 'Keep practicing!';
+      return 'Tough session — every practice builds your skills!';
     }
   };
 
   const confidenceMessage = getConfidenceMessage();
-  const showConfetti = confidenceChange !== null && confidenceChange > 0;
+  const accuracyMilestone = checkAccuracyMilestone(accuracy);
+  const showConfetti = (confidenceChange !== null && confidenceChange > 0) || accuracyMilestone !== null;
 
   return (
     <Dialog open={isOpen}>
@@ -100,6 +102,11 @@ export default function SessionCompletionSummary({
             <p className="text-3xl font-bold" data-testid="accuracy">
               {accuracy}%
             </p>
+            {accuracyMilestone && (
+              <p className="mt-1 text-sm font-medium text-primary">
+                {accuracyMilestone.emoji} {accuracyMilestone.title}
+              </p>
+            )}
           </div>
 
           {confidenceMessage && (

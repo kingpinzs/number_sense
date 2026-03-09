@@ -217,7 +217,7 @@ export default function NumberLineDrill({ difficulty, sessionId, onComplete }: D
             Where is <span className="text-primary">{targetNumber}</span>?
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Drag the marker or use arrow keys to place it on the number line
+            Take your time — drag the marker or use arrow keys to place it on the number line
           </p>
         </div>
 
@@ -326,9 +326,9 @@ export default function NumberLineDrill({ difficulty, sessionId, onComplete }: D
                 </div>
               ) : (
                 <div>
-                  <p className="text-lg font-semibold">Try again!</p>
+                  <p className="text-lg font-semibold">Almost there!</p>
                   <p className="mt-1 text-sm">
-                    You placed it at {markerPosition}, but {targetNumber} is here ⚪
+                    You placed it at {markerPosition} — the answer is {targetNumber} (shown ⚪). You're getting closer!
                   </p>
                 </div>
               )}

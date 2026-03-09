@@ -219,13 +219,16 @@ export default function MathOperationsDrill({ difficulty, sessionId, onComplete,
                 ) : (
                   <>
                     <div className="mb-4 flex justify-center">
-                      <X className="h-24 w-24 text-red-500" aria-hidden="true" />
+                      <X className="h-24 w-24 text-yellow-500" aria-hidden="true" />
                     </div>
-                    <p className="text-2xl font-semibold text-red-500">
+                    <p className="text-lg font-medium text-foreground mb-1">
+                      Almost there — keep going!
+                    </p>
+                    <p className="text-2xl font-semibold text-muted-foreground">
                       {problem} = {correctAnswer}
                     </p>
                     <p className="sr-only">
-                      Incorrect. The correct answer is {correctAnswer}.
+                      Not quite. The answer is {correctAnswer}. Keep going!
                     </p>
                   </>
                 )}

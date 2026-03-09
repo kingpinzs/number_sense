@@ -64,7 +64,7 @@ export function NumberLineEstimation({
     startTimeRef.current = performance.now();
     setAnswered(false);
     setSelectedPosition(null);
-  }, [targetNumber, range[0], range[1]]);
+  }, [targetNumber, min, max]);
 
   // Calculate correct position as percentage
   const correctPosition = ((targetNumber - min) / (max - min)) * 100;

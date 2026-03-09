@@ -40,10 +40,22 @@ describe('ConfidenceRadar', () => {
       />
     );
 
-    // Should render domain labels
-    expect(screen.getByText('Number Sense')).toBeInTheDocument();
-    expect(screen.getByText('Spatial Awareness')).toBeInTheDocument();
-    expect(screen.getByText('Math Operations')).toBeInTheDocument();
+    // Should render domain labels (appear in both chart and text summary)
+    expect(screen.getAllByText('Number Sense').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Spatial Awareness').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Math Operations').length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('renders text summary table below chart', () => {
+    render(
+      <ConfidenceRadar
+        current={mockCurrentConfidence}
+        baseline={mockBaselineConfidence}
+      />
+    );
+
+    // Text summary div with role="table" should be present
+    expect(screen.getByRole('table', { name: /Confidence scores by domain/i })).toBeInTheDocument();
   });
 
   it('renders current values as coral filled area', () => {
@@ -95,7 +107,7 @@ describe('ConfidenceRadar', () => {
 
     // Should still render current data
     expect(screen.getByRole('img')).toBeInTheDocument();
-    expect(screen.getByText('Number Sense')).toBeInTheDocument();
+    expect(screen.getAllByText('Number Sense').length).toBeGreaterThanOrEqual(1);
   });
 });
 

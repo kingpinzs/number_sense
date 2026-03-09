@@ -171,7 +171,7 @@ async function queryIndexedDB(page: Page, tableName: string): Promise<any[]> {
  * Override Math.random to guarantee Magic Minute triggers
  * Sets random to return 0.1 which is below the 0.3 threshold
  */
-async function overrideMagicMinuteConfig(page: Page): Promise<void> {
+async function _overrideMagicMinuteConfig(page: Page): Promise<void> {
   await page.evaluate(() => {
     // Mock Math.random to always return value below 0.3 threshold
     (window as any).__originalMathRandom = Math.random;
@@ -182,7 +182,7 @@ async function overrideMagicMinuteConfig(page: Page): Promise<void> {
 /**
  * Restore original Math.random
  */
-async function restoreMathRandom(page: Page): Promise<void> {
+async function _restoreMathRandom(page: Page): Promise<void> {
   await page.evaluate(() => {
     if ((window as any).__originalMathRandom) {
       Math.random = (window as any).__originalMathRandom;
@@ -193,7 +193,7 @@ async function restoreMathRandom(page: Page): Promise<void> {
 /**
  * Wait for Magic Minute overlay to appear
  */
-async function waitForMagicMinute(page: Page): Promise<boolean> {
+async function _waitForMagicMinute(page: Page): Promise<boolean> {
   try {
     await page.getByTestId('magic-minute-overlay').waitFor({ state: 'visible', timeout: 10000 });
     return true;

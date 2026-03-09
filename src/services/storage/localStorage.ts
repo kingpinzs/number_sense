@@ -45,6 +45,7 @@ export interface UserSettings {
   researchModeEnabled: boolean;
   showAdaptiveToasts: boolean;
   theme: ThemePreference;
+  magicMinuteEnabled: boolean;
 }
 
 /**
@@ -56,7 +57,8 @@ export const DEFAULT_SETTINGS: UserSettings = {
   dailyGoalMinutes: 60,
   researchModeEnabled: false,
   showAdaptiveToasts: true,
-  theme: 'system'
+  theme: 'system',
+  magicMinuteEnabled: true
 };
 
 /**
@@ -77,7 +79,8 @@ function validateUserSettings(obj: any): UserSettings {
     dailyGoalMinutes: Number(obj?.dailyGoalMinutes) || DEFAULT_SETTINGS.dailyGoalMinutes,
     researchModeEnabled: Boolean(obj?.researchModeEnabled ?? DEFAULT_SETTINGS.researchModeEnabled),
     showAdaptiveToasts: Boolean(obj?.showAdaptiveToasts ?? DEFAULT_SETTINGS.showAdaptiveToasts),
-    theme
+    theme,
+    magicMinuteEnabled: Boolean(obj?.magicMinuteEnabled ?? DEFAULT_SETTINGS.magicMinuteEnabled)
   };
 }
 

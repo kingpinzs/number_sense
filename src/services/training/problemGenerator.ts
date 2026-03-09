@@ -28,8 +28,14 @@ export function generateAddition(difficulty: Difficulty): Problem {
       break;
 
     case 'medium':
+      // Bridge level: teen numbers + single-digit (10-19 + 1-9)
+      // Eases the transition from single-digit to full double-digit
+      num1 = Math.floor(Math.random() * 10) + 10; // 10-19
+      num2 = Math.floor(Math.random() * 9) + 1;   // 1-9
+      break;
+
     case 'hard':
-      // Double-digit addition (10-99 + 1-50)
+      // Full double-digit addition (10-99 + 1-50)
       num1 = Math.floor(Math.random() * 90) + 10; // 10-99
       num2 = Math.floor(Math.random() * 50) + 1;  // 1-50
       break;
@@ -56,8 +62,13 @@ export function generateSubtraction(difficulty: Difficulty): Problem {
       break;
 
     case 'medium':
+      // Bridge level: teen numbers - single-digit (10-19 - 1-9)
+      num1 = Math.floor(Math.random() * 10) + 10; // 10-19
+      num2 = Math.floor(Math.random() * 9) + 1;   // 1-9
+      break;
+
     case 'hard':
-      // Double-digit subtraction, ensure no negatives
+      // Full double-digit subtraction, ensure no negatives
       num1 = Math.floor(Math.random() * 90) + 10; // 10-99
       num2 = Math.floor(Math.random() * num1);     // num2 < num1
       break;
@@ -85,9 +96,9 @@ export function generateMultiplication(difficulty: Difficulty): Problem {
       break;
 
     case 'medium':
-      // Single-digit multiplication (1-9 × 1-9)
-      num1 = Math.floor(Math.random() * 9) + 1;   // 1-9
-      num2 = Math.floor(Math.random() * 9) + 1;   // 1-9
+      // Small times tables (1-5 × 1-5) — bridge to full tables
+      num1 = Math.floor(Math.random() * 5) + 1;   // 1-5
+      num2 = Math.floor(Math.random() * 5) + 1;   // 1-5
       break;
 
     case 'hard':

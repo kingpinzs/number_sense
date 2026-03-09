@@ -70,7 +70,9 @@ export function MilestoneModal({ milestone, open, onClose }: MilestoneModalProps
         </DialogHeader>
 
         <div className="mt-2 text-4xl font-bold text-primary">
-          {milestone.streak} Days
+          {milestone.type === 'accuracy'
+            ? `${milestone.streak}%`
+            : `${milestone.streak} Days`}
         </div>
       </DialogContent>
     </Dialog>
