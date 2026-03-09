@@ -50,8 +50,11 @@ export function BottomNav({ className = '' }: BottomNavProps) {
     <nav
       role="navigation"
       aria-label="Main navigation"
-      style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 9999, backgroundColor: 'var(--background, #fdfbf9)' }}
-      className={`border-t border-border shadow-[0_-2px_8px_rgba(0,0,0,0.1)] ${className}`}
+      className={`fixed bottom-0 left-0 right-0 z-30 border-t border-border shadow-[0_-2px_8px_rgba(0,0,0,0.1)] ${className}`}
+      style={{
+        backgroundColor: 'var(--background, #fdfbf9)',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+      }}
     >
       <div className="flex justify-around items-center h-16 max-w-md mx-auto">
         {navItems.map((item) => {

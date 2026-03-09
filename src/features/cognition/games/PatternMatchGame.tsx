@@ -1,7 +1,7 @@
 // PatternMatchGame - Core cognition mini-game
 // Story 6.3: Pattern matching with tile flip mechanics
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Eye, EyeOff } from 'lucide-react';
@@ -141,7 +141,24 @@ export default function PatternMatchGame({ onBack }: PatternMatchGameProps) {
   const [focusedTileIndex, setFocusedTileIndex] = useState(0);
   const tileRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
+  // Responsive tile sizing — tracks viewport width so tiles fill screen on mobile
+  const [windowWidth, setWindowWidth] = useState(() => window.innerWidth);
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const config = DIFFICULTY_CONFIGS[difficulty];
+
+  // Responsive tile size: fills available width up to 70px max, min 40px for 44px WCAG
+  const tileSize = useMemo(() => {
+    const gap = 8; // gap-2
+    const containerPad = 32; // px-4 each side
+    const available = Math.min(windowWidth, 448) - containerPad;
+    return Math.min(70, Math.max(40, Math.floor((available - (config.cols - 1) * gap) / config.cols)));
+  }, [windowWidth, config.cols]);
+  const gridMaxWidth = config.cols * tileSize + (config.cols - 1) * 8;
 
   // Start timer on first click
   const startTimer = useCallback(() => {
@@ -399,7 +416,7 @@ export default function PatternMatchGame({ onBack }: PatternMatchGameProps) {
       {/* Tile grid — ARIA grid with row/gridcell structure + arrow key navigation */}
       <div
         className="flex flex-col gap-2 mx-auto"
-        style={{ maxWidth: `${config.cols * 78}px` }}
+        style={{ maxWidth: `${gridMaxWidth}px` }}
         role="grid"
         aria-label="Pattern Match game board"
         onKeyDown={handleGridKeyDown}
@@ -432,14 +449,14 @@ export default function PatternMatchGame({ onBack }: PatternMatchGameProps) {
                               : `Tile row ${row}, column ${col}: face down`
                         }
                         className={`
-                          w-[70px] h-[70px] rounded-xl flex items-center justify-center
+                          rounded-xl flex items-center justify-center
                           focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus:outline-none
                           transition-shadow
                           ${
                             tile.matched
-                              ? 'bg-white border-2 border-green-500 ring-2 ring-green-500/30'
+                              ? 'bg-background border-2 border-success ring-2 ring-success/30'
                               : tile.revealed
-                                ? 'bg-white border border-border'
+                                ? 'bg-background border border-border'
                                 : 'bg-muted border border-border shadow-sm hover:shadow-md cursor-pointer'
                           }
                         `}
@@ -456,8 +473,10 @@ export default function PatternMatchGame({ onBack }: PatternMatchGameProps) {
                         }}
                         style={
                           shouldReduceMotion
-                            ? undefined
+                            ? { width: tileSize, height: tileSize }
                             : {
+                                width: tileSize,
+                                height: tileSize,
                                 perspective: 600,
                                 transformStyle: 'preserve-3d',
                               }

@@ -3,7 +3,7 @@
 // Manages: reducedMotion, soundEnabled, dailyGoalMinutes, researchModeEnabled
 // Persists: Automatically saves to localStorage on every change
 
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { getUserSettings, setUserSettings, type UserSettings } from '@/services/storage/localStorage';
 
 /**
@@ -42,6 +42,38 @@ export function UserSettingsProvider({ children }: { children: ReactNode }) {
       return updated;
     });
   };
+
+  // Apply theme to document root whenever it changes
+  useEffect(() => {
+    const root = document.documentElement;
+    if (settings.theme === 'dark') {
+      root.setAttribute('data-theme', 'dark');
+    } else if (settings.theme === 'system') {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (prefersDark) {
+        root.setAttribute('data-theme', 'dark');
+      } else {
+        root.removeAttribute('data-theme');
+      }
+    } else {
+      root.removeAttribute('data-theme');
+    }
+  }, [settings.theme]);
+
+  // Listen for OS theme changes when set to 'system'
+  useEffect(() => {
+    if (settings.theme !== 'system') return;
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = (e: MediaQueryListEvent) => {
+      if (e.matches) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+      }
+    };
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, [settings.theme]);
 
   const value: UserSettingsContextValue = {
     settings,

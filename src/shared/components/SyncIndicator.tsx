@@ -48,15 +48,16 @@ export function SyncIndicator() {
               ? 'Syncing data'
               : 'Sync complete'
       }
-      className="fixed top-4 right-4 z-30 flex items-center gap-2 rounded-full bg-white/80 px-2 py-1 shadow-sm backdrop-blur-sm text-xs font-medium text-gray-700"
+      className="fixed top-4 right-4 z-30 flex items-center gap-2 rounded-full px-2 py-1 shadow-sm backdrop-blur-sm text-xs font-medium text-foreground border border-border"
+      style={{ backgroundColor: 'var(--background, #fdfbf9)' }}
     >
       {currentState === 'online' && (
-        <span className="w-4 h-4 rounded-full bg-green-500 block" aria-hidden="true" />
+        <span className="w-4 h-4 rounded-full block" style={{ backgroundColor: 'var(--success, #66bb6a)' }} aria-hidden="true" />
       )}
 
       {currentState === 'offline' && (
         <>
-          <span className="w-4 h-4 rounded-full bg-amber-500 block" aria-hidden="true" />
+          <span className="w-4 h-4 rounded-full block" style={{ backgroundColor: 'var(--warning, #ffb74d)' }} aria-hidden="true" />
           <AnimatePresence>
             <motion.span
               key="offline-text"
@@ -72,8 +73,9 @@ export function SyncIndicator() {
       {currentState === 'syncing' && (
         <>
           <motion.span
-            className="w-4 h-4 rounded-full bg-blue-500 block"
+            className="w-4 h-4 rounded-full block"
             aria-hidden="true"
+            style={{ backgroundColor: 'var(--info, #42a5f5)' }}
             animate={pulseAnimate}
             transition={pulseTransition}
           />
@@ -91,7 +93,7 @@ export function SyncIndicator() {
 
       {currentState === 'complete' && (
         <>
-          <CheckCircle2 className="w-4 h-4 text-green-500" aria-hidden="true" />
+          <CheckCircle2 className="w-4 h-4" style={{ color: 'var(--success, #66bb6a)' }} aria-hidden="true" />
           <AnimatePresence>
             <motion.span
               key="complete-text"

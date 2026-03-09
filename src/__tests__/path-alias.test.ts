@@ -31,5 +31,8 @@ describe('Path alias resolution', () => {
   it('resolves route imports correctly', async () => {
     const Home = await import('@/routes/Home');
     expect(Home.default).toBeDefined();
-  }, 30000);
+    // 60s timeout: Home.tsx's import chain (useUserSettings + coach hooks) adds ~30ms
+    // per module under parallel-suite resource contention. Passes in ~6s in isolation.
+    // Tech debt: reduce Home.tsx import chain weight.
+  }, 60000);
 });

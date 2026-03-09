@@ -53,7 +53,7 @@ export default function ProgressRoute() {
 
             {/* Error State */}
             {!isLoading && error && (
-              <div className="text-center py-8 text-red-600">
+              <div className="text-center py-8 text-destructive">
                 <p>{error}</p>
                 <p className="text-sm text-muted-foreground mt-2">
                   Please try refreshing the page.

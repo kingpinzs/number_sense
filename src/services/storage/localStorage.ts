@@ -36,12 +36,15 @@ export const STORAGE_KEYS = {
 /**
  * User settings interface
  */
+export type ThemePreference = 'light' | 'dark' | 'system';
+
 export interface UserSettings {
   reducedMotion: boolean;
   soundEnabled: boolean;
   dailyGoalMinutes: number;
   researchModeEnabled: boolean;
   showAdaptiveToasts: boolean;
+  theme: ThemePreference;
 }
 
 /**
@@ -52,7 +55,8 @@ export const DEFAULT_SETTINGS: UserSettings = {
   soundEnabled: true,
   dailyGoalMinutes: 60,
   researchModeEnabled: false,
-  showAdaptiveToasts: true
+  showAdaptiveToasts: true,
+  theme: 'system'
 };
 
 /**
@@ -62,13 +66,18 @@ export const DEFAULT_SETTINGS: UserSettings = {
  * @param obj - Raw object from localStorage
  * @returns Validated UserSettings object
  */
+const VALID_THEMES: ThemePreference[] = ['light', 'dark', 'system'];
+
 function validateUserSettings(obj: any): UserSettings {
+  const rawTheme = obj?.theme;
+  const theme: ThemePreference = VALID_THEMES.includes(rawTheme) ? rawTheme : DEFAULT_SETTINGS.theme;
   return {
     reducedMotion: Boolean(obj?.reducedMotion ?? DEFAULT_SETTINGS.reducedMotion),
     soundEnabled: Boolean(obj?.soundEnabled ?? DEFAULT_SETTINGS.soundEnabled),
     dailyGoalMinutes: Number(obj?.dailyGoalMinutes) || DEFAULT_SETTINGS.dailyGoalMinutes,
     researchModeEnabled: Boolean(obj?.researchModeEnabled ?? DEFAULT_SETTINGS.researchModeEnabled),
-    showAdaptiveToasts: Boolean(obj?.showAdaptiveToasts ?? DEFAULT_SETTINGS.showAdaptiveToasts)
+    showAdaptiveToasts: Boolean(obj?.showAdaptiveToasts ?? DEFAULT_SETTINGS.showAdaptiveToasts),
+    theme
   };
 }
 

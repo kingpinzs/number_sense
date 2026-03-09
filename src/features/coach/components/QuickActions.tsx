@@ -33,7 +33,7 @@ export default function QuickActions() {
     <div
       role="region"
       aria-label="Quick actions"
-      className="grid grid-cols-2 gap-3"
+      className="grid grid-cols-1 sm:grid-cols-2 gap-3"
     >
       {actions.map((action) => (
         <QuickActionCard
@@ -76,7 +76,7 @@ function QuickActionCard({ action, onClick, reduceMotion }: QuickActionCardProps
           </div>
           <div className="min-w-0">
             <p className="text-sm font-medium">{action.title}</p>
-            <p className="text-xs text-muted-foreground truncate">{action.subtitle}</p>
+            <p className="text-xs text-muted-foreground line-clamp-2">{action.subtitle}</p>
             {action.badge !== undefined && action.badge > 0 && (
               <span className="mt-1 inline-flex items-center rounded-full bg-secondary/20 px-2 py-0.5 text-xs font-medium text-secondary">
                 {action.badge} new

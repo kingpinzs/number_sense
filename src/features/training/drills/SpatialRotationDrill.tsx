@@ -212,7 +212,7 @@ export default function SpatialRotationDrill({ difficulty, sessionId, onComplete
           <div className="flex flex-col items-center space-y-4">
             <div className="text-sm font-medium text-muted-foreground">Reference</div>
             <div
-              className="flex h-48 w-48 items-center justify-center rounded-lg border-2 border-muted bg-card p-4"
+              className="flex h-36 w-36 sm:h-48 sm:w-48 items-center justify-center rounded-lg border-2 border-muted bg-card p-4"
               aria-label={`Reference shape: ${problem.referenceShape}`}
             >
               <ReferenceShapeComponent className="h-full w-full text-foreground" />
@@ -223,7 +223,7 @@ export default function SpatialRotationDrill({ difficulty, sessionId, onComplete
           <div className="flex flex-col items-center space-y-4">
             <div className="text-sm font-medium text-muted-foreground">Comparison</div>
             <div
-              className="flex h-48 w-48 items-center justify-center rounded-lg border-2 border-muted bg-card p-4"
+              className="flex h-36 w-36 sm:h-48 sm:w-48 items-center justify-center rounded-lg border-2 border-muted bg-card p-4"
               aria-label={`Comparison shape: ${problem.comparisonShape}${problem.isMirrored ? ' mirrored' : ''}${problem.rotationDegrees > 0 ? ` rotated ${problem.rotationDegrees} degrees` : ''}`}
             >
               <ComparisonShapeComponent

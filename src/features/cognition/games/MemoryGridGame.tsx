@@ -249,7 +249,7 @@ export default function MemoryGridGame({ onBack }: MemoryGridGameProps) {
 
   // Get square visual class
   const getSquareClass = (index: number): string => {
-    const base = 'w-[60px] h-[60px] rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2';
+    const base = 'aspect-square w-full rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2';
 
     if (phase === 'displaying') {
       if (pattern.includes(index)) {
@@ -281,8 +281,8 @@ export default function MemoryGridGame({ onBack }: MemoryGridGameProps) {
 
   // Get grid border class for feedback
   const getGridBorderClass = (): string => {
-    if (phase === 'feedback' && feedback === 'correct') return 'border-2 border-green-500 rounded-lg p-1';
-    if (phase === 'feedback' && feedback === 'incorrect') return 'border-2 border-yellow-500 rounded-lg p-1';
+    if (phase === 'feedback' && feedback === 'correct') return 'border-2 border-success rounded-lg p-1';
+    if (phase === 'feedback' && feedback === 'incorrect') return 'border-2 border-warning rounded-lg p-1';
     return 'p-1';
   };
 
@@ -352,7 +352,10 @@ export default function MemoryGridGame({ onBack }: MemoryGridGameProps) {
             role="grid"
             aria-label="Memory grid"
             className="grid gap-1"
-            style={{ gridTemplateColumns: `repeat(${MEMORY_GRID_COLS}, 60px)` }}
+            style={{
+              gridTemplateColumns: `repeat(${MEMORY_GRID_COLS}, minmax(0, 1fr))`,
+              width: `min(${MEMORY_GRID_COLS * 80 + (MEMORY_GRID_COLS - 1) * 4}px, calc(100vw - 48px))`,
+            }}
             onKeyDown={handleGridKeyDown}
           >
             {Array.from({ length: MEMORY_GRID_SIZE }, (_, index) => {
@@ -378,6 +381,7 @@ export default function MemoryGridGame({ onBack }: MemoryGridGameProps) {
                           duration: shouldReduceMotion ? 0 : 0.8,
                           repeat: shouldReduceMotion ? 0 : Infinity,
                           repeatType: 'loop' as const,
+                          delay: shouldReduceMotion ? 0 : index * 0.04,
                         }
                       : undefined
                   }

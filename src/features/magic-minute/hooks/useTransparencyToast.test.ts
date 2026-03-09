@@ -22,6 +22,7 @@ const mockSettings = {
   soundEnabled: true,
   dailyGoalMinutes: 60,
   researchModeEnabled: false,
+  theme: 'system' as const,
 };
 
 vi.mock('@/context/UserSettingsContext', () => ({

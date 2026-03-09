@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './card';
 import { Form, FormControl, FormField, FormItem, FormLabel } from './form';
 import { Progress } from './progress';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './sheet';
+import { Switch } from './switch';
 
 type DemoFormFields = {
   name: string;
@@ -56,6 +57,8 @@ describe('shadcn/ui base components', () => {
             </SheetHeader>
           </SheetContent>
         </Sheet>
+        <Switch aria-label="Demo switch" />
+        <Switch checked aria-label="Demo switch checked" />
         <DemoForm />
       </>
     );
@@ -63,5 +66,7 @@ describe('shadcn/ui base components', () => {
     expect(screen.getByText('Primary action')).toBeTruthy();
     expect(screen.getByRole('progressbar')).toBeTruthy();
     expect((screen.getByTestId('demo-input') as HTMLInputElement).value).toBe('Avery');
+    expect(screen.getByRole('switch', { name: 'Demo switch' })).toBeTruthy();
+    expect(screen.getByRole('switch', { name: 'Demo switch checked' })).toHaveAttribute('data-state', 'checked');
   });
 });

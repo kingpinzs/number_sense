@@ -31,7 +31,7 @@ export function MilestoneModal({ milestone, open, onClose }: MilestoneModalProps
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose(); }}>
-      <DialogContent className="max-w-sm text-center" data-testid="milestone-modal">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-sm text-center" data-testid="milestone-modal">
         {/* Confetti particles */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
           {particles.map((p) => (

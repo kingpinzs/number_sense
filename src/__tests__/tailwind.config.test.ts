@@ -7,13 +7,15 @@ const screens = (theme.screens ?? {}) as Record<string, string>;
 const spacing = (theme.extend?.spacing ?? {}) as Record<string, string>;
 
 describe('tailwind config', () => {
-  it('defines the Balanced Warmth palette', () => {
-    expect(colors.primary?.DEFAULT).toBe('#E87461');
-    expect(colors.secondary?.DEFAULT).toBe('#A8E6CF');
-    expect(colors.accent?.DEFAULT).toBe('#FFD56F');
-    expect(colors.success?.DEFAULT).toBe('#66BB6A');
-    expect(colors.warning?.DEFAULT).toBe('#FFB74D');
-    expect(colors.error?.DEFAULT).toBe('#EF5350');
+  it('defines the Balanced Warmth palette via CSS custom properties', () => {
+    // Tokens reference CSS vars so dark mode works correctly at runtime.
+    // The source-of-truth for hex values is globals.css :root / [data-theme='dark'].
+    expect(colors.primary).toBe('var(--primary)');
+    expect(colors.secondary).toBe('var(--secondary)');
+    expect(colors.accent).toBe('var(--accent)');
+    expect(colors.success).toBe('var(--success)');
+    expect(colors.warning).toBe('var(--warning)');
+    expect(colors.error).toBe('var(--error)');
   });
 
   it('configures responsive breakpoints', () => {

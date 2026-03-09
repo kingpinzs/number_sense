@@ -8,6 +8,10 @@
 
 :root {
   color-scheme: light;
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
   --background: #fdfbf9;
   --foreground: #0d0f12;
   --card: #ffffff;
@@ -33,6 +37,8 @@
   --ring: rgba(232, 116, 97, 0.45);
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
+  --info: #42a5f5;
+  --info-foreground: #042240;
   --radius: 0.75rem;
 }
 
@@ -63,6 +69,8 @@
   --ring: rgba(255, 138, 120, 0.6);
   --destructive: #ff5c5c;
   --destructive-foreground: #1b0000;
+  --info: #64b5f6;
+  --info-foreground: #001d38;
 }
 
 *,

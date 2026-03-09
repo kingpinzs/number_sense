@@ -97,16 +97,16 @@ development_status:
   6-5-implement-memory-grid-mini-game: done
   epic-6-retrospective: optional
 
-  epic-7: in-progress
+  epic-7: done
   7-1-configure-vite-plugin-pwa-and-service-worker: done
   7-2-create-app-icons-and-manifest: done
   7-3-implement-install-prompt: done
-  7-4-implement-ambient-sync-indicator: review
+  7-4-implement-ambient-sync-indicator: done
   epic-7-retrospective: optional
 
-  epic-8: in-progress
+  epic-8: done
   8-1-build-experiment-manager: done
-  8-2-implement-variant-assignment-and-feature-flags: drafted
-  8-3-build-experiment-results-dashboard: drafted
-  8-4-implement-research-mode-settings-toggle: drafted
+  8-2-implement-variant-assignment-and-feature-flags: done
+  8-3-build-experiment-results-dashboard: done
+  8-4-implement-research-mode-settings-toggle: done
   epic-8-retrospective: optional

@@ -4,6 +4,7 @@
 
 import { createContext, useContext, useReducer, useEffect, useCallback, type ReactNode, type Dispatch } from 'react';
 import { getStreak, setStreak } from '@/services/storage/localStorage';
+import { cleanOldSessions } from '@/services/storage/db';
 
 /**
  * AppState interface - Global app-level state
@@ -124,9 +125,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [updateOnlineStatus]);
 
-  // Prepare for future WebSocket/sync integration
-  // TODO: Add WebSocket connection management here when backend is ready
-  // TODO: Implement background sync for telemetry when service worker is active
+  // Run database maintenance on app startup (once per mount)
+  useEffect(() => {
+    try {
+      cleanOldSessions?.(365)?.catch(() => {
+        // Silently ignore — maintenance is best-effort
+      });
+    } catch {
+      // Guard against partially mocked modules in tests
+    }
+  }, []);
 
   const value: AppContextValue = {
     state,

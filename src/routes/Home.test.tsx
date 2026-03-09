@@ -54,6 +54,27 @@ vi.mock('@/features/coach/components/QuickActions', () => ({
   default: () => <div data-testid="quick-actions">Quick Actions</div>,
 }));
 
+// Mock useUserSettings — default: research mode disabled
+// NOTE: uses importOriginal to preserve UserSettingsProvider (required by test-utils.tsx)
+let mockResearchModeEnabled = false;
+vi.mock('@/context/UserSettingsContext', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/context/UserSettingsContext')>();
+  return {
+    ...actual,
+    useUserSettings: () => ({
+      settings: {
+        researchModeEnabled: mockResearchModeEnabled,
+        reducedMotion: false,
+        soundEnabled: true,
+        dailyGoalMinutes: 60,
+        showAdaptiveToasts: true,
+        theme: 'system',
+      },
+      updateSettings: vi.fn(),
+    }),
+  };
+});
+
 // Mock useNavigate
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
@@ -73,6 +94,7 @@ import { useCoachGuidance } from '@/features/coach/hooks/useCoachGuidance';
 describe('Home - Streak Counter Integration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockResearchModeEnabled = false;
     // Default: returning user with assessment
     vi.mocked(db.assessments.where).mockReturnValue({
       equals: vi.fn().mockReturnValue({
@@ -262,5 +284,44 @@ describe('Home - Streak Counter Integration', () => {
     });
 
     expect(screen.queryByTestId('quick-actions')).not.toBeInTheDocument();
+  });
+});
+
+describe('Home - Research Mode Badge', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockResearchModeEnabled = false;
+    // Default: returning user with assessment
+    vi.mocked(db.assessments.where).mockReturnValue({
+      equals: vi.fn().mockReturnValue({
+        count: vi.fn().mockResolvedValue(1),
+      }),
+    } as any);
+    vi.mocked(getCurrentStreak).mockReturnValue(3);
+    vi.mocked(checkMilestone).mockReturnValue(null);
+    vi.mocked(getLastSessionDate).mockReturnValue('2026-02-07T00:00:00.000Z');
+  });
+
+  it('shows research-mode-badge when researchModeEnabled is true', async () => {
+    mockResearchModeEnabled = true;
+    render(<Home />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Welcome Back')).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId('research-mode-badge')).toBeInTheDocument();
+    expect(screen.getByTestId('research-mode-badge')).toHaveTextContent('Research Mode Active');
+  });
+
+  it('does NOT show research-mode-badge when researchModeEnabled is false', async () => {
+    mockResearchModeEnabled = false;
+    render(<Home />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Welcome Back')).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId('research-mode-badge')).not.toBeInTheDocument();
   });
 });

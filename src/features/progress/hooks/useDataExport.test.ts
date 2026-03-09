@@ -37,6 +37,7 @@ vi.mock('@/services/storage/localStorage', () => ({
     dailyGoalMinutes: 60,
     researchModeEnabled: false,
     showAdaptiveToasts: true,
+    theme: 'system',
   }),
   getStreak: vi.fn().mockReturnValue(5),
 }));
@@ -84,6 +85,7 @@ function setupMocks(sessions: Session[] = mockSessions) {
     dailyGoalMinutes: 60,
     researchModeEnabled: false,
     showAdaptiveToasts: true,
+    theme: 'system',
   });
   vi.mocked(getStreak).mockReturnValue(5);
 

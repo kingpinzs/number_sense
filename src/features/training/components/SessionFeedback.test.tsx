@@ -61,6 +61,7 @@ describe('SessionFeedback', () => {
         dailyGoalMinutes: 15,
         researchModeEnabled: false,
         showAdaptiveToasts: true,
+        theme: 'system',
       },
       updateSettings: vi.fn(),
     });
@@ -138,6 +139,7 @@ describe('SessionFeedback', () => {
           dailyGoalMinutes: 15,
           researchModeEnabled: false,
           showAdaptiveToasts: true,
+          theme: 'system',
         },
         updateSettings: vi.fn(),
       });

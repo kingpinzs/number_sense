@@ -1,18 +1,23 @@
+import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { UserSettingsProvider } from '@/context/UserSettingsContext';
 import { AppProvider } from '@/context/AppContext';
 import { SessionProvider } from '@/context/SessionContext';
 import { ErrorBoundary } from '@/shared/components/ErrorBoundary';
 import { BottomNav } from '@/shared/components/BottomNav';
-import Home from '@/routes/Home';
-import AssessmentRoute from '@/routes/AssessmentRoute';
-import TrainingRoute from '@/routes/TrainingRoute';
-import ProgressRoute from '@/routes/ProgressRoute';
-import ProfileRoute from '@/routes/ProfileRoute';
-import CognitionRoute from '@/routes/CognitionRoute';
+import { LoadingSpinner } from '@/shared/components/LoadingSpinner';
 import { useServiceWorker } from '@/services/pwa/useServiceWorker';
 import { InstallPrompt } from '@/shared/components/InstallPrompt';
 import { SyncIndicator } from '@/shared/components/SyncIndicator';
+import { useInstallPrompt } from '@/services/pwa/useInstallPrompt';
+
+const Home = lazy(() => import('@/routes/Home'));
+const AssessmentRoute = lazy(() => import('@/routes/AssessmentRoute'));
+const TrainingRoute = lazy(() => import('@/routes/TrainingRoute'));
+const ProgressRoute = lazy(() => import('@/routes/ProgressRoute'));
+const ProfileRoute = lazy(() => import('@/routes/ProfileRoute'));
+const CognitionRoute = lazy(() => import('@/routes/CognitionRoute'));
+const ResearchRoute = lazy(() => import('@/routes/ResearchRoute'));
 
 /**
  * App - Main application component
@@ -30,6 +35,31 @@ function ServiceWorkerRegistration() {
   return null;
 }
 
+function AppContent() {
+  const { shouldShowPrompt } = useInstallPrompt();
+  return (
+    <div
+      className="min-h-screen bg-background pb-16"
+      style={shouldShowPrompt ? { paddingBottom: '280px' } : undefined}
+    >
+      <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><LoadingSpinner size="large" /></div>}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/assessment" element={<AssessmentRoute />} />
+          <Route path="/training" element={<TrainingRoute />} />
+          <Route path="/cognition" element={<CognitionRoute />} />
+          <Route path="/progress" element={<ProgressRoute />} />
+          <Route path="/profile" element={<ProfileRoute />} />
+          <Route path="/research" element={<ResearchRoute />} />
+        </Routes>
+      </Suspense>
+      <BottomNav />
+      <InstallPrompt />
+      <SyncIndicator />
+    </div>
+  );
+}
+
 function App() {
   return (
     <ErrorBoundary>
@@ -37,19 +67,7 @@ function App() {
       <UserSettingsProvider>
         <AppProvider>
           <SessionProvider>
-            <div className="min-h-screen bg-background pb-16">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/assessment" element={<AssessmentRoute />} />
-                <Route path="/training" element={<TrainingRoute />} />
-                <Route path="/cognition" element={<CognitionRoute />} />
-                <Route path="/progress" element={<ProgressRoute />} />
-                <Route path="/profile" element={<ProfileRoute />} />
-              </Routes>
-              <BottomNav />
-              <InstallPrompt />
-              <SyncIndicator />
-            </div>
+            <AppContent />
           </SessionProvider>
         </AppProvider>
       </UserSettingsProvider>

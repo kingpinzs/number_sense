@@ -140,7 +140,8 @@ describe('UserSettingsContext', () => {
         soundEnabled: false,
         dailyGoalMinutes: 60,
         researchModeEnabled: false,
-        showAdaptiveToasts: true
+        showAdaptiveToasts: true,
+        theme: 'system'
       });
     });
 

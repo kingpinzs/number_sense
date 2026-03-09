@@ -249,7 +249,7 @@ export default function MathOperationsDrill({ difficulty, sessionId, onComplete,
               <h3 className="text-center text-xl font-semibold text-foreground">
                 How confident were you?
               </h3>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <Button
                   onClick={() => handleConfidenceSelect('guessed')}
                   variant="outline"

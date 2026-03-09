@@ -497,7 +497,7 @@ export default function TrainingSession() {
     return (
       <>
         {/* Story 3.5: Session Progress Bar and Pause Button */}
-        <div className="fixed top-0 left-0 right-0 z-30 bg-white border-b shadow-sm">
+        <div className="fixed top-0 left-0 right-0 z-30 bg-background border-b shadow-sm">
           <div className="max-w-4xl mx-auto px-6 py-4">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-lg font-semibold">Training Session</h2>
@@ -546,7 +546,7 @@ export default function TrainingSession() {
 
         {/* Story 3.5: Feedback overlay */}
         {showFeedback && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/90">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/90 backdrop-blur-sm">
             <SessionFeedback
               isCorrect={lastDrillCorrect}
               correctAnswer={lastCorrectAnswer}

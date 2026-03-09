@@ -142,7 +142,7 @@ function ConfidenceRadar({
       transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.4, ease: 'easeOut' }}
     >
       <ResponsiveContainer width="100%" height={chartHeight}>
-        <RadarChart data={chartData} margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
+        <RadarChart data={chartData} margin={isTablet ? { top: 20, right: 30, bottom: 20, left: 30 } : { top: 20, right: 20, bottom: 20, left: 20 }}>
           {/* Grid lines at 1, 2, 3, 4, 5 intervals */}
           <PolarGrid stroke={COLORS.gridLine} />
 
@@ -156,7 +156,7 @@ function ConfidenceRadar({
           <PolarRadiusAxis
             domain={[0, 5]}
             tickCount={6}
-            tick={{ fontSize: 10, fill: '#9CA3AF' }}
+            tick={{ fontSize: 12, fill: '#9CA3AF' }}
           />
 
           {/* Baseline - dashed gray line (rendered first, behind current) */}
@@ -185,7 +185,7 @@ function ConfidenceRadar({
           <Legend
             wrapperStyle={{ paddingTop: '10px' }}
             formatter={(value) => (
-              <span className="text-sm text-gray-700">{value}</span>
+              <span className="text-sm text-foreground">{value}</span>
             )}
           />
         </RadarChart>
@@ -234,7 +234,7 @@ export function ConfidenceRadarEmpty() {
             <PolarRadiusAxis
               domain={[0, 5]}
               tickCount={6}
-              tick={{ fontSize: 10, fill: '#9CA3AF' }}
+              tick={{ fontSize: 12, fill: '#9CA3AF' }}
             />
             {/* Gray outline only, no fill */}
             <Radar

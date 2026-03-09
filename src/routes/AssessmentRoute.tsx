@@ -351,7 +351,7 @@ export default function AssessmentRoute() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto flex h-screen max-w-4xl flex-col">
+      <div className="mx-auto flex min-h-[100dvh] max-w-4xl flex-col">
         {/* Header with exit button */}
         <div className="relative border-b bg-background p-4">
           <Button

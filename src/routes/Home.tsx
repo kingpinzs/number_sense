@@ -18,6 +18,7 @@ import CoachCard from '@/features/coach/components/CoachCard';
 import QuickActions from '@/features/coach/components/QuickActions';
 import { useCoachGuidance } from '@/features/coach/hooks/useCoachGuidance';
 import type { Milestone } from '@/services/training/streakManager';
+import { useUserSettings } from '@/context/UserSettingsContext';
 
 /**
  * Home - Main dashboard showing personalized content
@@ -33,6 +34,7 @@ export default function Home() {
   const [noSessions, setNoSessions] = useState(false);
   const [milestone, setMilestone] = useState<Milestone | null>(null);
   const { guidance, dismiss } = useCoachGuidance();
+  const { settings } = useUserSettings();
 
   // Check if user has completed an assessment
   useEffect(() => {
@@ -171,6 +173,17 @@ export default function Home() {
             onTap={() => navigate('/progress')}
           />
         </div>
+
+        {/* Research Mode Badge — visible when research mode is active */}
+        {settings.researchModeEnabled && (
+          <div
+            data-testid="research-mode-badge"
+            className="text-xs text-primary-foreground bg-primary/80 px-2 py-1 rounded-full inline-block mb-3 font-medium"
+            aria-label="Research Mode is active"
+          >
+            Research Mode Active
+          </div>
+        )}
 
         {/* Welcome Back Header */}
         <div className="mb-6">

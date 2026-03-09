@@ -64,7 +64,7 @@ export function InstallPrompt() {
       <motion.div
         role="alert"
         aria-label="Install app prompt"
-        className="fixed bottom-16 left-2 right-2 z-40 md:left-auto md:bottom-20 md:right-4 md:w-80"
+        className="fixed bottom-20 left-2 right-2 z-40 md:left-auto md:bottom-24 md:right-4 md:w-80"
         initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={shouldReduceMotion ? undefined : { opacity: 0, y: 20 }}
