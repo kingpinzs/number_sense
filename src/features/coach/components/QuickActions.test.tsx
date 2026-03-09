@@ -9,7 +9,7 @@ import QuickActions from './QuickActions';
 // Mock framer-motion to avoid animation timing issues
 vi.mock('framer-motion', () => ({
   motion: {
-    div: ({ children, whileHover, whileTap, animate, initial, exit, transition, variants, ...props }: any) => <div {...props}>{children}</div>,
+    div: ({ children, whileHover: _whileHover, whileTap: _whileTap, animate: _animate, initial: _initial, exit: _exit, transition: _transition, variants: _variants, ...props }: any) => <div {...props}>{children}</div>,
   },
   useReducedMotion: vi.fn(() => false),
   AnimatePresence: ({ children }: any) => children,

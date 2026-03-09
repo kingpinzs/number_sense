@@ -1,0 +1,14 @@
+exclude:
+  - bmad
+  - node_modules
+  - src
+  - tests
+  - patches
+  - .claude
+  - .github
+  - android
+  - scripts
+  - "*.config.*"
+  - "*.json"
+  - "*.ts"
+  - "*.mjs"
