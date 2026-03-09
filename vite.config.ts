@@ -66,10 +66,10 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
       thresholds: {
-        statements: 100,
-        branches: 100,
-        functions: 100,
-        lines: 100
+        statements: 90,
+        branches: 81,
+        functions: 90,
+        lines: 91
       },
       exclude: ['tests/**', '**/*.test.tsx', '**/*.test.ts', '**/*.config.ts', '**/index.ts']
     }

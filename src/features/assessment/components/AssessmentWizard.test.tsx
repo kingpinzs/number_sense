@@ -78,11 +78,28 @@ const defaultProps = {
 };
 
 describe('AssessmentWizard', () => {
+  let consoleWarnSpy: ReturnType<typeof vi.spyOn>;
+  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
+  const originalWarn = console.warn.bind(console);
+  const originalError = console.error.bind(console);
+
   beforeEach(() => {
     vi.clearAllMocks();
+    consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation((...args: unknown[]) => {
+      const msg = String(args[0]);
+      if (msg.includes('Missing `Description`') || msg.includes('DialogTitle')) return;
+      originalWarn(...args);
+    });
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation((...args: unknown[]) => {
+      const msg = String(args[0]);
+      if (msg.includes('Missing `Description`') || msg.includes('DialogTitle')) return;
+      originalError(...args);
+    });
   });
 
   afterEach(() => {
+    consoleWarnSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
     vi.clearAllMocks();
   });
 

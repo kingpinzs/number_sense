@@ -405,6 +405,7 @@ describe('MathOperationsDrill', () => {
       // Mock Dexie to throw error
       vi.mocked(db.drill_results.add).mockRejectedValueOnce(new Error('DB error'));
 
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       const localStorageSpy = vi.spyOn(Storage.prototype, 'setItem');
 
       render(
@@ -436,6 +437,8 @@ describe('MathOperationsDrill', () => {
           expect.any(String)
         );
       });
+
+      consoleSpy.mockRestore();
     }, 10000);
   });
 

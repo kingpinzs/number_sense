@@ -1,7 +1,7 @@
 // SpatialFlipGame.test.tsx - Component tests for Spatial Flip mini-game
 // Story 6.4: Tests for gameplay, feedback, timer, accessibility, and telemetry
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor, act } from '../../../../tests/test-utils';
 import userEvent from '@testing-library/user-event';
 import SpatialFlipGame, { getChoiceStyle } from './SpatialFlipGame';
@@ -89,11 +89,31 @@ function renderGame() {
 }
 
 describe('SpatialFlipGame', () => {
+  let consoleWarnSpy: ReturnType<typeof vi.spyOn>;
+  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
+  const originalWarn = console.warn.bind(console);
+  const originalError = console.error.bind(console);
+
   beforeEach(() => {
     vi.clearAllMocks();
     mockReducedMotion = false;
     _mockQuestionCallCount = 0;
     Object.keys(mockStorage).forEach(key => delete mockStorage[key]);
+    consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation((...args: unknown[]) => {
+      const msg = String(args[0]);
+      if (msg.includes('Missing `Description`') || msg.includes('DialogTitle')) return;
+      originalWarn(...args);
+    });
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation((...args: unknown[]) => {
+      const msg = String(args[0]);
+      if (msg.includes('Missing `Description`') || msg.includes('DialogTitle')) return;
+      originalError(...args);
+    });
+  });
+
+  afterEach(() => {
+    consoleWarnSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
   });
 
   // Test 1: Game renders reference shape and 4 choices

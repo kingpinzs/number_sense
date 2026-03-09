@@ -27,7 +27,7 @@ vi.mock('framer-motion', async () => {
   return {
     ...actual,
     motion: {
-      div: ({ children, onDragEnd, onClick, style, ...props }: any) => (
+      div: ({ children, onDragEnd, onClick, style, drag: _drag, dragConstraints: _dragConstraints, dragElastic: _dragElastic, dragMomentum: _dragMomentum, whileTap: _whileTap, initial: _initial, animate: _animate, exit: _exit, transition: _transition, ...props }: any) => (
         <div
           {...props}
           onClick={onClick}
