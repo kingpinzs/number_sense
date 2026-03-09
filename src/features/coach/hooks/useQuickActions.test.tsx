@@ -148,6 +148,7 @@ describe('useQuickActions', () => {
   });
 
   it('falls back to defaults on error', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.mocked(db.assessments.where).mockImplementation(() => {
       throw new Error('DB error');
     });
@@ -159,6 +160,7 @@ describe('useQuickActions', () => {
     });
 
     expect(result.current.actions.length).toBeGreaterThanOrEqual(2);
+    consoleSpy.mockRestore();
   });
 
   it('shows default subtitle when session already completed today', async () => {
