@@ -8,16 +8,18 @@ import { AssessmentWizard } from './AssessmentWizard';
 
 // Mock all question components to render a simple answer button
 // This isolates the wizard shell tests from question component internals
-vi.mock('./QuantityComparison', () => ({
-  QuantityComparison: function MockQuantityComparison(props: any) {
-    const React = require('react');
-    const [answered, setAnswered] = React.useState(false);
-    return React.createElement('button', {
-      'data-testid': 'demo-answer-button',
-      onClick: () => { setAnswered(true); props.onAnswer('mock-answer'); },
-    }, answered ? 'Answer Provided' : 'Click to Answer');
-  },
-}));
+vi.mock('./QuantityComparison', async () => {
+  const React = await import('react');
+  return {
+    QuantityComparison: function MockQuantityComparison(props: any) {
+      const [answered, setAnswered] = React.useState(false);
+      return React.createElement('button', {
+        'data-testid': 'demo-answer-button',
+        onClick: () => { setAnswered(true); props.onAnswer('mock-answer'); },
+      }, answered ? 'Answer Provided' : 'Click to Answer');
+    },
+  };
+});
 
 vi.mock('./NumberLineEstimation', () => ({
   NumberLineEstimation: () => null,

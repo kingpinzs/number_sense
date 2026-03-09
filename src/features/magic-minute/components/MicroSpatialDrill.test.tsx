@@ -11,7 +11,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import MicroSpatialDrill from './MicroSpatialDrill';
-import type { MicroSpatialParams } from '../types/microChallenge.types';
+import type { MicroSpatialDrillProps } from './MicroSpatialDrill';
+import type { MicroSpatialParams, MicroChallengeResult } from '../types/microChallenge.types';
 import type { MistakeType } from '@/services/adaptiveDifficulty/mistakeAnalyzer';
 
 // Mock framer-motion to avoid animation issues in tests
@@ -38,17 +39,11 @@ const defaultParams: MicroSpatialParams = {
   isSame: true,
 };
 
-const createProps = (overrides: Partial<{
-  challengeId: string;
-  params: MicroSpatialParams;
-  targetMistakeType: MistakeType;
-  onComplete: ReturnType<typeof vi.fn>;
-  timeRemaining: number;
-}> = {}) => ({
+const createProps = (overrides: Partial<MicroSpatialDrillProps> = {}): MicroSpatialDrillProps => ({
   challengeId: 'test-challenge-1',
   params: defaultParams,
   targetMistakeType: 'overestimation' as MistakeType,
-  onComplete: vi.fn(),
+  onComplete: vi.fn<(result: MicroChallengeResult) => void>(),
   timeRemaining: 45,
   ...overrides,
 });
@@ -127,7 +122,7 @@ describe('MicroSpatialDrill', () => {
   // ---------------------------------------------------------------
 
   it('clicking Same when isSame=true calls onComplete with correct: true', () => {
-    const onComplete = vi.fn();
+    const onComplete = vi.fn<(result: MicroChallengeResult) => void>();
     const props = createProps({
       onComplete,
       params: { shape: 'lshape', rotation: 90, isSame: true },
@@ -150,7 +145,7 @@ describe('MicroSpatialDrill', () => {
   });
 
   it('clicking Same when isSame=false calls onComplete with correct: false', () => {
-    const onComplete = vi.fn();
+    const onComplete = vi.fn<(result: MicroChallengeResult) => void>();
     const props = createProps({
       onComplete,
       params: { shape: 'lshape', rotation: 90, isSame: false },
@@ -169,7 +164,7 @@ describe('MicroSpatialDrill', () => {
   });
 
   it('clicking Different when isSame=false calls onComplete with correct: true', () => {
-    const onComplete = vi.fn();
+    const onComplete = vi.fn<(result: MicroChallengeResult) => void>();
     const props = createProps({
       onComplete,
       params: { shape: 'tshape', rotation: 180, isSame: false },
@@ -188,7 +183,7 @@ describe('MicroSpatialDrill', () => {
   });
 
   it('clicking Different when isSame=true calls onComplete with correct: false', () => {
-    const onComplete = vi.fn();
+    const onComplete = vi.fn<(result: MicroChallengeResult) => void>();
     const props = createProps({
       onComplete,
       params: { shape: 'tshape', rotation: 180, isSame: true },
@@ -211,7 +206,7 @@ describe('MicroSpatialDrill', () => {
   // ---------------------------------------------------------------
 
   it('8-second timeout calls onComplete with timedOut: true', () => {
-    const onComplete = vi.fn();
+    const onComplete = vi.fn<(result: MicroChallengeResult) => void>();
     const props = createProps({ onComplete });
     render(<MicroSpatialDrill {...props} />);
 
@@ -236,7 +231,7 @@ describe('MicroSpatialDrill', () => {
   // ---------------------------------------------------------------
 
   it('keyboard "s" triggers Same answer', () => {
-    const onComplete = vi.fn();
+    const onComplete = vi.fn<(result: MicroChallengeResult) => void>();
     const props = createProps({
       onComplete,
       params: { shape: 'lshape', rotation: 90, isSame: true },
@@ -255,7 +250,7 @@ describe('MicroSpatialDrill', () => {
   });
 
   it('keyboard "d" triggers Different answer', () => {
-    const onComplete = vi.fn();
+    const onComplete = vi.fn<(result: MicroChallengeResult) => void>();
     const props = createProps({
       onComplete,
       params: { shape: 'lshape', rotation: 90, isSame: false },
@@ -274,7 +269,7 @@ describe('MicroSpatialDrill', () => {
   });
 
   it('keyboard "1" triggers Same answer', () => {
-    const onComplete = vi.fn();
+    const onComplete = vi.fn<(result: MicroChallengeResult) => void>();
     const props = createProps({
       onComplete,
       params: { shape: 'lshape', rotation: 90, isSame: true },
@@ -293,7 +288,7 @@ describe('MicroSpatialDrill', () => {
   });
 
   it('keyboard "2" triggers Different answer', () => {
-    const onComplete = vi.fn();
+    const onComplete = vi.fn<(result: MicroChallengeResult) => void>();
     const props = createProps({
       onComplete,
       params: { shape: 'tshape', rotation: 90, isSame: false },
@@ -316,7 +311,7 @@ describe('MicroSpatialDrill', () => {
   // ---------------------------------------------------------------
 
   it('cannot click after submission (isSubmitting guard)', () => {
-    const onComplete = vi.fn();
+    const onComplete = vi.fn<(result: MicroChallengeResult) => void>();
     const props = createProps({ onComplete });
     render(<MicroSpatialDrill {...props} />);
 

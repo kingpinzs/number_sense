@@ -112,10 +112,8 @@ describe('ConfidenceRadar', () => {
 });
 
 describe('ConfidenceRadar - Responsive Sizing (AC-3)', () => {
-  let matchMediaMock: ReturnType<typeof vi.fn>;
-
   beforeEach(() => {
-    matchMediaMock = vi.fn();
+    // Reset matchMedia mock for each test
   });
 
   afterEach(() => {
@@ -124,13 +122,12 @@ describe('ConfidenceRadar - Responsive Sizing (AC-3)', () => {
 
   it('uses mobile size (280px) on narrow viewport', () => {
     // Mock mobile viewport (< 768px)
-    matchMediaMock.mockImplementation((query: string) => ({
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
       matches: false, // Below 768px threshold
       media: query,
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
-    }));
-    window.matchMedia = matchMediaMock;
+    })) as unknown as typeof window.matchMedia;
 
     const { container } = render(
       <ConfidenceRadar
@@ -146,13 +143,12 @@ describe('ConfidenceRadar - Responsive Sizing (AC-3)', () => {
 
   it('uses tablet size (400px) on wide viewport', () => {
     // Mock tablet viewport (>= 768px)
-    matchMediaMock.mockImplementation((query: string) => ({
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
       matches: query.includes('768px'), // Above threshold
       media: query,
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
-    }));
-    window.matchMedia = matchMediaMock;
+    })) as unknown as typeof window.matchMedia;
 
     const { container } = render(
       <ConfidenceRadar

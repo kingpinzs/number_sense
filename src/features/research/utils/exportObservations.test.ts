@@ -54,7 +54,7 @@ beforeEach(() => {
 
   // Intercept Blob constructor to capture content without FileReader
   const OriginalBlob = globalThis.Blob;
-  vi.spyOn(globalThis, 'Blob').mockImplementation((parts?: BlobPart[], options?: BlobPropertyBag) => {
+  vi.spyOn(globalThis, 'Blob').mockImplementation(function(parts?: BlobPart[], options?: BlobPropertyBag) {
     capturedBlobContent = (parts ?? []).join('');
     return new OriginalBlob(parts, options);
   });

@@ -26,7 +26,7 @@ beforeEach(() => {
 });
 
 // Mock ResizeObserver for Recharts ResponsiveContainer (Story 5.1)
-global.ResizeObserver = class ResizeObserver {
+globalThis.ResizeObserver = class ResizeObserver {
   callback: ResizeObserverCallback;
   constructor(callback: ResizeObserverCallback) {
     this.callback = callback;

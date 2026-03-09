@@ -69,7 +69,7 @@ describe('SessionFeedback', () => {
     });
 
     // Mock AudioContext
-    global.AudioContext = vi.fn(() => mockAudioContext) as any;
+    globalThis.AudioContext = vi.fn(function() { return mockAudioContext; }) as any;
   });
 
   describe('Correct Answer Feedback', () => {

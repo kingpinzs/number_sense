@@ -169,7 +169,7 @@ describe('MagicMinuteTimer', () => {
 
   // Task 1.6: Cleanup clears interval
   it('clears interval on unmount', () => {
-    const clearIntervalSpy = vi.spyOn(global, 'clearInterval');
+    const clearIntervalSpy = vi.spyOn(globalThis, 'clearInterval');
     const onComplete = vi.fn();
 
     const { unmount } = render(
