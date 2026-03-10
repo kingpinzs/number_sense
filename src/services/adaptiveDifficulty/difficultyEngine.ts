@@ -25,7 +25,7 @@ export type DifficultyLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 /**
  * Module types that support difficulty adjustment
  */
-export type DifficultyModule = 'number_line' | 'spatial_rotation' | 'math_operations';
+export type DifficultyModule = 'number_line' | 'spatial_rotation' | 'math_operations' | 'subitizing' | 'number_bonds';
 
 /**
  * Reasons for difficulty adjustment matching schema
@@ -81,7 +81,19 @@ export interface MathOperationsConfig {
   mixed: boolean;
 }
 
-export type DifficultyConfig = NumberLineConfig | SpatialRotationConfig | MathOperationsConfig;
+export interface SubitizingConfig {
+  maxDots: number;          // Maximum dots shown (3-12)
+  displayTimeMs: number;    // How long dots are shown (200-2000ms)
+  arrangement: 'random' | 'structured' | 'mixed';
+}
+
+export interface NumberBondsConfig {
+  targetSum: number;        // The number to decompose (5-100)
+  showVisual: boolean;      // Show visual hint (bar model)
+  allowNegative: boolean;   // Allow negative decompositions
+}
+
+export type DifficultyConfig = NumberLineConfig | SpatialRotationConfig | MathOperationsConfig | SubitizingConfig | NumberBondsConfig;
 
 /**
  * Result of a difficulty adjustment decision
@@ -164,6 +176,40 @@ export const MATH_OPERATIONS_CONFIGS: Record<DifficultyLevel, MathOperationsConf
 };
 
 /**
+ * Subitizing difficulty configurations per level
+ * Trains instant quantity recognition — the foundation of number sense
+ */
+export const SUBITIZING_CONFIGS: Record<DifficultyLevel, SubitizingConfig> = {
+  1:  { maxDots: 3,  displayTimeMs: 2000, arrangement: 'structured' },
+  2:  { maxDots: 4,  displayTimeMs: 2000, arrangement: 'structured' },
+  3:  { maxDots: 4,  displayTimeMs: 1500, arrangement: 'mixed' },
+  4:  { maxDots: 5,  displayTimeMs: 1500, arrangement: 'mixed' },
+  5:  { maxDots: 6,  displayTimeMs: 1200, arrangement: 'random' },
+  6:  { maxDots: 7,  displayTimeMs: 1000, arrangement: 'random' },
+  7:  { maxDots: 8,  displayTimeMs: 800,  arrangement: 'random' },
+  8:  { maxDots: 9,  displayTimeMs: 600,  arrangement: 'random' },
+  9:  { maxDots: 10, displayTimeMs: 400,  arrangement: 'random' },
+  10: { maxDots: 12, displayTimeMs: 200,  arrangement: 'random' },
+};
+
+/**
+ * Number bonds difficulty configurations per level
+ * Trains part-whole number relationships — critical for arithmetic fluency
+ */
+export const NUMBER_BONDS_CONFIGS: Record<DifficultyLevel, NumberBondsConfig> = {
+  1:  { targetSum: 5,   showVisual: true,  allowNegative: false },
+  2:  { targetSum: 10,  showVisual: true,  allowNegative: false },
+  3:  { targetSum: 10,  showVisual: true,  allowNegative: false },
+  4:  { targetSum: 10,  showVisual: false, allowNegative: false },
+  5:  { targetSum: 20,  showVisual: true,  allowNegative: false },
+  6:  { targetSum: 20,  showVisual: false, allowNegative: false },
+  7:  { targetSum: 50,  showVisual: false, allowNegative: false },
+  8:  { targetSum: 100, showVisual: false, allowNegative: false },
+  9:  { targetSum: 100, showVisual: false, allowNegative: true },
+  10: { targetSum: 100, showVisual: false, allowNegative: true },
+};
+
+/**
  * Get difficulty configuration for a specific module and level
  */
 export function getDifficultyConfig(module: DifficultyModule, level: DifficultyLevel): DifficultyConfig {
@@ -174,6 +220,10 @@ export function getDifficultyConfig(module: DifficultyModule, level: DifficultyL
       return SPATIAL_ROTATION_CONFIGS[level];
     case 'math_operations':
       return MATH_OPERATIONS_CONFIGS[level];
+    case 'subitizing':
+      return SUBITIZING_CONFIGS[level];
+    case 'number_bonds':
+      return NUMBER_BONDS_CONFIGS[level];
   }
 }
 
@@ -277,17 +327,19 @@ export function determineAdjustment(
   recentAdjustments: DifficultyHistory[] = [],
   sessionsSinceLastAdjustment: number = Infinity
 ): AdjustmentResult | null {
-  // Check cooldown: no adjustment if one was made in last 2 sessions (AC-6)
+  // Check cooldown: no adjustment if one was made in the current session (AC-6)
+  // Reduced from 2-session cooldown to allow faster progression
   const recentForModule = recentAdjustments.filter((a) => a.module === module);
   if (recentForModule.length > 0) {
-    // Session-based cooldown: must have completed at least 2 sessions since last adjustment
-    if (sessionsSinceLastAdjustment < 2) {
+    // Session-based cooldown: must have completed at least 1 session since last adjustment
+    if (sessionsSinceLastAdjustment < 1) {
       return null; // Still in cooldown
     }
   }
 
-  // Need at least 3 sessions worth of data
-  if (metrics.sessionCount < 3) {
+  // Need at least 1 session worth of data to start adjusting
+  // (reduced from 3 to allow faster initial progression)
+  if (metrics.sessionCount < 1) {
     return null;
   }
 
@@ -400,6 +452,77 @@ export function determineAdjustment(
         };
       }
       if (metrics.medianTimeMs < 3000 && currentLevel < 10) {
+        return {
+          module,
+          previousLevel: currentLevel,
+          newLevel: Math.min(10, currentLevel + 1) as DifficultyLevel,
+          reason: 'speed_fast',
+          timestamp,
+          metrics,
+        };
+      }
+      break;
+    }
+
+    case 'subitizing': {
+      // Subitizing: accuracy-driven + speed-driven progression
+      // Faster display times at higher levels demand quick recognition
+      if (metrics.averageAccuracy > 85 && currentLevel < 10) {
+        return {
+          module,
+          previousLevel: currentLevel,
+          newLevel: Math.min(10, currentLevel + 1) as DifficultyLevel,
+          reason: 'accuracy_high',
+          timestamp,
+          metrics,
+        };
+      }
+      if (metrics.averageAccuracy < 60 && currentLevel > 1) {
+        return {
+          module,
+          previousLevel: currentLevel,
+          newLevel: Math.max(1, currentLevel - 1) as DifficultyLevel,
+          reason: 'accuracy_low',
+          timestamp,
+          metrics,
+        };
+      }
+      if (metrics.medianTimeMs < 1500 && currentLevel < 10) {
+        return {
+          module,
+          previousLevel: currentLevel,
+          newLevel: Math.min(10, currentLevel + 1) as DifficultyLevel,
+          reason: 'speed_fast',
+          timestamp,
+          metrics,
+        };
+      }
+      break;
+    }
+
+    case 'number_bonds': {
+      // Number bonds: accuracy-driven progression
+      if (metrics.averageAccuracy > 85 && currentLevel < 10) {
+        return {
+          module,
+          previousLevel: currentLevel,
+          newLevel: Math.min(10, currentLevel + 1) as DifficultyLevel,
+          reason: 'accuracy_high',
+          timestamp,
+          metrics,
+        };
+      }
+      if (metrics.averageAccuracy < 60 && currentLevel > 1) {
+        return {
+          module,
+          previousLevel: currentLevel,
+          newLevel: Math.max(1, currentLevel - 1) as DifficultyLevel,
+          reason: 'accuracy_low',
+          timestamp,
+          metrics,
+        };
+      }
+      if (metrics.medianTimeMs < 2000 && currentLevel < 10) {
         return {
           module,
           previousLevel: currentLevel,

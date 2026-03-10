@@ -96,7 +96,19 @@ export async function loadTrainingPlanWeights(): Promise<TrainingPlanWeights> {
 /**
  * Drill types available in training
  */
-export type DrillType = 'number_line' | 'spatial_rotation' | 'math_operations';
+export type DrillType = 'number_line' | 'spatial_rotation' | 'math_operations' | 'subitizing' | 'number_bonds';
+
+/**
+ * All available drill types grouped by their training domain.
+ * numberSense drills are rotated to ensure variety within that domain.
+ */
+const DOMAIN_DRILLS: Record<keyof TrainingPlanWeights, DrillType[]> = {
+  numberSense: ['number_line', 'subitizing', 'number_bonds'],
+  spatial: ['spatial_rotation'],
+  operations: ['math_operations'],
+};
+
+const ALL_DRILL_TYPES: DrillType[] = ['number_line', 'spatial_rotation', 'math_operations', 'subitizing', 'number_bonds'];
 
 /**
  * Select drills based on weighted random selection
@@ -115,38 +127,47 @@ export async function selectDrills(
   let consecutiveCount = 0;
   let lastDrillType: DrillType | null = null;
 
+  // Track which numberSense sub-drill to rotate through
+  let numberSenseIndex = 0;
+
   for (let i = 0; i < count; i++) {
     // Generate weighted random drill
     let selectedDrill: DrillType;
 
-    // Variety enforcement: Force different type if we've had 3 consecutive
-    if (consecutiveCount >= 3) {
+    // Variety enforcement: Force different type if we've had 2 consecutive
+    // (reduced from 3 to ensure more variety with 5 drill types)
+    if (consecutiveCount >= 2) {
       // Explicitly select a different type
-      const otherTypes: DrillType[] = [];
-      if (lastDrillType !== 'number_line') otherTypes.push('number_line');
-      if (lastDrillType !== 'spatial_rotation') otherTypes.push('spatial_rotation');
-      if (lastDrillType !== 'math_operations') otherTypes.push('math_operations');
-
-      // Randomly select from other types
+      const otherTypes = ALL_DRILL_TYPES.filter(t => t !== lastDrillType);
       selectedDrill = otherTypes[Math.floor(Math.random() * otherTypes.length)];
-      consecutiveCount = 1;  // Reset to 1 (starting a new sequence)
+      consecutiveCount = 1;
     } else {
-      // Normal weighted selection
+      // Normal weighted selection — pick domain first, then drill within domain
       const random = Math.random();
 
+      let domain: keyof TrainingPlanWeights;
       if (random < weights.numberSense) {
-        selectedDrill = 'number_line';
+        domain = 'numberSense';
       } else if (random < weights.numberSense + weights.spatial) {
-        selectedDrill = 'spatial_rotation';
+        domain = 'spatial';
       } else {
-        selectedDrill = 'math_operations';
+        domain = 'operations';
+      }
+
+      // Pick drill within domain (rotate for multi-drill domains)
+      const drillsInDomain = DOMAIN_DRILLS[domain];
+      if (drillsInDomain.length > 1) {
+        selectedDrill = drillsInDomain[numberSenseIndex % drillsInDomain.length];
+        numberSenseIndex++;
+      } else {
+        selectedDrill = drillsInDomain[0];
       }
 
       // Update consecutive count
       if (selectedDrill === lastDrillType) {
         consecutiveCount++;
       } else {
-        consecutiveCount = 1;  // Start new sequence
+        consecutiveCount = 1;
       }
     }
 

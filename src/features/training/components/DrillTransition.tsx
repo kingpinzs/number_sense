@@ -16,6 +16,8 @@ const DRILL_METADATA: Record<DrillType, { icon: string; name: string }> = {
   number_line: { icon: '📏', name: 'Number Line' },
   spatial_rotation: { icon: '🔄', name: 'Spatial Rotation' },
   math_operations: { icon: '➕', name: 'Math Operations' },
+  subitizing: { icon: '👁️', name: 'Quick Count' },
+  number_bonds: { icon: '🔗', name: 'Number Bonds' },
 };
 
 /**

@@ -19,6 +19,8 @@ import type { DrillResult } from '@/services/storage/schemas';
 import NumberLineDrill from '@/features/training/drills/NumberLineDrill';
 import SpatialRotationDrill from '@/features/training/drills/SpatialRotationDrill';
 import MathOperationsDrill from '@/features/training/drills/MathOperationsDrill';
+import SubitizingDrill from '@/features/training/drills/SubitizingDrill';
+import NumberBondsDrill from '@/features/training/drills/NumberBondsDrill';
 import ConfidencePromptBefore from './ConfidencePromptBefore';
 import ConfidencePromptAfter from './ConfidencePromptAfter';
 import SessionCompletionSummary from './SessionCompletionSummary';
@@ -158,7 +160,7 @@ export default function TrainingSession() {
         sessionState.drillQueue &&
         sessionState.currentDrillIndex !== undefined) {
       const currentDrillType = sessionState.drillQueue[sessionState.currentDrillIndex];
-      const implementedTypes = ['number_line', 'spatial_rotation', 'math_operations'];
+      const implementedTypes = ['number_line', 'spatial_rotation', 'math_operations', 'subitizing', 'number_bonds'];
 
       if (!implementedTypes.includes(currentDrillType)) {
         if (sessionState.currentDrillIndex < sessionState.drillQueue.length - 1) {
@@ -472,7 +474,7 @@ export default function TrainingSession() {
     // Story 3.2: number_line implemented
     // Story 3.3: spatial_rotation implemented
     // Show loading state while auto-skipping unimplemented drill types
-    const implementedTypes = ['number_line', 'spatial_rotation', 'math_operations'];
+    const implementedTypes = ['number_line', 'spatial_rotation', 'math_operations', 'subitizing', 'number_bonds'];
     if (!implementedTypes.includes(currentDrillType)) {
       return (
         <div className="flex h-screen items-center justify-center bg-background">
@@ -543,6 +545,24 @@ export default function TrainingSession() {
             sessionId={dbSessionId ?? 0}
             onComplete={handleDrillComplete}
             usedProblems={usedProblemsRef.current}
+          />
+        )}
+
+        {currentDrillType === 'subitizing' && (
+          <SubitizingDrill
+            key={`drill-${drillIndex}`}
+            difficulty={difficulty}
+            sessionId={dbSessionId ?? 0}
+            onComplete={handleDrillComplete}
+          />
+        )}
+
+        {currentDrillType === 'number_bonds' && (
+          <NumberBondsDrill
+            key={`drill-${drillIndex}`}
+            difficulty={difficulty}
+            sessionId={dbSessionId ?? 0}
+            onComplete={handleDrillComplete}
           />
         )}
 

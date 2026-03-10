@@ -54,7 +54,7 @@ export interface DrillResult {
   id?: number;              // Auto-increment primary key (Dexie)
   sessionId: number;        // Foreign key to sessions table
   timestamp: string;        // ISO 8601 drill completion time
-  module: 'number_line' | 'spatial_rotation' | 'math_operations';  // Drill type
+  module: 'number_line' | 'spatial_rotation' | 'math_operations' | 'subitizing' | 'number_bonds';  // Drill type
   difficulty: 'easy' | 'medium' | 'hard';
   isCorrect: boolean;
   timeToAnswer: number;     // Milliseconds

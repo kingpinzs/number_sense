@@ -196,10 +196,12 @@ describe('selectDrills', () => {
     };
 
     // Act: Run 100 times to check distribution
-    const counts = {
+    const counts: Record<string, number> = {
       number_line: 0,
       spatial_rotation: 0,
       math_operations: 0,
+      subitizing: 0,
+      number_bonds: 0,
     };
 
     const totalDrills = 100;
@@ -209,9 +211,10 @@ describe('selectDrills', () => {
     }
 
     // Assert: Distribution should roughly match weights (with some variance)
-    // number_line should be ~70% (allow 50-90% range for randomness)
-    expect(counts.number_line).toBeGreaterThan(50);
-    expect(counts.number_line).toBeLessThan(90);
+    // numberSense domain (number_line + subitizing + number_bonds) should be ~70%
+    const numberSenseTotal = counts.number_line + counts.subitizing + counts.number_bonds;
+    expect(numberSenseTotal).toBeGreaterThan(50);
+    expect(numberSenseTotal).toBeLessThan(90);
 
     // spatial_rotation should be ~20% (allow 5-35% range)
     expect(counts.spatial_rotation).toBeGreaterThan(5);
@@ -262,7 +265,7 @@ describe('selectDrills', () => {
     const drillQueue = await selectDrills(weights, 12);
 
     // Assert: All drills are valid types
-    const validDrills = ['number_line', 'spatial_rotation', 'math_operations'];
+    const validDrills = ['number_line', 'spatial_rotation', 'math_operations', 'subitizing', 'number_bonds'];
     for (const drill of drillQueue) {
       expect(validDrills).toContain(drill);
     }

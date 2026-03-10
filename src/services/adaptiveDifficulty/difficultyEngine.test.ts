@@ -455,7 +455,7 @@ describe('determineAdjustment', () => {
   });
 
   describe('cooldown enforcement (AC-6)', () => {
-    it('returns null if less than 2 sessions since last adjustment', () => {
+    it('returns null if zero sessions since last adjustment', () => {
       const metrics = { ...baseMetrics, averageAccuracy: 90 };
       const recentAdjustments = [
         createMockDifficultyHistory({
@@ -464,13 +464,13 @@ describe('determineAdjustment', () => {
         }),
       ];
 
-      // Only 1 session since last adjustment - should be in cooldown
-      const result = determineAdjustment(metrics, 5, 'number_line', recentAdjustments, 1);
+      // 0 sessions since last adjustment - should be in cooldown
+      const result = determineAdjustment(metrics, 5, 'number_line', recentAdjustments, 0);
 
       expect(result).toBeNull();
     });
 
-    it('allows adjustment after 2+ sessions since last adjustment', () => {
+    it('allows adjustment after 1+ sessions since last adjustment', () => {
       const metrics = { ...baseMetrics, averageAccuracy: 90 };
       const recentAdjustments = [
         createMockDifficultyHistory({
@@ -479,8 +479,8 @@ describe('determineAdjustment', () => {
         }),
       ];
 
-      // 2 sessions since last adjustment - cooldown complete
-      const result = determineAdjustment(metrics, 5, 'number_line', recentAdjustments, 2);
+      // 1 session since last adjustment - cooldown complete
+      const result = determineAdjustment(metrics, 5, 'number_line', recentAdjustments, 1);
 
       expect(result).not.toBeNull();
     });

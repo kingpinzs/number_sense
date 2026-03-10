@@ -16,6 +16,8 @@ export const MODULE_FRIENDLY_NAMES: Record<DifficultyModule, string> = {
   number_line: 'Number Line',
   spatial_rotation: 'Spatial Rotation',
   math_operations: 'Math Operations',
+  subitizing: 'Quick Count',
+  number_bonds: 'Number Bonds',
 };
 
 /**
