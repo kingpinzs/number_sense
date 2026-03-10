@@ -351,7 +351,7 @@ export default function AssessmentRoute() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto flex min-h-[100dvh] max-w-4xl flex-col pb-20" style={{ paddingBottom: 'calc(5rem + var(--safe-area-bottom, 0px))' }}>
+      <div className="mx-auto flex min-h-[100dvh] max-w-4xl flex-col" style={{ paddingBottom: 'calc(var(--safe-area-bottom, 0px))' }}>
         {/* Header with exit button */}
         <div className="relative border-b bg-background p-4" style={{ paddingTop: 'calc(1rem + var(--safe-area-top, 0px))' }}>
           <Button
@@ -440,7 +440,10 @@ export default function AssessmentRoute() {
 
         {/* Navigation footer */}
         {!showExitConfirm && (
-          <div className="relative z-[999] flex items-center justify-between border-t bg-background p-4">
+          <div
+            className="sticky bottom-0 z-10 flex items-center justify-between border-t bg-background p-4"
+            style={{ paddingBottom: 'calc(1rem + var(--safe-area-bottom, 0px))' }}
+          >
             <Button
               variant="outline"
               onClick={handlePrevious}

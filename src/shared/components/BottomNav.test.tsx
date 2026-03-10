@@ -1,8 +1,8 @@
 // BottomNav.test.tsx - Component tests for bottom navigation
 // Tests follow AAA pattern (Arrange, Act, Assert)
 
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '../../../tests/test-utils';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, waitFor } from '../../../tests/test-utils';
 import userEvent from '@testing-library/user-event';
 import { BottomNav } from './BottomNav';
 
@@ -19,10 +19,25 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
+// Mock Dexie db for assessment gating
+let mockAssessmentCount = 0;
+vi.mock('@/services/storage/db', () => ({
+  db: {
+    assessments: {
+      where: () => ({
+        equals: () => ({
+          count: () => Promise.resolve(mockAssessmentCount),
+        }),
+      }),
+    },
+  },
+}));
+
 describe('BottomNav', () => {
   beforeEach(() => {
     mockNavigate.mockClear();
     mockPathname = '/';
+    mockAssessmentCount = 0;
   });
 
   // Test 1: Renders all 5 tabs with icons and labels
@@ -117,11 +132,17 @@ describe('BottomNav', () => {
     expect(homeButton).not.toHaveAttribute('aria-current');
   });
 
-  // Test 6: Navigates on click
-  it('navigates when tab is clicked', async () => {
+  // Test 6: Navigates on click (with assessment completed)
+  it('navigates when tab is clicked and assessment is completed', async () => {
     // Arrange
+    mockAssessmentCount = 1;
     const user = userEvent.setup();
     render(<BottomNav />);
+
+    // Wait for assessment check to resolve
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /training/i })).not.toHaveAttribute('aria-disabled', 'true');
+    });
 
     // Act
     const trainingButton = screen.getByRole('button', { name: /training/i });
@@ -131,11 +152,36 @@ describe('BottomNav', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/training');
   });
 
+  // Test 6b: Locked items redirect to assessment when no assessment completed
+  it('redirects locked items to assessment when no assessment exists', async () => {
+    // Arrange
+    mockAssessmentCount = 0;
+    const user = userEvent.setup();
+    render(<BottomNav />);
+
+    // Wait for assessment check to resolve
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /training/i })).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    // Act
+    const trainingButton = screen.getByRole('button', { name: /training/i });
+    await user.click(trainingButton);
+
+    // Assert — redirects to assessment
+    expect(mockNavigate).toHaveBeenCalledWith('/assessment');
+  });
+
   // Test 7: Navigates on Enter key press
   it('navigates when Enter key is pressed', async () => {
     // Arrange
+    mockAssessmentCount = 1;
     const user = userEvent.setup();
     render(<BottomNav />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /progress/i })).not.toHaveAttribute('aria-disabled', 'true');
+    });
 
     // Act
     const progressButton = screen.getByRole('button', { name: /progress/i });
@@ -216,11 +262,16 @@ describe('BottomNav', () => {
     expect(nav).toHaveClass(customClass);
   });
 
-  // Test 13: All navigation paths work
-  it('navigates to all correct paths', async () => {
+  // Test 13: All navigation paths work (with assessment completed)
+  it('navigates to all correct paths when assessment completed', async () => {
     // Arrange
+    mockAssessmentCount = 1;
     const user = userEvent.setup();
     render(<BottomNav />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /training/i })).not.toHaveAttribute('aria-disabled', 'true');
+    });
 
     // Act & Assert - Home
     await user.click(screen.getByRole('button', { name: /home/i }));
@@ -241,5 +292,38 @@ describe('BottomNav', () => {
     // Act & Assert - Profile
     await user.click(screen.getByRole('button', { name: /profile/i }));
     expect(mockNavigate).toHaveBeenCalledWith('/profile');
+  });
+
+  // Test 14: Hides on assessment route
+  it('returns null when on /assessment path', () => {
+    // Arrange
+    mockPathname = '/assessment';
+
+    // Act
+    const { container } = render(<BottomNav />);
+
+    // Assert
+    expect(container.querySelector('nav')).toBeNull();
+  });
+
+  // Test 15: Shows lock icons on gated items pre-assessment
+  it('shows lock indicators on gated items when no assessment', async () => {
+    // Arrange
+    mockAssessmentCount = 0;
+    render(<BottomNav />);
+
+    // Wait for assessment check
+    await waitFor(() => {
+      const trainingBtn = screen.getByRole('button', { name: /training/i });
+      expect(trainingBtn).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    // Assert - Progress should also be locked
+    const progressBtn = screen.getByRole('button', { name: /progress/i });
+    expect(progressBtn).toHaveAttribute('aria-disabled', 'true');
+
+    // Assert - Home, Games, Profile should NOT be locked
+    const homeBtn = screen.getByRole('button', { name: /home/i });
+    expect(homeBtn).not.toHaveAttribute('aria-disabled');
   });
 });

@@ -33,6 +33,7 @@ function GameCard({ title, description, icon: Icon, available, onPlay }: GameCar
         {available ? (
           <Button
             onClick={onPlay}
+            variant="default"
             className="w-full min-h-[44px]"
           >
             Play

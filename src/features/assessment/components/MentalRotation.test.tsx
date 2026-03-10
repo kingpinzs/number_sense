@@ -63,7 +63,7 @@ describe('MentalRotation', () => {
     it('renders question prompt', () => {
       render(<MentalRotation {...defaultProps} />);
 
-      expect(screen.getByTestId('question-prompt')).toHaveTextContent('Are these the same shape?');
+      expect(screen.getByTestId('question-prompt')).toHaveTextContent('Are these the exact same shape, just rotated?');
     });
 
     it('renders Yes/No answer buttons', () => {

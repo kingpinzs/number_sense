@@ -32,7 +32,7 @@ export interface MentalRotationProps {
   onAnswer: (result: MentalRotationResult) => void;
 }
 
-/** SVG path definitions for asymmetric shapes (L-shapes, irregular polygons) */
+/** SVG path definitions for clearly distinct asymmetric shapes */
 const SHAPE_PATHS: Record<string, string> = {
   'L-shape': 'M 20 20 L 20 80 L 40 80 L 40 40 L 80 40 L 80 20 Z',
   'T-shape': 'M 20 20 L 20 40 L 40 40 L 40 80 L 60 80 L 60 40 L 80 40 L 80 20 Z',
@@ -41,13 +41,17 @@ const SHAPE_PATHS: Record<string, string> = {
   'arrow': 'M 50 20 L 80 50 L 65 50 L 65 80 L 35 80 L 35 50 L 20 50 Z',
 };
 
-/** Alternative shapes for non-matching pairs */
-const ALT_SHAPE_PATHS: Record<string, string> = {
-  'L-shape': 'M 20 20 L 20 70 L 35 70 L 35 35 L 80 35 L 80 20 Z', // Slightly different L
-  'T-shape': 'M 25 20 L 25 40 L 45 40 L 45 80 L 55 80 L 55 40 L 75 40 L 75 20 Z', // Narrower T
-  'zigzag': 'M 25 20 L 45 45 L 55 20 L 75 45 L 75 55 L 55 30 L 45 55 L 25 30 Z', // Different zigzag
-  'irregular-polygon': 'M 35 20 L 75 30 L 80 60 L 60 80 L 30 70 L 20 40 Z', // Different polygon
-  'arrow': 'M 50 25 L 75 50 L 62 50 L 62 75 L 38 75 L 38 50 L 25 50 Z', // Smaller arrow
+/**
+ * For non-matching pairs, use a completely different shape type
+ * so the difference is unambiguous. Maps each shape to a clearly
+ * different shape rather than a slightly tweaked variant.
+ */
+const MISMATCH_SHAPE: Record<string, string> = {
+  'L-shape': 'arrow',
+  'T-shape': 'zigzag',
+  'zigzag': 'L-shape',
+  'irregular-polygon': 'T-shape',
+  'arrow': 'irregular-polygon',
 };
 
 /**
@@ -60,6 +64,7 @@ const ALT_SHAPE_PATHS: Record<string, string> = {
  * - Records timing with performance.now()
  * - 60px+ touch targets for accessibility
  * - No visual feedback during assessment
+ * - Non-matching pairs use clearly different shape types
  */
 export function MentalRotation({
   shapeType,
@@ -80,7 +85,7 @@ export function MentalRotation({
   const leftShapePath = SHAPE_PATHS[shapeType] || SHAPE_PATHS['L-shape'];
   const rightShapePath = isMatch
     ? leftShapePath
-    : (ALT_SHAPE_PATHS[shapeType] || ALT_SHAPE_PATHS['L-shape']);
+    : SHAPE_PATHS[MISMATCH_SHAPE[shapeType] || 'arrow'];
 
   const handleAnswer = useCallback(
     (answer: 'yes' | 'no') => {
@@ -106,7 +111,7 @@ export function MentalRotation({
 
   return (
     <QuestionCard
-      question="Are these the same shape?"
+      question="Are these the exact same shape, just rotated?"
       data-testid="mental-rotation"
       footer={
         <>
@@ -133,53 +138,58 @@ export function MentalRotation({
         </>
       }
     >
-      <div className="flex items-center justify-center gap-8">
-        {/* Left shape (unrotated) */}
-        <div
-          className="flex flex-col items-center gap-2"
-          data-testid="left-shape"
-          aria-label="Left shape"
-        >
-          <svg
-            width="100"
-            height="100"
-            viewBox="0 0 100 100"
-            className="bg-muted rounded-lg"
-            role="img"
-            aria-label={`Left ${shapeType} shape`}
+      <div className="flex flex-col items-center gap-4">
+        <p className="text-sm text-muted-foreground text-center">
+          Ignore size — focus on the shape itself
+        </p>
+        <div className="flex items-center justify-center gap-8">
+          {/* Left shape (unrotated) */}
+          <div
+            className="flex flex-col items-center gap-2"
+            data-testid="left-shape"
+            aria-label="Left shape"
           >
-            <path
-              d={leftShapePath}
-              className="fill-primary"
-              data-testid="left-shape-path"
-            />
-          </svg>
-        </div>
+            <svg
+              width="120"
+              height="120"
+              viewBox="0 0 100 100"
+              className="bg-muted rounded-lg"
+              role="img"
+              aria-label={`Left ${shapeType} shape`}
+            >
+              <path
+                d={leftShapePath}
+                className="fill-primary"
+                data-testid="left-shape-path"
+              />
+            </svg>
+          </div>
 
-        {/* Right shape (rotated) */}
-        <div
-          className="flex flex-col items-center gap-2"
-          data-testid="right-shape"
-          aria-label={`Right shape rotated ${rotationAngle} degrees`}
-        >
-          <svg
-            width="100"
-            height="100"
-            viewBox="0 0 100 100"
-            className="bg-muted rounded-lg"
-            role="img"
-            aria-label={`Right ${shapeType} shape rotated ${rotationAngle} degrees`}
-            style={{
-              transform: `rotate(${rotationAngle}deg)`,
-              transformOrigin: 'center center',
-            }}
+          {/* Right shape (rotated) */}
+          <div
+            className="flex flex-col items-center gap-2"
+            data-testid="right-shape"
+            aria-label={`Right shape rotated ${rotationAngle} degrees`}
           >
-            <path
-              d={rightShapePath}
-              className="fill-primary"
-              data-testid="right-shape-path"
-            />
-          </svg>
+            <svg
+              width="120"
+              height="120"
+              viewBox="0 0 100 100"
+              className="bg-muted rounded-lg"
+              role="img"
+              aria-label={`Right ${shapeType} shape rotated ${rotationAngle} degrees`}
+              style={{
+                transform: `rotate(${rotationAngle}deg)`,
+                transformOrigin: 'center center',
+              }}
+            >
+              <path
+                d={rightShapePath}
+                className="fill-primary"
+                data-testid="right-shape-path"
+              />
+            </svg>
+          </div>
         </div>
       </div>
     </QuestionCard>

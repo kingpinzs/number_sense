@@ -6,7 +6,7 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Dumbbell, Target, TrendingUp, Sparkles } from 'lucide-react';
+import { Dumbbell, Target, Sparkles, Lock, Brain, BarChart3 } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { db } from '@/services/storage/db';
@@ -102,56 +102,75 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Assessment Card */}
-          <Card className="border-primary/30 bg-gradient-to-br from-primary/10 to-background">
-            <CardHeader className="text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/20">
-                <Target className="h-8 w-8 text-primary" />
+          {/* Assessment CTA — primary action */}
+          <Card className="border-2 border-primary/40 bg-gradient-to-br from-primary/15 via-primary/5 to-background shadow-lg">
+            <CardHeader className="text-center pb-2">
+              <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-primary/20 shadow-inner">
+                <Target className="h-10 w-10 text-primary" />
               </div>
-              <CardTitle className="text-xl">Let's Get Started</CardTitle>
-              <CardDescription className="text-base">
+              <CardTitle className="text-2xl">Let&apos;s Get Started</CardTitle>
+              <CardDescription className="text-base mt-2">
                 Take a quick 10-question assessment to discover your strengths
                 and create a personalized training plan.
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex justify-center pb-6">
+            <CardContent className="flex justify-center pb-8 pt-4">
               <Button
                 size="lg"
                 onClick={() => navigate('/assessment')}
-                className="min-h-[48px] gap-2 px-8"
+                className="min-h-[56px] gap-3 px-10 text-lg font-bold shadow-lg hover:shadow-xl bg-primary hover:bg-primary/90 [&_svg]:size-6"
               >
-                <Sparkles className="h-5 w-5" />
+                <Sparkles className="h-6 w-6" />
                 Start Assessment
               </Button>
             </CardContent>
           </Card>
 
-          {/* Info Cards */}
-          <div className="mt-6 grid gap-4">
-            <Card>
-              <CardHeader className="pb-3">
+          {/* Locked Feature Cards — shows what unlocks after assessment */}
+          <p className="mt-8 mb-3 text-sm font-medium text-muted-foreground text-center">
+            Complete the assessment to unlock
+          </p>
+          <div className="grid gap-3">
+            <Card className="opacity-50 border-dashed">
+              <CardHeader className="pb-2 pt-4">
                 <CardTitle className="flex items-center gap-2 text-base">
-                  <TrendingUp className="h-5 w-5 text-secondary" />
+                  <Dumbbell className="h-5 w-5 text-muted-foreground" />
                   Adaptive Training
+                  <Lock className="h-3.5 w-3.5 text-muted-foreground ml-auto" />
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pb-4">
                 <p className="text-sm text-muted-foreground">
-                  Exercises adapt to your skill level, focusing on areas that need the most work.
+                  Personalized exercises that adapt to your skill level.
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="pb-3">
+            <Card className="opacity-50 border-dashed">
+              <CardHeader className="pb-2 pt-4">
                 <CardTitle className="flex items-center gap-2 text-base">
-                  <Dumbbell className="h-5 w-5 text-accent" />
-                  Daily Practice
+                  <Brain className="h-5 w-5 text-muted-foreground" />
+                  Brain Games
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pb-4">
                 <p className="text-sm text-muted-foreground">
-                  Short, focused sessions help build lasting confidence with numbers.
+                  Fun cognitive exercises to strengthen number skills.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="opacity-50 border-dashed">
+              <CardHeader className="pb-2 pt-4">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <BarChart3 className="h-5 w-5 text-muted-foreground" />
+                  Progress Tracking
+                  <Lock className="h-3.5 w-3.5 text-muted-foreground ml-auto" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pb-4">
+                <p className="text-sm text-muted-foreground">
+                  Charts and insights to see how you&apos;re improving.
                 </p>
               </CardContent>
             </Card>
