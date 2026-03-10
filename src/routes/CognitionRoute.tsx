@@ -1,15 +1,19 @@
 // CognitionRoute - Game selection hub for cognition mini-games
-// Story 6.3: Implement Pattern Match Mini-Game
-// Story 6.4: Implement Spatial Flip Mini-Game
-// Story 6.5: Implement Memory Grid Mini-Game
+// Story 6.3-6.5: Pattern Match, Spatial Flip, Memory Grid
+// Extended: Speed Math, Number Rush, Sequence Snap, Clock Challenge, Estimate It
 
 import { useState } from 'react';
-import { Brain, Grid3X3, FlipHorizontal2, LayoutGrid } from 'lucide-react';
+import { Brain, Grid3X3, FlipHorizontal2, LayoutGrid, Zap, ArrowUpDown, ListOrdered, Clock, Target } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
 import PatternMatchGame from '@/features/cognition/games/PatternMatchGame';
 import SpatialFlipGame from '@/features/cognition/games/SpatialFlipGame';
 import MemoryGridGame from '@/features/cognition/games/MemoryGridGame';
+import SpeedMathGame from '@/features/cognition/games/SpeedMathGame';
+import NumberRushGame from '@/features/cognition/games/NumberRushGame';
+import SequenceSnapGame from '@/features/cognition/games/SequenceSnapGame';
+import ClockChallengeGame from '@/features/cognition/games/ClockChallengeGame';
+import EstimateItGame from '@/features/cognition/games/EstimateItGame';
 
 interface GameCardProps {
   title: string;
@@ -49,6 +53,8 @@ function GameCard({ title, description, icon: Icon, available, onPlay }: GameCar
 export default function CognitionRoute() {
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
 
+  const handleBack = () => setSelectedGame(null);
+
   // Game selection screen
   if (!selectedGame) {
     return (
@@ -64,6 +70,41 @@ export default function CognitionRoute() {
         </div>
 
         <div className="grid grid-cols-2 gap-3">
+          <GameCard
+            title="Speed Math"
+            description="Answer math facts in 60 seconds"
+            icon={Zap}
+            available={true}
+            onPlay={() => setSelectedGame('speed-math')}
+          />
+          <GameCard
+            title="Number Rush"
+            description="Tap the bigger number fast"
+            icon={ArrowUpDown}
+            available={true}
+            onPlay={() => setSelectedGame('number-rush')}
+          />
+          <GameCard
+            title="Sequence Snap"
+            description="Complete number patterns"
+            icon={ListOrdered}
+            available={true}
+            onPlay={() => setSelectedGame('sequence-snap')}
+          />
+          <GameCard
+            title="Estimate It"
+            description="Estimate math results quickly"
+            icon={Target}
+            available={true}
+            onPlay={() => setSelectedGame('estimate-it')}
+          />
+          <GameCard
+            title="Clock Challenge"
+            description="Read analog clock times"
+            icon={Clock}
+            available={true}
+            onPlay={() => setSelectedGame('clock-challenge')}
+          />
           <GameCard
             title="Pattern Match"
             description="Find matching symbol pairs"
@@ -90,18 +131,25 @@ export default function CognitionRoute() {
     );
   }
 
-  // Game view
-  if (selectedGame === 'pattern-match') {
-    return <PatternMatchGame onBack={() => setSelectedGame(null)} />;
+  // Game views
+  switch (selectedGame) {
+    case 'speed-math':
+      return <SpeedMathGame onBack={handleBack} />;
+    case 'number-rush':
+      return <NumberRushGame onBack={handleBack} />;
+    case 'sequence-snap':
+      return <SequenceSnapGame onBack={handleBack} />;
+    case 'estimate-it':
+      return <EstimateItGame onBack={handleBack} />;
+    case 'clock-challenge':
+      return <ClockChallengeGame onBack={handleBack} />;
+    case 'pattern-match':
+      return <PatternMatchGame onBack={handleBack} />;
+    case 'spatial-flip':
+      return <SpatialFlipGame onBack={handleBack} />;
+    case 'memory-grid':
+      return <MemoryGridGame onBack={handleBack} />;
+    default:
+      return null;
   }
-
-  if (selectedGame === 'spatial-flip') {
-    return <SpatialFlipGame onBack={() => setSelectedGame(null)} />;
-  }
-
-  if (selectedGame === 'memory-grid') {
-    return <MemoryGridGame onBack={() => setSelectedGame(null)} />;
-  }
-
-  return null;
 }

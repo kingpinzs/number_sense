@@ -345,11 +345,9 @@ export default function TrainingSession() {
 
     // Calculate drillTypes distribution (Story 3.7)
     const drillTypeCounts = (sessionState.drillQueue || []).reduce((acc, drillType) => {
-      if (drillType === 'number_line') acc.number_line++;
-      else if (drillType === 'spatial_rotation') acc.spatial_rotation++;
-      else if (drillType === 'math_operations') acc.math_operations++;
+      acc[drillType] = (acc[drillType] || 0) + 1;
       return acc;
-    }, { number_line: 0, spatial_rotation: 0, math_operations: 0 });
+    }, {} as Record<string, number>);
 
     // Update streak
     updateStreak();
@@ -489,10 +487,12 @@ export default function TrainingSession() {
     const currentDrillType = sessionState.drillQueue[sessionState.currentDrillIndex];
     const drillIndex = sessionState.currentDrillIndex;
 
-    // Story 3.2: number_line implemented
-    // Story 3.3: spatial_rotation implemented
     // Show loading state while auto-skipping unimplemented drill types
-    const implementedTypes = ['number_line', 'spatial_rotation', 'math_operations', 'subitizing', 'number_bonds'];
+    const implementedTypes = [
+      'number_line', 'spatial_rotation', 'math_operations', 'subitizing', 'number_bonds',
+      'magnitude_comparison', 'place_value', 'estimation', 'sequencing', 'fact_fluency',
+      'fractions', 'time_measurement', 'working_memory',
+    ];
     if (!implementedTypes.includes(currentDrillType)) {
       return (
         <div className="flex h-screen items-center justify-center bg-background">
