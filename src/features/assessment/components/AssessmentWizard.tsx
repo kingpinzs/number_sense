@@ -293,7 +293,7 @@ export function AssessmentWizard({
       >
         <div className="flex h-full flex-col">
           {/* Header with exit button */}
-          <SheetHeader className="relative border-b pb-4">
+          <SheetHeader className="relative border-b pb-4" style={{ paddingTop: 'var(--safe-area-top, 0px)' }}>
             <Button
               variant="ghost"
               size="icon"
@@ -385,7 +385,7 @@ export function AssessmentWizard({
 
           {/* Navigation footer */}
           {!showExitConfirm && (
-            <div className="relative z-[999] flex items-center justify-between border-t bg-background p-4">
+            <div className="relative z-[999] flex items-center justify-between border-t bg-background p-4" style={{ paddingBottom: 'calc(1rem + var(--safe-area-bottom, 0px))' }}>
               <Button
                 variant="outline"
                 onClick={handlePrevious}

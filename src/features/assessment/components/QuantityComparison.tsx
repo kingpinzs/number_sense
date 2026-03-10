@@ -153,29 +153,31 @@ export function QuantityComparison({
 
   const renderDotGroup = (dots: DotPosition[], label: string, testId: string) => (
     <div
-      className="flex flex-col items-center gap-2"
+      className="flex flex-col items-center gap-2 min-w-0 flex-1"
       data-testid={testId}
       aria-label={`${label} group with ${dots.length} dots`}
     >
-      <svg
-        width="140"
-        height="140"
-        viewBox="0 0 140 140"
-        className="bg-muted rounded-lg"
-        role="img"
-        aria-label={`${dots.length} dots`}
-      >
-        {dots.map((dot, index) => (
-          <circle
-            key={index}
-            cx={dot.x}
-            cy={dot.y}
-            r="8"
-            className="fill-primary"
-            data-testid={`${testId}-dot-${index}`}
-          />
-        ))}
-      </svg>
+      <div className="w-full overflow-hidden rounded-lg bg-muted aspect-square max-w-[140px]">
+        <svg
+          width="100%"
+          height="100%"
+          viewBox="0 0 140 140"
+          preserveAspectRatio="xMidYMid meet"
+          role="img"
+          aria-label={`${dots.length} dots`}
+        >
+          {dots.map((dot, index) => (
+            <circle
+              key={index}
+              cx={dot.x}
+              cy={dot.y}
+              r="8"
+              className="fill-primary"
+              data-testid={`${testId}-dot-${index}`}
+            />
+          ))}
+        </svg>
+      </div>
       <span className="text-sm font-medium text-muted-foreground sr-only">
         {label}
       </span>
@@ -221,9 +223,9 @@ export function QuantityComparison({
         </>
       }
     >
-      <div className="flex items-center justify-center gap-6">
+      <div className="flex items-center justify-center gap-3 w-full overflow-hidden">
         {renderDotGroup(leftDots, 'Left', 'left-group')}
-        <span className="text-2xl font-bold text-muted-foreground">vs</span>
+        <span className="text-2xl font-bold text-muted-foreground shrink-0">vs</span>
         {renderDotGroup(rightDots, 'Right', 'right-group')}
       </div>
     </QuestionCard>
