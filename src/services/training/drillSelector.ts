@@ -5,12 +5,15 @@
 import { db } from '@/services/storage/db';
 
 /**
- * Training plan weights from assessment
+ * Training plan weights from assessment (6 domains)
  */
 export interface TrainingPlanWeights {
   numberSense: number;  // 0.0 - 1.0
+  placeValue: number;
+  sequencing: number;
+  arithmetic: number;
   spatial: number;
-  operations: number;
+  applied: number;
 }
 
 /**
@@ -19,16 +22,23 @@ export interface TrainingPlanWeights {
 const DOMAIN_WEIGHT_MAP: Record<string, keyof TrainingPlanWeights> = {
   'number_sense': 'numberSense',
   'number-sense': 'numberSense',
+  'place_value': 'placeValue',
+  'place-value': 'placeValue',
+  'sequencing': 'sequencing',
+  'arithmetic': 'arithmetic',
   'spatial': 'spatial',
   'spatial_rotation': 'spatial',
   'spatial-rotation': 'spatial',
-  'operations': 'operations',
-  'math_operations': 'operations',
-  'math-operations': 'operations',
+  'applied': 'applied',
+  // Legacy mappings for backward compatibility
+  'operations': 'arithmetic',
+  'math_operations': 'arithmetic',
+  'math-operations': 'arithmetic',
 };
 
 /**
  * Load training plan weights from latest completed assessment
+ * Handles backward compatibility with old 3-domain assessments
  *
  * @returns Promise<TrainingPlanWeights> - Normalized weights based on assessment
  * @throws Error if no completed assessment exists
@@ -45,14 +55,13 @@ export async function loadTrainingPlanWeights(): Promise<TrainingPlanWeights> {
   }
 
   // Derive weights from weaknesses/strengths arrays
-  // Weight assignments (matching Epic 2 scoring algorithm):
-  // - Weaknesses: 2.0x weight
-  // - Strengths: 0.5x weight
-  // - Neither (moderate): 1.0x weight
   const rawWeights: Record<keyof TrainingPlanWeights, number> = {
     numberSense: 1.0,  // Default to moderate
+    placeValue: 1.0,
+    sequencing: 1.0,
+    arithmetic: 1.0,
     spatial: 1.0,
-    operations: 1.0,
+    applied: 1.0,
   };
 
   // Apply weakness weights (2.0x)
@@ -74,41 +83,64 @@ export async function loadTrainingPlanWeights(): Promise<TrainingPlanWeights> {
   // Normalize weights to sum to 1.0
   const sum = Object.values(rawWeights).reduce((acc, weight) => acc + weight, 0);
 
-  // Handle edge case where sum is 0 (shouldn't happen)
+  const domainCount = Object.keys(rawWeights).length;
   if (sum === 0) {
+    const equalWeight = 1 / domainCount;
     return {
-      numberSense: 1 / 3,
-      spatial: 1 / 3,
-      operations: 1 / 3,
+      numberSense: equalWeight,
+      placeValue: equalWeight,
+      sequencing: equalWeight,
+      arithmetic: equalWeight,
+      spatial: equalWeight,
+      applied: equalWeight,
     };
   }
 
   // Normalize each weight
   const normalizedWeights: TrainingPlanWeights = {
     numberSense: rawWeights.numberSense / sum,
+    placeValue: rawWeights.placeValue / sum,
+    sequencing: rawWeights.sequencing / sum,
+    arithmetic: rawWeights.arithmetic / sum,
     spatial: rawWeights.spatial / sum,
-    operations: rawWeights.operations / sum,
+    applied: rawWeights.applied / sum,
   };
 
   return normalizedWeights;
 }
 
 /**
- * Drill types available in training
+ * Drill types available in training (13 total across 6 domains)
  */
-export type DrillType = 'number_line' | 'spatial_rotation' | 'math_operations' | 'subitizing' | 'number_bonds';
+export type DrillType =
+  | 'number_line' | 'subitizing' | 'magnitude_comparison'
+  | 'place_value' | 'estimation'
+  | 'sequencing'
+  | 'math_operations' | 'number_bonds' | 'fact_fluency'
+  | 'spatial_rotation'
+  | 'fractions' | 'time_measurement' | 'working_memory';
 
 /**
  * All available drill types grouped by their training domain.
- * numberSense drills are rotated to ensure variety within that domain.
+ * Multi-drill domains rotate to ensure variety.
  */
 const DOMAIN_DRILLS: Record<keyof TrainingPlanWeights, DrillType[]> = {
-  numberSense: ['number_line', 'subitizing', 'number_bonds'],
+  numberSense: ['number_line', 'subitizing', 'magnitude_comparison'],
+  placeValue: ['place_value', 'estimation'],
+  sequencing: ['sequencing'],
+  arithmetic: ['math_operations', 'number_bonds', 'fact_fluency'],
   spatial: ['spatial_rotation'],
-  operations: ['math_operations'],
+  applied: ['fractions', 'time_measurement', 'working_memory'],
 };
 
-const ALL_DRILL_TYPES: DrillType[] = ['number_line', 'spatial_rotation', 'math_operations', 'subitizing', 'number_bonds'];
+const ALL_DRILL_TYPES: DrillType[] = [
+  'number_line', 'subitizing', 'magnitude_comparison',
+  'place_value', 'estimation',
+  'sequencing',
+  'math_operations', 'number_bonds', 'fact_fluency',
+  'spatial_rotation',
+  'fractions', 'time_measurement', 'working_memory',
+];
 
 /**
  * Select drills based on weighted random selection
@@ -127,17 +159,17 @@ export async function selectDrills(
   let consecutiveCount = 0;
   let lastDrillType: DrillType | null = null;
 
-  // Track which numberSense sub-drill to rotate through
-  let numberSenseIndex = 0;
+  // Track rotation index per domain for multi-drill domains
+  const domainRotationIndex: Record<string, number> = {};
+
+  // Build cumulative weight thresholds for domain selection
+  const domainKeys = Object.keys(weights) as (keyof TrainingPlanWeights)[];
 
   for (let i = 0; i < count; i++) {
-    // Generate weighted random drill
     let selectedDrill: DrillType;
 
     // Variety enforcement: Force different type if we've had 2 consecutive
-    // (reduced from 3 to ensure more variety with 5 drill types)
     if (consecutiveCount >= 2) {
-      // Explicitly select a different type
       const otherTypes = ALL_DRILL_TYPES.filter(t => t !== lastDrillType);
       selectedDrill = otherTypes[Math.floor(Math.random() * otherTypes.length)];
       consecutiveCount = 1;
@@ -145,20 +177,22 @@ export async function selectDrills(
       // Normal weighted selection — pick domain first, then drill within domain
       const random = Math.random();
 
-      let domain: keyof TrainingPlanWeights;
-      if (random < weights.numberSense) {
-        domain = 'numberSense';
-      } else if (random < weights.numberSense + weights.spatial) {
-        domain = 'spatial';
-      } else {
-        domain = 'operations';
+      let cumulative = 0;
+      let domain: keyof TrainingPlanWeights = domainKeys[domainKeys.length - 1];
+      for (const key of domainKeys) {
+        cumulative += weights[key];
+        if (random < cumulative) {
+          domain = key;
+          break;
+        }
       }
 
       // Pick drill within domain (rotate for multi-drill domains)
       const drillsInDomain = DOMAIN_DRILLS[domain];
       if (drillsInDomain.length > 1) {
-        selectedDrill = drillsInDomain[numberSenseIndex % drillsInDomain.length];
-        numberSenseIndex++;
+        const idx = domainRotationIndex[domain] || 0;
+        selectedDrill = drillsInDomain[idx % drillsInDomain.length];
+        domainRotationIndex[domain] = idx + 1;
       } else {
         selectedDrill = drillsInDomain[0];
       }

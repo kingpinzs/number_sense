@@ -5,7 +5,12 @@
 /**
  * Domain type for assessment scoring
  */
-export type Domain = 'number_sense' | 'spatial' | 'operations';
+export type Domain = 'number_sense' | 'place_value' | 'sequencing' | 'arithmetic' | 'spatial' | 'applied';
+
+/**
+ * Legacy domain type for backward compatibility with old assessments
+ */
+export type LegacyDomain = 'operations';
 
 /**
  * Question result interface for scoring
@@ -20,8 +25,11 @@ export interface QuestionForScoring {
  */
 export interface DomainScores {
   number_sense: number;
+  place_value: number;
+  sequencing: number;
+  arithmetic: number;
   spatial: number;
-  operations: number;
+  applied: number;
 }
 
 /**
@@ -38,20 +46,36 @@ export interface WeaknessCategories {
  */
 export interface TrainingWeights {
   number_sense: number;
+  place_value: number;
+  sequencing: number;
+  arithmetic: number;
   spatial: number;
-  operations: number;
+  applied: number;
 }
 
 /**
- * Question distribution per domain
- * - Number Sense: Q1-Q4 (4 questions)
- * - Spatial: Q5-Q7 (3 questions)
- * - Operations: Q8-Q10 (3 questions)
+ * All domains in display order
+ */
+export const ALL_DOMAINS: Domain[] = [
+  'number_sense', 'place_value', 'sequencing', 'arithmetic', 'spatial', 'applied',
+];
+
+/**
+ * Question distribution per domain (3 questions each, 18 total)
+ * - Number Sense: Q1-Q3
+ * - Place Value: Q4-Q6
+ * - Sequencing: Q7-Q9
+ * - Arithmetic: Q10-Q12
+ * - Spatial: Q13-Q15
+ * - Applied: Q16-Q18
  */
 const DOMAIN_QUESTION_COUNTS: Record<Domain, number> = {
-  number_sense: 4,
+  number_sense: 3,
+  place_value: 3,
+  sequencing: 3,
+  arithmetic: 3,
   spatial: 3,
-  operations: 3,
+  applied: 3,
 };
 
 /**
@@ -163,8 +187,11 @@ export function generateWeights(
   // Initialize raw weights
   const rawWeights: Record<Domain, number> = {
     number_sense: 0,
+    place_value: 0,
+    sequencing: 0,
+    arithmetic: 0,
     spatial: 0,
-    operations: 0,
+    applied: 0,
   };
 
   // Assign raw weights based on category
@@ -188,19 +215,26 @@ export function generateWeights(
 
   // Normalize weights to sum to 1.0
   // Handle edge case where sum is 0 (shouldn't happen in normal usage)
+  const domainCount = ALL_DOMAINS.length;
   if (sum === 0) {
     return {
-      number_sense: 1 / 3,
-      spatial: 1 / 3,
-      operations: 1 / 3,
+      number_sense: 1 / domainCount,
+      place_value: 1 / domainCount,
+      sequencing: 1 / domainCount,
+      arithmetic: 1 / domainCount,
+      spatial: 1 / domainCount,
+      applied: 1 / domainCount,
     };
   }
 
   // Normalize each weight
   const normalizedWeights: TrainingWeights = {
     number_sense: rawWeights.number_sense / sum,
+    place_value: rawWeights.place_value / sum,
+    sequencing: rawWeights.sequencing / sum,
+    arithmetic: rawWeights.arithmetic / sum,
     spatial: rawWeights.spatial / sum,
-    operations: rawWeights.operations / sum,
+    applied: rawWeights.applied / sum,
   };
 
   return normalizedWeights;

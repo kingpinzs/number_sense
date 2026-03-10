@@ -9,8 +9,11 @@ import type { Session, DrillResult } from '@/services/storage/schemas';
  */
 export interface DomainConfidence {
   numberSense: number;
+  placeValue: number;
+  sequencing: number;
+  arithmetic: number;
   spatial: number;
-  operations: number;
+  applied: number;
 }
 
 /**
@@ -18,8 +21,18 @@ export interface DomainConfidence {
  */
 const DRILL_TO_DOMAIN: Record<string, keyof DomainConfidence> = {
   'number_line': 'numberSense',
+  'subitizing': 'numberSense',
+  'magnitude_comparison': 'numberSense',
+  'place_value': 'placeValue',
+  'estimation': 'placeValue',
+  'sequencing': 'sequencing',
+  'math_operations': 'arithmetic',
+  'number_bonds': 'arithmetic',
+  'fact_fluency': 'arithmetic',
   'spatial_rotation': 'spatial',
-  'math_operations': 'operations',
+  'fractions': 'applied',
+  'time_measurement': 'applied',
+  'working_memory': 'applied',
 };
 
 /**
@@ -38,8 +51,11 @@ export function calculateDomainConfidence(
   // Initialize domain data: weighted sum and total weight
   const domainData: Record<keyof DomainConfidence, { weightedSum: number; totalWeight: number }> = {
     numberSense: { weightedSum: 0, totalWeight: 0 },
+    placeValue: { weightedSum: 0, totalWeight: 0 },
+    sequencing: { weightedSum: 0, totalWeight: 0 },
+    arithmetic: { weightedSum: 0, totalWeight: 0 },
     spatial: { weightedSum: 0, totalWeight: 0 },
-    operations: { weightedSum: 0, totalWeight: 0 },
+    applied: { weightedSum: 0, totalWeight: 0 },
   };
 
   // Process each session with recency weighting
@@ -81,11 +97,20 @@ export function calculateDomainConfidence(
     numberSense: domainData.numberSense.totalWeight > 0
       ? domainData.numberSense.weightedSum / domainData.numberSense.totalWeight
       : 3.0,
+    placeValue: domainData.placeValue.totalWeight > 0
+      ? domainData.placeValue.weightedSum / domainData.placeValue.totalWeight
+      : 3.0,
+    sequencing: domainData.sequencing.totalWeight > 0
+      ? domainData.sequencing.weightedSum / domainData.sequencing.totalWeight
+      : 3.0,
+    arithmetic: domainData.arithmetic.totalWeight > 0
+      ? domainData.arithmetic.weightedSum / domainData.arithmetic.totalWeight
+      : 3.0,
     spatial: domainData.spatial.totalWeight > 0
       ? domainData.spatial.weightedSum / domainData.spatial.totalWeight
       : 3.0,
-    operations: domainData.operations.totalWeight > 0
-      ? domainData.operations.weightedSum / domainData.operations.totalWeight
+    applied: domainData.applied.totalWeight > 0
+      ? domainData.applied.weightedSum / domainData.applied.totalWeight
       : 3.0,
   };
 }
@@ -116,8 +141,11 @@ export function getBaselineConfidence(
   // Get domains from first session
   const baselineData: DomainConfidence = {
     numberSense: 3.0,
+    placeValue: 3.0,
+    sequencing: 3.0,
+    arithmetic: 3.0,
     spatial: 3.0,
-    operations: 3.0,
+    applied: 3.0,
   };
 
   // Find drills from first session

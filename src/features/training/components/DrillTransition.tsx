@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import type { DrillType } from '@/services/training/drillSelector';
 
 export interface DrillTransitionProps {
-  nextDrillType: DrillType;
+  nextDrillType: DrillType | string;
 }
 
 /**
@@ -18,6 +18,14 @@ const DRILL_METADATA: Record<DrillType, { icon: string; name: string }> = {
   math_operations: { icon: '➕', name: 'Math Operations' },
   subitizing: { icon: '👁️', name: 'Quick Count' },
   number_bonds: { icon: '🔗', name: 'Number Bonds' },
+  magnitude_comparison: { icon: '⚖️', name: 'Number Comparison' },
+  place_value: { icon: '🔢', name: 'Place Value' },
+  estimation: { icon: '🎯', name: 'Estimation' },
+  sequencing: { icon: '🔃', name: 'Sequencing' },
+  fact_fluency: { icon: '⚡', name: 'Fact Fluency' },
+  fractions: { icon: '🍕', name: 'Fractions' },
+  time_measurement: { icon: '🕐', name: 'Time & Measurement' },
+  working_memory: { icon: '🧠', name: 'Working Memory' },
 };
 
 /**
@@ -32,7 +40,7 @@ const DRILL_METADATA: Record<DrillType, { icon: string; name: string }> = {
  * @param nextDrillType - Type of the upcoming drill
  */
 export default function DrillTransition({ nextDrillType }: DrillTransitionProps) {
-  const drill = DRILL_METADATA[nextDrillType];
+  const drill = DRILL_METADATA[nextDrillType as DrillType] ?? { icon: '📝', name: nextDrillType };
 
   return (
     <motion.div

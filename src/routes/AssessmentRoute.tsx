@@ -1,6 +1,5 @@
 // Assessment route - Entry point for dyscalculia assessment wizard
-// Story 2.1: Build Assessment Wizard Shell with Multi-Step Form
-// Story 2.6: Results Summary Integration
+// Expanded from 10 to 18 questions across 6 domains
 // Full-page assessment without modal overlay
 
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
@@ -19,9 +18,6 @@ import {
   PatternMatching,
   BasicOperations,
   WordProblem,
-  generateNumberSenseQuestions,
-  generateSpatialQuestions,
-  generateOperationsQuestions,
   ResultsSummary,
   type QuantityComparisonResult,
   type NumberLineResult,
@@ -31,13 +27,46 @@ import {
   type WordProblemResult,
 } from '@/features/assessment';
 import {
+  SymbolicComparison,
+  DigitValue,
+  EstimationQuestion,
+  NumberDecomposition,
+  NumberOrdering,
+  SkipCounting,
+  TimedFactRetrieval,
+  MirrorDiscrimination,
+  FractionIdentification,
+  ClockReading,
+  WorkingMemorySpan,
+  type SymbolicComparisonResult,
+  type DigitValueResult,
+  type EstimationQuestionResult,
+  type NumberDecompositionResult,
+  type NumberOrderingResult,
+  type SkipCountingResult,
+  type TimedFactRetrievalResult,
+  type MirrorDiscriminationResult,
+  type FractionIdentificationResult,
+  type ClockReadingResult,
+  type WorkingMemorySpanResult,
+} from '@/features/assessment';
+import {
+  generateNumberSenseQuestions,
+  generatePlaceValueQuestions,
+  generateSequencingQuestions,
+  generateArithmeticQuestions,
+  generateSpatialQuestions,
+  generateAppliedQuestions,
+} from '@/features/assessment/content/questions';
+import {
   calculateDomainScore,
+  ALL_DOMAINS,
   type Domain,
   type QuestionForScoring,
   type DomainScores,
 } from '@/services/assessment/scoring';
 
-const TOTAL_QUESTIONS = 10;
+const TOTAL_QUESTIONS = 18;
 
 const assessmentSchema = z.object({
   currentStep: z.number().min(1).max(TOTAL_QUESTIONS),
@@ -48,9 +77,23 @@ const assessmentSchema = z.object({
 type AssessmentFormValues = z.infer<typeof assessmentSchema>;
 
 /**
- * AssessmentRoute - Full-page assessment without modal overlay
- * On completion or exit, navigates back to home.
+ * Map question index (0-17) to domain
+ * Q1-Q3 (0-2): number_sense
+ * Q4-Q6 (3-5): place_value
+ * Q7-Q9 (6-8): sequencing
+ * Q10-Q12 (9-11): arithmetic
+ * Q13-Q15 (12-14): spatial
+ * Q16-Q18 (15-17): applied
  */
+function getDomainForIndex(index: number): Domain {
+  if (index < 3) return 'number_sense';
+  if (index < 6) return 'place_value';
+  if (index < 9) return 'sequencing';
+  if (index < 12) return 'arithmetic';
+  if (index < 15) return 'spatial';
+  return 'applied';
+}
+
 export default function AssessmentRoute() {
   const navigate = useNavigate();
   const { startSession, endSession } = useSession();
@@ -62,22 +105,22 @@ export default function AssessmentRoute() {
   } | null>(null);
   const questionAreaRef = useRef<HTMLDivElement>(null);
 
-  // Use local state for currentStep - more reliable than React Hook Form for UI state
   const [currentStep, setCurrentStep] = useState(1);
-  // Local state for answers for immediate UI feedback
   const [localAnswers, setLocalAnswers] = useState<(string | undefined)[]>(Array(TOTAL_QUESTIONS).fill(undefined));
 
-  // Generate all questions once (deterministic seed for consistency)
+  // Generate all questions once
   const questions = useMemo(() => {
     const seed = Date.now();
     return [
-      ...generateNumberSenseQuestions(seed),
-      ...generateSpatialQuestions(seed),
-      ...generateOperationsQuestions(seed),
+      ...generateNumberSenseQuestions(seed),      // Q1-Q3
+      ...generatePlaceValueQuestions(seed),        // Q4-Q6
+      ...generateSequencingQuestions(seed),         // Q7-Q9
+      ...generateArithmeticQuestions(seed),         // Q10-Q12
+      ...generateSpatialQuestions(seed),            // Q13-Q15
+      ...generateAppliedQuestions(seed),            // Q16-Q18
     ];
   }, []);
 
-  // Initialize form with React Hook Form (for form submission only)
   const methods = useForm<AssessmentFormValues>({
     resolver: zodResolver(assessmentSchema),
     defaultValues: {
@@ -89,17 +132,13 @@ export default function AssessmentRoute() {
 
   const { setValue, getValues } = methods;
 
-  // Current answer for validation - use local state
   const currentAnswer = localAnswers[currentStep - 1];
   const hasAnswer = currentAnswer !== undefined && currentAnswer !== '';
 
-  // Progress calculation (0-100%)
   const progressValue = (currentStep / TOTAL_QUESTIONS) * 100;
 
-  // Track if session has been started to prevent duplicate starts
   const sessionStartedRef = useRef(false);
 
-  // Start session on mount
   useEffect(() => {
     if (!sessionStartedRef.current) {
       sessionStartedRef.current = true;
@@ -110,7 +149,6 @@ export default function AssessmentRoute() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Navigate to previous question
   const handlePrevious = useCallback(() => {
     setCurrentStep(prev => {
       if (prev > 1) return prev - 1;
@@ -118,7 +156,6 @@ export default function AssessmentRoute() {
     });
   }, []);
 
-  // Helper function to check if answer is correct
   const isAnswerCorrect = useCallback((questionIndex: number, answer: string | undefined): boolean => {
     if (!answer) return false;
 
@@ -133,68 +170,85 @@ export default function AssessmentRoute() {
       }
       case 'number-line': {
         const userAnswer = Number(answer);
-        const tolerance = (question.range[1] - question.range[0]) * 0.1; // 10% tolerance
+        const tolerance = (question.range[1] - question.range[0]) * 0.1;
         return Math.abs(userAnswer - question.targetNumber) <= tolerance;
       }
+      case 'symbolic-comparison': {
+        const correct = question.leftNumber > question.rightNumber ? 'left' : 'right';
+        return answer === correct;
+      }
+      case 'digit-value':
+        return Number(answer) === question.correctValue;
+      case 'estimation-question':
+        return Number(answer) === question.correctAnswer;
+      case 'number-decomposition':
+        return answer === question.correctDecomposition;
+      case 'number-ordering':
+        return answer === JSON.stringify(question.correctOrder);
+      case 'skip-counting':
+        return Number(answer) === question.correctNext;
+      case 'pattern-matching':
+        return answer === question.correctOption;
+      case 'basic-operations':
+        return Number(answer) === question.correctAnswer;
+      case 'word-problem':
+        return Number(answer) === question.correctAnswer;
+      case 'timed-fact-retrieval':
+        return Number(answer) === question.correctAnswer;
       case 'mental-rotation': {
         const correctAnswer = question.isMatch ? 'yes' : 'no';
         return answer === correctAnswer;
       }
-      case 'pattern-matching': {
-        return answer === question.correctOption;
+      case 'mirror-discrimination': {
+        const correct = question.isActuallyMirrored ? 'mirrored' : 'rotated';
+        return answer === correct;
       }
-      case 'basic-operations': {
-        return Number(answer) === question.correctAnswer;
+      case 'fraction-identification': {
+        const correct = `${question.numerator}/${question.denominator}`;
+        return answer === correct;
       }
-      case 'word-problem': {
-        return Number(answer) === question.correctAnswer;
+      case 'clock-reading': {
+        const h = question.hours;
+        const m = String(question.minutes).padStart(2, '0');
+        return answer === `${h}:${m}`;
+      }
+      case 'working-memory-span': {
+        const sum = question.numbers.reduce((a: number, b: number) => a + b, 0);
+        return Number(answer) === sum;
       }
       default:
         return false;
     }
   }, [questions]);
 
-  // Navigate to next question or complete
   const handleNext = useCallback(() => {
     if (!hasAnswer) return;
 
     if (currentStep < TOTAL_QUESTIONS) {
       setCurrentStep(prev => prev + 1);
     } else {
-      // Assessment complete - calculate scores and show results
       endSession();
 
       const startTime = new Date(getValues('startTime'));
       const endTime = new Date();
 
-      // Calculate completion time
       const durationMs = endTime.getTime() - startTime.getTime();
       const totalSeconds = Math.floor(durationMs / 1000);
       const minutes = Math.floor(totalSeconds / 60);
       const seconds = totalSeconds % 60;
 
-      // Build QuestionForScoring array using localAnswers
-      // Q1-Q4: number_sense, Q5-Q7: spatial, Q8-Q10: operations
-      const questionsForScoring: QuestionForScoring[] = localAnswers.map((answer, index) => {
-        let domain: Domain;
-        if (index < 4) domain = 'number_sense';
-        else if (index < 7) domain = 'spatial';
-        else domain = 'operations';
-
-        return {
-          domain,
-          isCorrect: isAnswerCorrect(index, answer),
-        };
-      });
+      // Build QuestionForScoring array
+      const questionsForScoring: QuestionForScoring[] = localAnswers.map((answer, index) => ({
+        domain: getDomainForIndex(index),
+        isCorrect: isAnswerCorrect(index, answer),
+      }));
 
       // Calculate domain scores
-      const domainScores: DomainScores = {
-        number_sense: calculateDomainScore(questionsForScoring, 'number_sense'),
-        spatial: calculateDomainScore(questionsForScoring, 'spatial'),
-        operations: calculateDomainScore(questionsForScoring, 'operations'),
-      };
+      const domainScores: DomainScores = {} as DomainScores;
+      for (const domain of ALL_DOMAINS) {
+        domainScores[domain] = calculateDomainScore(questionsForScoring, domain);
+      }
 
-      // Set results and show summary
       setAssessmentResults({
         domainScores,
         completionTime: { minutes, seconds },
@@ -203,78 +257,103 @@ export default function AssessmentRoute() {
     }
   }, [currentStep, hasAnswer, endSession, getValues, localAnswers, isAnswerCorrect]);
 
-  // Handle exit with confirmation
   const handleExit = useCallback(() => {
     setShowExitConfirm(true);
   }, []);
 
-  // Confirm exit
   const handleConfirmExit = useCallback(() => {
     endSession();
     navigate('/');
     setShowExitConfirm(false);
   }, [endSession, navigate]);
 
-  // Handle Start Training from results summary
   const handleStartTraining = useCallback(() => {
     navigate('/training');
   }, [navigate]);
 
-  // Cancel exit
   const handleCancelExit = useCallback(() => {
     setShowExitConfirm(false);
   }, []);
 
-  // Handle answer from question components - uses setLocalAnswers for immediate UI feedback
-  const handleQuantityAnswer = useCallback((result: QuantityComparisonResult) => {
+  // Generic answer handler for simple string answers
+  const setAnswer = useCallback((value: string) => {
     setLocalAnswers(prev => {
       const newAnswers = [...prev];
-      newAnswers[currentStep - 1] = result.answer;
+      newAnswers[currentStep - 1] = value;
       return newAnswers;
     });
   }, [currentStep]);
+
+  // Specific handlers for existing components that use typed results
+  const handleQuantityAnswer = useCallback((result: QuantityComparisonResult) => {
+    setAnswer(result.answer);
+  }, [setAnswer]);
 
   const handleNumberLineAnswer = useCallback((result: NumberLineResult) => {
-    setLocalAnswers(prev => {
-      const newAnswers = [...prev];
-      newAnswers[currentStep - 1] = String(result.userAnswer);
-      return newAnswers;
-    });
-  }, [currentStep]);
+    setAnswer(String(result.userAnswer));
+  }, [setAnswer]);
 
   const handleMentalRotationAnswer = useCallback((result: MentalRotationResult) => {
-    setLocalAnswers(prev => {
-      const newAnswers = [...prev];
-      newAnswers[currentStep - 1] = result.answer;
-      return newAnswers;
-    });
-  }, [currentStep]);
+    setAnswer(result.answer);
+  }, [setAnswer]);
 
   const handlePatternMatchingAnswer = useCallback((result: PatternMatchingResult) => {
-    setLocalAnswers(prev => {
-      const newAnswers = [...prev];
-      newAnswers[currentStep - 1] = result.selectedOption;
-      return newAnswers;
-    });
-  }, [currentStep]);
+    setAnswer(result.selectedOption);
+  }, [setAnswer]);
 
   const handleBasicOperationsAnswer = useCallback((result: BasicOperationsResult) => {
-    setLocalAnswers(prev => {
-      const newAnswers = [...prev];
-      newAnswers[currentStep - 1] = String(result.userAnswer);
-      return newAnswers;
-    });
-  }, [currentStep]);
+    setAnswer(String(result.userAnswer));
+  }, [setAnswer]);
 
   const handleWordProblemAnswer = useCallback((result: WordProblemResult) => {
-    setLocalAnswers(prev => {
-      const newAnswers = [...prev];
-      newAnswers[currentStep - 1] = String(result.userAnswer);
-      return newAnswers;
-    });
-  }, [currentStep]);
+    setAnswer(String(result.userAnswer));
+  }, [setAnswer]);
 
-  // Render current question component
+  // New question type handlers
+  const handleSymbolicComparisonAnswer = useCallback((result: SymbolicComparisonResult) => {
+    setAnswer(result.answer);
+  }, [setAnswer]);
+
+  const handleDigitValueAnswer = useCallback((result: DigitValueResult) => {
+    setAnswer(String(result.userAnswer));
+  }, [setAnswer]);
+
+  const handleEstimationAnswer = useCallback((result: EstimationQuestionResult) => {
+    setAnswer(String(result.userAnswer));
+  }, [setAnswer]);
+
+  const handleNumberDecompositionAnswer = useCallback((result: NumberDecompositionResult) => {
+    setAnswer(result.userAnswer);
+  }, [setAnswer]);
+
+  const handleNumberOrderingAnswer = useCallback((result: NumberOrderingResult) => {
+    setAnswer(JSON.stringify(result.order));
+  }, [setAnswer]);
+
+  const handleSkipCountingAnswer = useCallback((result: SkipCountingResult) => {
+    setAnswer(String(result.userAnswer));
+  }, [setAnswer]);
+
+  const handleTimedFactAnswer = useCallback((result: TimedFactRetrievalResult) => {
+    setAnswer(String(result.userAnswer));
+  }, [setAnswer]);
+
+  const handleMirrorAnswer = useCallback((result: MirrorDiscriminationResult) => {
+    setAnswer(result.answer);
+  }, [setAnswer]);
+
+  const handleFractionAnswer = useCallback((result: FractionIdentificationResult) => {
+    setAnswer(result.userAnswer);
+  }, [setAnswer]);
+
+  const handleClockAnswer = useCallback((result: ClockReadingResult) => {
+    setAnswer(result.userAnswer);
+  }, [setAnswer]);
+
+  const handleWorkingMemoryAnswer = useCallback((result: WorkingMemorySpanResult) => {
+    setAnswer(String(result.userAnswer));
+  }, [setAnswer]);
+
   const renderQuestion = () => {
     const questionConfig = questions[currentStep - 1];
     if (!questionConfig) return null;
@@ -296,13 +375,55 @@ export default function AssessmentRoute() {
             onAnswer={handleNumberLineAnswer}
           />
         );
-      case 'mental-rotation':
+      case 'symbolic-comparison':
         return (
-          <MentalRotation
-            shapeType={questionConfig.shapeType}
-            rotationAngle={questionConfig.rotationAngle}
-            isMatch={questionConfig.isMatch}
-            onAnswer={handleMentalRotationAnswer}
+          <SymbolicComparison
+            leftNumber={questionConfig.leftNumber}
+            rightNumber={questionConfig.rightNumber}
+            onAnswer={handleSymbolicComparisonAnswer}
+          />
+        );
+      case 'digit-value':
+        return (
+          <DigitValue
+            number={questionConfig.number}
+            highlightIndex={questionConfig.highlightIndex}
+            correctValue={questionConfig.correctValue}
+            choices={questionConfig.choices}
+            onAnswer={handleDigitValueAnswer}
+          />
+        );
+      case 'estimation-question':
+        return (
+          <EstimationQuestion
+            expression={questionConfig.expression}
+            correctAnswer={questionConfig.correctAnswer}
+            choices={questionConfig.choices}
+            onAnswer={handleEstimationAnswer}
+          />
+        );
+      case 'number-decomposition':
+        return (
+          <NumberDecomposition
+            number={questionConfig.number}
+            correctDecomposition={questionConfig.correctDecomposition}
+            choices={questionConfig.choices}
+            onAnswer={handleNumberDecompositionAnswer}
+          />
+        );
+      case 'number-ordering':
+        return (
+          <NumberOrdering
+            numbers={questionConfig.numbers}
+            onAnswer={handleNumberOrderingAnswer}
+          />
+        );
+      case 'skip-counting':
+        return (
+          <SkipCounting
+            sequence={questionConfig.sequence}
+            correctNext={questionConfig.correctNext}
+            onAnswer={handleSkipCountingAnswer}
           />
         );
       case 'pattern-matching':
@@ -333,12 +454,64 @@ export default function AssessmentRoute() {
             onAnswer={handleWordProblemAnswer}
           />
         );
+      case 'timed-fact-retrieval':
+        return (
+          <TimedFactRetrieval
+            operand1={questionConfig.operand1}
+            operand2={questionConfig.operand2}
+            operation={questionConfig.operation}
+            correctAnswer={questionConfig.correctAnswer}
+            timeLimitMs={questionConfig.timeLimitMs}
+            onAnswer={handleTimedFactAnswer}
+          />
+        );
+      case 'mental-rotation':
+        return (
+          <MentalRotation
+            shapeType={questionConfig.shapeType}
+            rotationAngle={questionConfig.rotationAngle}
+            isMatch={questionConfig.isMatch}
+            onAnswer={handleMentalRotationAnswer}
+          />
+        );
+      case 'mirror-discrimination':
+        return (
+          <MirrorDiscrimination
+            shapeType={questionConfig.shapeType}
+            isActuallyMirrored={questionConfig.isActuallyMirrored}
+            onAnswer={handleMirrorAnswer}
+          />
+        );
+      case 'fraction-identification':
+        return (
+          <FractionIdentification
+            numerator={questionConfig.numerator}
+            denominator={questionConfig.denominator}
+            choices={questionConfig.choices}
+            onAnswer={handleFractionAnswer}
+          />
+        );
+      case 'clock-reading':
+        return (
+          <ClockReading
+            hours={questionConfig.hours}
+            minutes={questionConfig.minutes}
+            choices={questionConfig.choices}
+            onAnswer={handleClockAnswer}
+          />
+        );
+      case 'working-memory-span':
+        return (
+          <WorkingMemorySpan
+            numbers={questionConfig.numbers}
+            onAnswer={handleWorkingMemoryAnswer}
+          />
+        );
       default:
         return null;
     }
   };
 
-  // If results are ready, show ResultsSummary
   if (showResults && assessmentResults) {
     return (
       <ResultsSummary
@@ -392,7 +565,6 @@ export default function AssessmentRoute() {
             className="flex-1 overflow-y-auto p-6"
             style={{ minHeight: '200px' }}
           >
-            {/* Exit confirmation overlay */}
             {showExitConfirm ? (
               <div
                 className="flex h-full flex-col items-center justify-center gap-6"
@@ -427,7 +599,6 @@ export default function AssessmentRoute() {
                 </div>
               </div>
             ) : (
-              // Render current question component
               <div
                 className="flex h-full flex-col items-center justify-center"
                 data-testid="question-area"

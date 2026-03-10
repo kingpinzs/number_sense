@@ -29,10 +29,6 @@ vi.mock('./MentalRotation', () => ({
   MentalRotation: () => null,
 }));
 
-vi.mock('./PatternMatching', () => ({
-  PatternMatching: () => null,
-}));
-
 vi.mock('./BasicOperations', () => ({
   BasicOperations: () => null,
 }));
@@ -41,10 +37,22 @@ vi.mock('./WordProblem', () => ({
   WordProblem: () => null,
 }));
 
+vi.mock('./SymbolicComparison', () => ({
+  SymbolicComparison: () => null,
+}));
+
+vi.mock('./MirrorDiscrimination', () => ({
+  MirrorDiscrimination: () => null,
+}));
+
+vi.mock('./TimedFactRetrieval', () => ({
+  TimedFactRetrieval: () => null,
+}));
+
 // Mock question generators to always return quantity-comparison type
 // so the mocked QuantityComparison renders for every step
 vi.mock('../content/questions', () => ({
-  generateNumberSenseQuestions: () => Array.from({ length: 4 }, (_, i) => ({
+  generateNumberSenseQuestions: () => Array.from({ length: 3 }, (_, i) => ({
     type: 'quantity-comparison',
     id: `q${i + 1}`,
     leftCount: 5,
@@ -52,13 +60,13 @@ vi.mock('../content/questions', () => ({
   })),
   generateSpatialQuestions: () => Array.from({ length: 3 }, (_, i) => ({
     type: 'quantity-comparison',
-    id: `q${i + 5}`,
+    id: `q${i + 4}`,
     leftCount: 5,
     rightCount: 10,
   })),
   generateOperationsQuestions: () => Array.from({ length: 3 }, (_, i) => ({
     type: 'quantity-comparison',
-    id: `q${i + 8}`,
+    id: `q${i + 7}`,
     leftCount: 5,
     rightCount: 10,
   })),
@@ -121,9 +129,9 @@ describe('AssessmentWizard', () => {
   });
 
   describe('AC1: Step Indicator', () => {
-    it('shows "Question 1 of 10" initially', () => {
+    it('shows "Question 1 of 9" initially', () => {
       render(<AssessmentWizard {...defaultProps} />);
-      expect(screen.getByTestId('step-indicator')).toHaveTextContent('Question 1 of 10');
+      expect(screen.getByTestId('step-indicator')).toHaveTextContent('Question 1 of 9');
     });
 
     it('updates step indicator when navigating', async () => {
@@ -136,7 +144,7 @@ describe('AssessmentWizard', () => {
       fireEvent.click(screen.getByTestId('next-button'));
 
       await waitFor(() => {
-        expect(screen.getByTestId('step-indicator')).toHaveTextContent('Question 2 of 10');
+        expect(screen.getByTestId('step-indicator')).toHaveTextContent('Question 2 of 9');
       });
     });
 
@@ -144,13 +152,13 @@ describe('AssessmentWizard', () => {
       render(<AssessmentWizard {...defaultProps} />);
 
       for (let step = 1; step <= 3; step++) {
-        expect(screen.getByTestId('step-indicator')).toHaveTextContent(`Question ${step} of 10`);
+        expect(screen.getByTestId('step-indicator')).toHaveTextContent(`Question ${step} of 9`);
 
         if (step < 3) {
           fireEvent.click(screen.getByTestId('demo-answer-button'));
           fireEvent.click(screen.getByTestId('next-button'));
           await waitFor(() => {
-            expect(screen.getByTestId('step-indicator')).toHaveTextContent(`Question ${step + 1} of 10`);
+            expect(screen.getByTestId('step-indicator')).toHaveTextContent(`Question ${step + 1} of 9`);
           });
         }
       }
@@ -163,10 +171,10 @@ describe('AssessmentWizard', () => {
       expect(screen.getByTestId('progress-bar')).toBeInTheDocument();
     });
 
-    it('shows 10% progress at step 1', () => {
+    it('shows 11% progress at step 1', () => {
       render(<AssessmentWizard {...defaultProps} />);
       const progressBar = screen.getByTestId('progress-bar');
-      expect(progressBar).toHaveAttribute('aria-label', 'Progress: 10% complete');
+      expect(progressBar).toHaveAttribute('aria-label', 'Progress: 11% complete');
     });
 
     it('updates progress when navigating', async () => {
@@ -178,7 +186,7 @@ describe('AssessmentWizard', () => {
 
       await waitFor(() => {
         const progressBar = screen.getByTestId('progress-bar');
-        expect(progressBar).toHaveAttribute('aria-label', 'Progress: 20% complete');
+        expect(progressBar).toHaveAttribute('aria-label', 'Progress: 22% complete');
       });
     });
   });
@@ -238,14 +246,14 @@ describe('AssessmentWizard', () => {
       fireEvent.click(screen.getByTestId('next-button'));
 
       await waitFor(() => {
-        expect(screen.getByTestId('step-indicator')).toHaveTextContent('Question 2 of 10');
+        expect(screen.getByTestId('step-indicator')).toHaveTextContent('Question 2 of 9');
       });
 
       // Navigate back
       fireEvent.click(screen.getByTestId('previous-button'));
 
       await waitFor(() => {
-        expect(screen.getByTestId('step-indicator')).toHaveTextContent('Question 1 of 10');
+        expect(screen.getByTestId('step-indicator')).toHaveTextContent('Question 1 of 9');
       });
     });
   });
@@ -294,14 +302,14 @@ describe('AssessmentWizard', () => {
       render(<AssessmentWizard {...defaultProps} />);
 
       // Initially at step 1
-      expect(screen.getByTestId('step-indicator')).toHaveTextContent('Question 1 of 10');
+      expect(screen.getByTestId('step-indicator')).toHaveTextContent('Question 1 of 9');
 
       // Advance
       fireEvent.click(screen.getByTestId('demo-answer-button'));
       fireEvent.click(screen.getByTestId('next-button'));
 
       await waitFor(() => {
-        expect(screen.getByTestId('step-indicator')).toHaveTextContent('Question 2 of 10');
+        expect(screen.getByTestId('step-indicator')).toHaveTextContent('Question 2 of 9');
       });
     });
 
@@ -323,7 +331,7 @@ describe('AssessmentWizard', () => {
 
       // Try clicking disabled button - should stay on step 1
       fireEvent.click(nextButton);
-      expect(screen.getByTestId('step-indicator')).toHaveTextContent('Question 1 of 10');
+      expect(screen.getByTestId('step-indicator')).toHaveTextContent('Question 1 of 9');
     });
   });
 
@@ -379,7 +387,7 @@ describe('AssessmentWizard', () => {
       fireEvent.keyDown(document, { key: 'Enter' });
 
       await waitFor(() => {
-        expect(screen.getByTestId('step-indicator')).toHaveTextContent('Question 2 of 10');
+        expect(screen.getByTestId('step-indicator')).toHaveTextContent('Question 2 of 9');
       });
     });
 
@@ -390,7 +398,7 @@ describe('AssessmentWizard', () => {
       fireEvent.keyDown(document, { key: 'Enter' });
 
       // Should stay on step 1
-      expect(screen.getByTestId('step-indicator')).toHaveTextContent('Question 1 of 10');
+      expect(screen.getByTestId('step-indicator')).toHaveTextContent('Question 1 of 9');
     });
 
     it('Escape key shows exit confirmation', () => {
@@ -406,31 +414,31 @@ describe('AssessmentWizard', () => {
     it('shows Complete button on last step', async () => {
       render(<AssessmentWizard {...defaultProps} />);
 
-      // Navigate through all 10 questions
-      for (let i = 0; i < 9; i++) {
+      // Navigate through first 8 questions
+      for (let i = 0; i < 8; i++) {
         fireEvent.click(screen.getByTestId('demo-answer-button'));
         fireEvent.click(screen.getByTestId('next-button'));
         await waitFor(() => {
-          expect(screen.getByTestId('step-indicator')).toHaveTextContent(`Question ${i + 2} of 10`);
+          expect(screen.getByTestId('step-indicator')).toHaveTextContent(`Question ${i + 2} of 9`);
         });
       }
 
-      // On step 10
-      expect(screen.getByTestId('step-indicator')).toHaveTextContent('Question 10 of 10');
+      // On step 9
+      expect(screen.getByTestId('step-indicator')).toHaveTextContent('Question 9 of 9');
       expect(screen.getByTestId('next-button')).toHaveAttribute('aria-label', 'Complete assessment');
     });
 
     it('calls onComplete with answers when completing assessment', async () => {
       render(<AssessmentWizard {...defaultProps} />);
 
-      // Navigate through all 10 questions
-      for (let i = 0; i < 10; i++) {
+      // Navigate through all 9 questions
+      for (let i = 0; i < 9; i++) {
         fireEvent.click(screen.getByTestId('demo-answer-button'));
         fireEvent.click(screen.getByTestId('next-button'));
 
-        if (i < 9) {
+        if (i < 8) {
           await waitFor(() => {
-            expect(screen.getByTestId('step-indicator')).toHaveTextContent(`Question ${i + 2} of 10`);
+            expect(screen.getByTestId('step-indicator')).toHaveTextContent(`Question ${i + 2} of 9`);
           });
         }
       }

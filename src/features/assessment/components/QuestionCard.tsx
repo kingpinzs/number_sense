@@ -52,7 +52,7 @@ export function QuestionCard({
         {children}
         {footer && (
           <div
-            className="flex flex-wrap justify-center gap-3 w-full pt-4"
+            className="flex justify-center gap-3 w-full pt-4"
             data-testid="question-footer"
           >
             {footer}

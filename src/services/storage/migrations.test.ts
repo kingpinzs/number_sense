@@ -29,9 +29,9 @@ describe('Database Migrations', () => {
 
       const versionAfter = testDB.verno;
 
-      // Version should remain 2 (no migrations applied)
+      // Version should remain 3 (no migrations applied)
       expect(versionAfter).toBe(versionBefore);
-      expect(versionAfter).toBe(2);
+      expect(versionAfter).toBe(3);
     });
 
     it('preserves existing data', async () => {
@@ -86,7 +86,7 @@ describe('Database Migrations', () => {
   describe('Future Migration Preparedness', () => {
     it('database supports version upgrades', async () => {
       // Verify Dexie supports versioning
-      expect(testDB.verno).toBe(2);
+      expect(testDB.verno).toBe(3);
 
       // Verify version method exists
       expect(typeof testDB.version).toBe('function');

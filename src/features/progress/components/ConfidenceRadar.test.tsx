@@ -9,14 +9,20 @@ import type { DomainConfidence } from '../services/confidenceCalculator';
 // Mock data for tests
 const mockCurrentConfidence: DomainConfidence = {
   numberSense: 3.5,
+  placeValue: 3.0,
+  sequencing: 3.0,
+  arithmetic: 2.8,
   spatial: 4.0,
-  operations: 2.8,
+  applied: 3.0,
 };
 
 const mockBaselineConfidence: DomainConfidence = {
   numberSense: 2.0,
+  placeValue: 2.0,
+  sequencing: 2.0,
+  arithmetic: 2.0,
   spatial: 2.5,
-  operations: 2.0,
+  applied: 2.0,
 };
 
 describe('ConfidenceRadar', () => {
@@ -32,7 +38,7 @@ describe('ConfidenceRadar', () => {
     expect(screen.getByRole('img')).toBeInTheDocument();
   });
 
-  it('renders with mock data - 3 domains', () => {
+  it('renders with mock data - 6 domains', () => {
     render(
       <ConfidenceRadar
         current={mockCurrentConfidence}
@@ -42,8 +48,11 @@ describe('ConfidenceRadar', () => {
 
     // Should render domain labels (appear in both chart and text summary)
     expect(screen.getAllByText('Number Sense').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText('Spatial Awareness').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText('Math Operations').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Place Value').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Sequencing').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Arithmetic').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Spatial').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Applied Math').length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders text summary table below chart', () => {
@@ -196,11 +205,11 @@ describe('ConfidenceRadar - Accessibility (AC-3)', () => {
     );
     expect(chart).toHaveAttribute(
       'aria-label',
-      expect.stringContaining('Spatial Awareness 4.0')
+      expect.stringContaining('Spatial 4.0')
     );
     expect(chart).toHaveAttribute(
       'aria-label',
-      expect.stringContaining('Math Operations 2.8')
+      expect.stringContaining('Arithmetic 2.8')
     );
   });
 

@@ -48,8 +48,11 @@ describe('ResultsSummary', () => {
   const defaultProps = {
     domainScores: {
       number_sense: 3.5,
+      place_value: 2.0,
+      sequencing: 4.5,
+      arithmetic: 4.5,
       spatial: 2.0,
-      operations: 4.5,
+      applied: 3.0,
     } as DomainScores,
     completionTime: {
       minutes: 3,
@@ -105,19 +108,22 @@ describe('ResultsSummary', () => {
     });
   });
 
-  // AC4-AC6: Three domain cards with names and score bars
+  // AC4-AC6: Six domain cards with names and score bars
   describe('Domain Cards', () => {
-    it('renders three domain cards (AC4)', async () => {
+    it('renders six domain cards (AC4)', async () => {
       await renderComponent();
       const cards = screen.getAllByRole('listitem');
-      expect(cards).toHaveLength(3);
+      expect(cards).toHaveLength(6);
     });
 
     it('displays domain names correctly (AC5)', async () => {
       await renderComponent();
       expect(screen.getByText('Number Sense')).toBeInTheDocument();
-      expect(screen.getByText('Spatial Awareness')).toBeInTheDocument();
-      expect(screen.getByText('Operations')).toBeInTheDocument();
+      expect(screen.getByText('Place Value & Estimation')).toBeInTheDocument();
+      expect(screen.getByText('Sequencing & Patterns')).toBeInTheDocument();
+      expect(screen.getByText('Arithmetic Fluency')).toBeInTheDocument();
+      expect(screen.getByText('Spatial Reasoning')).toBeInTheDocument();
+      expect(screen.getByText('Applied Math')).toBeInTheDocument();
     });
 
     it('displays score visualization bars for 0-5 scale (AC6)', async () => {
@@ -127,21 +133,36 @@ describe('ResultsSummary', () => {
       const numberSenseCard = screen.getByText('Number Sense').closest('[role="listitem"]');
       expect(within(numberSenseCard! as HTMLElement).getByText('3.5 / 5.0')).toBeInTheDocument();
 
+      // Place Value: 2.0 / 5.0 = 40%
+      const placeValueCard = screen.getByText('Place Value & Estimation').closest('[role="listitem"]');
+      expect(within(placeValueCard! as HTMLElement).getByText('2.0 / 5.0')).toBeInTheDocument();
+
+      // Sequencing: 4.5 / 5.0 = 90%
+      const sequencingCard = screen.getByText('Sequencing & Patterns').closest('[role="listitem"]');
+      expect(within(sequencingCard! as HTMLElement).getByText('4.5 / 5.0')).toBeInTheDocument();
+
+      // Arithmetic: 4.5 / 5.0 = 90%
+      const arithmeticCard = screen.getByText('Arithmetic Fluency').closest('[role="listitem"]');
+      expect(within(arithmeticCard! as HTMLElement).getByText('4.5 / 5.0')).toBeInTheDocument();
+
       // Spatial: 2.0 / 5.0 = 40%
-      const spatialCard = screen.getByText('Spatial Awareness').closest('[role="listitem"]');
+      const spatialCard = screen.getByText('Spatial Reasoning').closest('[role="listitem"]');
       expect(within(spatialCard! as HTMLElement).getByText('2.0 / 5.0')).toBeInTheDocument();
 
-      // Operations: 4.5 / 5.0 = 90%
-      const operationsCard = screen.getByText('Operations').closest('[role="listitem"]');
-      expect(within(operationsCard! as HTMLElement).getByText('4.5 / 5.0')).toBeInTheDocument();
+      // Applied: 3.0 / 5.0 = 60%
+      const appliedCard = screen.getByText('Applied Math').closest('[role="listitem"]');
+      expect(within(appliedCard! as HTMLElement).getByText('3.0 / 5.0')).toBeInTheDocument();
     });
 
     it('displays progress bars with correct ARIA labels (AC6)', async () => {
       await renderComponent();
 
       expect(screen.getByLabelText(/number sense score progress bar, 70% filled/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/spatial awareness score progress bar, 40% filled/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/operations score progress bar, 90% filled/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/place value & estimation score progress bar, 40% filled/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/sequencing & patterns score progress bar, 90% filled/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/arithmetic fluency score progress bar, 90% filled/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/spatial reasoning score progress bar, 40% filled/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/applied math score progress bar, 60% filled/i)).toBeInTheDocument();
     });
   });
 
@@ -150,14 +171,17 @@ describe('ResultsSummary', () => {
     it('shows coral background and "Needs Focus" label for weak domains (≤2.5) (AC7)', async () => {
       const weakScores: DomainScores = {
         number_sense: 1.5,
+        place_value: 2.0,
+        sequencing: 1.0,
+        arithmetic: 2.0,
         spatial: 2.5,
-        operations: 2.0,
+        applied: 0.5,
       };
 
       await renderComponent({ ...defaultProps, domainScores: weakScores });
 
       const needsFocusLabels = screen.getAllByText('Needs Focus');
-      expect(needsFocusLabels).toHaveLength(3);
+      expect(needsFocusLabels).toHaveLength(6);
 
       // Check coral background color
       const cards = screen.getAllByRole('listitem');
@@ -169,14 +193,17 @@ describe('ResultsSummary', () => {
     it('shows yellow background and "Growing" label for moderate domains (2.6-3.5) (AC8)', async () => {
       const moderateScores: DomainScores = {
         number_sense: 2.6,
+        place_value: 3.0,
+        sequencing: 3.5,
+        arithmetic: 3.0,
         spatial: 3.0,
-        operations: 3.5,
+        applied: 3.5,
       };
 
       await renderComponent({ ...defaultProps, domainScores: moderateScores });
 
       const growingLabels = screen.getAllByText('Growing');
-      expect(growingLabels).toHaveLength(3);
+      expect(growingLabels).toHaveLength(6);
 
       // Check yellow background color
       const cards = screen.getAllByRole('listitem');
@@ -188,14 +215,17 @@ describe('ResultsSummary', () => {
     it('shows mint background and "Strength" label for strong domains (>3.5) (AC9)', async () => {
       const strongScores: DomainScores = {
         number_sense: 3.6,
+        place_value: 4.0,
+        sequencing: 4.5,
+        arithmetic: 5.0,
         spatial: 4.0,
-        operations: 5.0,
+        applied: 5.0,
       };
 
       await renderComponent({ ...defaultProps, domainScores: strongScores });
 
       const strengthLabels = screen.getAllByText('Strength');
-      expect(strengthLabels).toHaveLength(3);
+      expect(strengthLabels).toHaveLength(6);
 
       // Check mint background color
       const cards = screen.getAllByRole('listitem');
@@ -206,21 +236,24 @@ describe('ResultsSummary', () => {
 
     it('displays correct icons for each performance level (AC7-AC9)', async () => {
       const mixedScores: DomainScores = {
-        number_sense: 2.0,  // weak - Target icon (🎯)
-        spatial: 3.0,       // moderate - Sprout icon (🌱)
-        operations: 4.5,    // strong - Sparkles icon (✨)
+        number_sense: 2.0,  // weak - Target icon
+        place_value: 3.0,   // moderate - Sprout icon
+        sequencing: 4.5,    // strong - Sparkles icon
+        arithmetic: 4.5,    // strong
+        spatial: 3.0,       // moderate
+        applied: 2.0,       // weak
       };
 
       await renderComponent({ ...defaultProps, domainScores: mixedScores });
 
       // All icons should be present (lucide-react SVG icons)
       const numberSenseCard = screen.getByText('Number Sense').closest('[role="listitem"]');
-      const spatialCard = screen.getByText('Spatial Awareness').closest('[role="listitem"]');
-      const operationsCard = screen.getByText('Operations').closest('[role="listitem"]');
+      const spatialCard = screen.getByText('Spatial Reasoning').closest('[role="listitem"]');
+      const arithmeticCard = screen.getByText('Arithmetic Fluency').closest('[role="listitem"]');
 
       expect(within(numberSenseCard! as HTMLElement).getByText('Needs Focus')).toBeInTheDocument();
       expect(within(spatialCard! as HTMLElement).getByText('Growing')).toBeInTheDocument();
-      expect(within(operationsCard! as HTMLElement).getByText('Strength')).toBeInTheDocument();
+      expect(within(arithmeticCard! as HTMLElement).getByText('Strength')).toBeInTheDocument();
     });
   });
 
@@ -297,12 +330,13 @@ describe('ResultsSummary', () => {
 
       // Check ARIA labels on score displays - these are on the score text elements
       const scores = screen.getAllByLabelText(/out of 5/i);
-      expect(scores).toHaveLength(3);
+      expect(scores).toHaveLength(6);
 
       // Verify specific scores have labels
       expect(screen.getByLabelText('3.5 out of 5')).toBeInTheDocument();
-      expect(screen.getByLabelText('2.0 out of 5')).toBeInTheDocument();
-      expect(screen.getByLabelText('4.5 out of 5')).toBeInTheDocument();
+      expect(screen.getAllByLabelText('2.0 out of 5')).toHaveLength(2); // place_value and spatial both 2.0
+      expect(screen.getAllByLabelText('4.5 out of 5')).toHaveLength(2); // sequencing and arithmetic both 4.5
+      expect(screen.getByLabelText('3.0 out of 5')).toBeInTheDocument();
     });
 
     it('creates live region announcement on mount (AC14)', async () => {
@@ -335,54 +369,63 @@ describe('ResultsSummary', () => {
     it('handles all domains weak', async () => {
       const allWeak: DomainScores = {
         number_sense: 0.5,
+        place_value: 1.0,
+        sequencing: 2.0,
+        arithmetic: 2.5,
         spatial: 1.0,
-        operations: 2.5,
+        applied: 0.5,
       };
 
       await renderComponent({ ...defaultProps, domainScores: allWeak });
 
       const needsFocusLabels = screen.getAllByText('Needs Focus');
-      expect(needsFocusLabels).toHaveLength(3);
+      expect(needsFocusLabels).toHaveLength(6);
     });
 
     it('handles all domains strong', async () => {
       const allStrong: DomainScores = {
         number_sense: 5.0,
+        place_value: 4.0,
+        sequencing: 4.5,
+        arithmetic: 5.0,
         spatial: 4.5,
-        operations: 5.0,
+        applied: 3.75,
       };
 
       await renderComponent({ ...defaultProps, domainScores: allStrong });
 
       const strengthLabels = screen.getAllByText('Strength');
-      expect(strengthLabels).toHaveLength(3);
+      expect(strengthLabels).toHaveLength(6);
     });
 
     it('handles mixed scores correctly', async () => {
       // Already tested in default props, but explicit test
       await renderComponent();
 
-      expect(screen.getByText('Growing')).toBeInTheDocument(); // number_sense: 3.5
-      expect(screen.getByText('Needs Focus')).toBeInTheDocument(); // spatial: 2.0
-      expect(screen.getByText('Strength')).toBeInTheDocument(); // operations: 4.5
+      expect(screen.getAllByText('Growing').length).toBeGreaterThan(0); // number_sense: 3.5, applied: 3.0
+      expect(screen.getAllByText('Needs Focus').length).toBeGreaterThan(0); // place_value: 2.0, spatial: 2.0
+      expect(screen.getAllByText('Strength').length).toBeGreaterThan(0); // sequencing: 4.5, arithmetic: 4.5
     });
 
     it('handles boundary score values correctly', async () => {
       const boundaryScores: DomainScores = {
         number_sense: 2.5,  // exact weak boundary
+        place_value: 3.0,   // moderate
+        sequencing: 3.0,    // moderate
+        arithmetic: 3.6,    // just above moderate boundary
         spatial: 3.5,       // exact moderate boundary
-        operations: 3.6,    // just above moderate boundary
+        applied: 3.0,       // moderate
       };
 
       await renderComponent({ ...defaultProps, domainScores: boundaryScores });
 
       const numberSenseCard = screen.getByText('Number Sense').closest('[role="listitem"]');
-      const spatialCard = screen.getByText('Spatial Awareness').closest('[role="listitem"]');
-      const operationsCard = screen.getByText('Operations').closest('[role="listitem"]');
+      const spatialCard = screen.getByText('Spatial Reasoning').closest('[role="listitem"]');
+      const arithmeticCard = screen.getByText('Arithmetic Fluency').closest('[role="listitem"]');
 
       expect(within(numberSenseCard! as HTMLElement).getByText('Needs Focus')).toBeInTheDocument(); // ≤2.5 is weak
       expect(within(spatialCard! as HTMLElement).getByText('Growing')).toBeInTheDocument(); // 2.6-3.5 is moderate
-      expect(within(operationsCard! as HTMLElement).getByText('Strength')).toBeInTheDocument(); // >3.5 is strong
+      expect(within(arithmeticCard! as HTMLElement).getByText('Strength')).toBeInTheDocument(); // >3.5 is strong
     });
   });
 
@@ -391,8 +434,11 @@ describe('ResultsSummary', () => {
     it('score 2.5 = 50% filled', async () => {
       const scores: DomainScores = {
         number_sense: 2.5,
+        place_value: 0,
+        sequencing: 0,
+        arithmetic: 0,
         spatial: 0,
-        operations: 0,
+        applied: 0,
       };
 
       await renderComponent({ ...defaultProps, domainScores: scores });
@@ -403,8 +449,11 @@ describe('ResultsSummary', () => {
     it('score 5.0 = 100% filled', async () => {
       const scores: DomainScores = {
         number_sense: 5.0,
+        place_value: 0,
+        sequencing: 0,
+        arithmetic: 0,
         spatial: 0,
-        operations: 0,
+        applied: 0,
       };
 
       await renderComponent({ ...defaultProps, domainScores: scores });
@@ -415,8 +464,11 @@ describe('ResultsSummary', () => {
     it('score 0 = 0% filled', async () => {
       const scores: DomainScores = {
         number_sense: 0,
+        place_value: 0,
+        sequencing: 0,
+        arithmetic: 0,
         spatial: 0,
-        operations: 0,
+        applied: 0,
       };
 
       await renderComponent({ ...defaultProps, domainScores: scores });

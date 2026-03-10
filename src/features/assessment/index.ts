@@ -1,9 +1,5 @@
 // Public API for assessment
-// Story 2.1: Assessment wizard shell and multi-step form
-// Story 2.2: Number sense question types
-// Story 2.3: Spatial awareness question types
-// Story 2.4: Operations question types
-// Story 2.6: Results summary visualization
+// Expanded to 18 questions across 6 domains
 
 export { AssessmentWizard } from './components/AssessmentWizard';
 export type { AssessmentWizardProps } from './components/AssessmentWizard';
@@ -19,6 +15,7 @@ export type { AssessmentResults } from '@/services/assessment/storage';
 export { QuestionCard } from './components/QuestionCard';
 export type { QuestionCardProps } from './components/QuestionCard';
 
+// Original question components
 export { QuantityComparison } from './components/QuantityComparison';
 export type {
   QuantityComparisonProps,
@@ -55,6 +52,73 @@ export type {
   WordProblemResult,
 } from './components/WordProblem';
 
+// New assessment components
+export { SymbolicComparison } from './components/SymbolicComparison';
+export type {
+  SymbolicComparisonProps,
+  SymbolicComparisonResult,
+} from './components/SymbolicComparison';
+
+export { DigitValue } from './components/DigitValue';
+export type {
+  DigitValueProps,
+  DigitValueResult,
+} from './components/DigitValue';
+
+export { EstimationQuestion } from './components/EstimationQuestion';
+export type {
+  EstimationQuestionProps,
+  EstimationQuestionResult,
+} from './components/EstimationQuestion';
+
+export { NumberDecomposition } from './components/NumberDecomposition';
+export type {
+  NumberDecompositionProps,
+  NumberDecompositionResult,
+} from './components/NumberDecomposition';
+
+export { NumberOrdering } from './components/NumberOrdering';
+export type {
+  NumberOrderingProps,
+  NumberOrderingResult,
+} from './components/NumberOrdering';
+
+export { SkipCounting } from './components/SkipCounting';
+export type {
+  SkipCountingProps,
+  SkipCountingResult,
+} from './components/SkipCounting';
+
+export { TimedFactRetrieval } from './components/TimedFactRetrieval';
+export type {
+  TimedFactRetrievalProps,
+  TimedFactRetrievalResult,
+} from './components/TimedFactRetrieval';
+
+export { MirrorDiscrimination } from './components/MirrorDiscrimination';
+export type {
+  MirrorDiscriminationProps,
+  MirrorDiscriminationResult,
+} from './components/MirrorDiscrimination';
+
+export { FractionIdentification } from './components/FractionIdentification';
+export type {
+  FractionIdentificationProps,
+  FractionIdentificationResult,
+} from './components/FractionIdentification';
+
+export { ClockReading } from './components/ClockReading';
+export type {
+  ClockReadingProps,
+  ClockReadingResult,
+} from './components/ClockReading';
+
+export { WorkingMemorySpan } from './components/WorkingMemorySpan';
+export type {
+  WorkingMemorySpanProps,
+  WorkingMemorySpanResult,
+} from './components/WorkingMemorySpan';
+
 // Question configuration
 export {
   generateQuantityComparisonConfig,
@@ -66,15 +130,36 @@ export {
   generateBasicOperationsConfig,
   generateWordProblemConfig,
   generateOperationsQuestions,
+  generateArithmeticQuestions,
+  generatePlaceValueQuestions,
+  generateSequencingQuestions,
+  generateAppliedQuestions,
+  generateSymbolicComparisonConfig,
 } from './content/questions';
 export type {
   QuantityComparisonConfig,
   NumberLineEstimationConfig,
   NumberSenseQuestionConfig,
+  SymbolicComparisonConfig,
   MentalRotationConfig,
   PatternMatchingConfig,
+  MirrorDiscriminationConfig,
   SpatialQuestionConfig,
   BasicOperationsConfig,
   WordProblemConfig,
   OperationsQuestionConfig,
+  ArithmeticQuestionConfig,
+  TimedFactRetrievalConfig,
+  DigitValueConfig,
+  EstimationQuestionConfig,
+  NumberDecompositionConfig,
+  PlaceValueQuestionConfig,
+  NumberOrderingConfig,
+  SkipCountingConfig,
+  SequencingQuestionConfig,
+  FractionIdentificationConfig,
+  ClockReadingConfig,
+  WorkingMemorySpanConfig,
+  AppliedQuestionConfig,
+  AssessmentQuestionConfig,
 } from './content/questions';

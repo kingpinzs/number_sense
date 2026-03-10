@@ -67,8 +67,23 @@ const COLORS = {
  */
 const DOMAIN_LABELS: Record<keyof DomainConfidence, string> = {
   numberSense: 'Number Sense',
-  spatial: 'Spatial Awareness',
-  operations: 'Math Operations',
+  placeValue: 'Place Value',
+  sequencing: 'Sequencing',
+  arithmetic: 'Arithmetic',
+  spatial: 'Spatial',
+  applied: 'Applied Math',
+};
+
+/**
+ * Shorter labels for mobile radar chart (prevents clipping)
+ */
+const DOMAIN_LABELS_SHORT: Record<keyof DomainConfidence, string> = {
+  numberSense: 'Number',
+  placeValue: 'Place Val',
+  sequencing: 'Sequence',
+  arithmetic: 'Arithmetic',
+  spatial: 'Spatial',
+  applied: 'Applied',
 };
 
 interface ConfidenceRadarProps {
@@ -102,33 +117,22 @@ function ConfidenceRadar({
   // Respect prefers-reduced-motion (Task 8)
   const shouldReduceMotion = useReducedMotion();
 
+  // Use short labels on mobile to prevent clipping
+  const activeLabels = isTablet ? DOMAIN_LABELS : DOMAIN_LABELS_SHORT;
+
   // Transform domain data to RadarChart format
   const chartData: RadarDataPoint[] = useMemo(() => {
-    return [
-      {
-        domain: DOMAIN_LABELS.numberSense,
-        current: current.numberSense,
-        baseline: baseline?.numberSense ?? current.numberSense,
-        fullMark: 5,
-      },
-      {
-        domain: DOMAIN_LABELS.spatial,
-        current: current.spatial,
-        baseline: baseline?.spatial ?? current.spatial,
-        fullMark: 5,
-      },
-      {
-        domain: DOMAIN_LABELS.operations,
-        current: current.operations,
-        baseline: baseline?.operations ?? current.operations,
-        fullMark: 5,
-      },
-    ];
-  }, [current, baseline]);
+    return (Object.keys(DOMAIN_LABELS) as (keyof DomainConfidence)[]).map(key => ({
+      domain: activeLabels[key],
+      current: current[key],
+      baseline: baseline?.[key] ?? current[key],
+      fullMark: 5,
+    }));
+  }, [current, baseline, activeLabels]);
 
   // Generate accessible alt text
   const altText = useMemo(() => {
-    return `Confidence Radar: Number Sense ${current.numberSense.toFixed(1)}, Spatial Awareness ${current.spatial.toFixed(1)}, Math Operations ${current.operations.toFixed(1)}`;
+    return `Confidence Radar: ${(Object.keys(DOMAIN_LABELS) as (keyof DomainConfidence)[]).map(k => `${DOMAIN_LABELS[k]} ${current[k].toFixed(1)}`).join(', ')}`;
   }, [current]);
 
   return (
@@ -142,14 +146,14 @@ function ConfidenceRadar({
       transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.4, ease: 'easeOut' }}
     >
       <ResponsiveContainer width="100%" height={chartHeight}>
-        <RadarChart data={chartData} margin={isTablet ? { top: 20, right: 30, bottom: 20, left: 30 } : { top: 20, right: 20, bottom: 20, left: 20 }}>
+        <RadarChart data={chartData} margin={isTablet ? { top: 20, right: 40, bottom: 20, left: 40 } : { top: 25, right: 35, bottom: 25, left: 35 }}>
           {/* Grid lines at 1, 2, 3, 4, 5 intervals */}
           <PolarGrid stroke={COLORS.gridLine} />
 
-          {/* Domain labels - 18px font positioned outside */}
+          {/* Domain labels - responsive font size */}
           <PolarAngleAxis
             dataKey="domain"
-            tick={{ fontSize: 14, fill: '#374151' }}
+            tick={{ fontSize: isTablet ? 14 : 11, fill: '#374151' }}
           />
 
           {/* Scale 1-5 */}
@@ -193,14 +197,14 @@ function ConfidenceRadar({
 
       {/* Text summary for accessibility and users who prefer reading numbers */}
       <div className="mt-4 space-y-1 text-sm" role="table" aria-label="Confidence scores by domain">
-        {chartData.map((d) => (
-          <div key={d.domain} className="flex justify-between px-4">
-            <span className="text-muted-foreground">{d.domain}</span>
+        {(Object.keys(DOMAIN_LABELS) as (keyof DomainConfidence)[]).map((key, i) => (
+          <div key={key} className="flex justify-between px-4">
+            <span className="text-muted-foreground">{DOMAIN_LABELS[key]}</span>
             <span className="font-medium text-foreground">
-              {d.current.toFixed(1)} / 5
-              {baseline && d.baseline !== d.current && (
-                <span className={d.current >= d.baseline ? 'ml-1 text-green-600' : 'ml-1 text-yellow-600'}>
-                  ({d.current >= d.baseline ? '+' : ''}{(d.current - d.baseline).toFixed(1)})
+              {chartData[i].current.toFixed(1)} / 5
+              {baseline && chartData[i].baseline !== chartData[i].current && (
+                <span className={chartData[i].current >= chartData[i].baseline ? 'ml-1 text-green-600' : 'ml-1 text-yellow-600'}>
+                  ({chartData[i].current >= chartData[i].baseline ? '+' : ''}{(chartData[i].current - chartData[i].baseline).toFixed(1)})
                 </span>
               )}
             </span>
@@ -222,12 +226,13 @@ export function ConfidenceRadarEmpty() {
   const isTablet = useIsTablet();
   const chartHeight = isTablet ? CHART_SIZE.tablet : CHART_SIZE.mobile;
 
-  // Placeholder data for empty gray outline
-  const emptyData: RadarDataPoint[] = [
-    { domain: DOMAIN_LABELS.numberSense, current: 0, baseline: 0, fullMark: 5 },
-    { domain: DOMAIN_LABELS.spatial, current: 0, baseline: 0, fullMark: 5 },
-    { domain: DOMAIN_LABELS.operations, current: 0, baseline: 0, fullMark: 5 },
-  ];
+  // Placeholder data for empty gray outline - all 6 domains
+  const emptyData: RadarDataPoint[] = (Object.keys(DOMAIN_LABELS) as (keyof DomainConfidence)[]).map(key => ({
+    domain: DOMAIN_LABELS[key],
+    current: 0,
+    baseline: 0,
+    fullMark: 5,
+  }));
 
   return (
     <div

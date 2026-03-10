@@ -28,6 +28,16 @@ const MODULE_DISPLAY_NAMES: Record<string, string> = {
   'number_line': 'Number Line',
   'spatial_rotation': 'Spatial Rotation',
   'math_operations': 'Math Operations',
+  'subitizing': 'Quick Count',
+  'number_bonds': 'Number Bonds',
+  'magnitude_comparison': 'Number Comparison',
+  'place_value': 'Place Value',
+  'estimation': 'Estimation',
+  'sequencing': 'Sequencing',
+  'fact_fluency': 'Fact Fluency',
+  'fractions': 'Fractions',
+  'time_measurement': 'Time & Measurement',
+  'working_memory': 'Working Memory',
 };
 
 const MAX_INSIGHTS = 5;
@@ -349,7 +359,7 @@ function detectConsistencyInsights(sessions: Session[]): Insight[] {
 
 function detectPerformanceTrends(_sessions: Session[], drillResults: DrillResult[]): Insight[] {
   const insights: Insight[] = [];
-  const modules = ['number_line', 'spatial_rotation', 'math_operations'] as const;
+  const modules = Object.keys(MODULE_DISPLAY_NAMES) as (keyof typeof MODULE_DISPLAY_NAMES)[];
 
   for (const mod of modules) {
     // Get accuracy values for this module's drills, ordered chronologically
@@ -393,7 +403,7 @@ function detectPerformanceTrends(_sessions: Session[], drillResults: DrillResult
 
 function detectTimePatterns(drillResults: DrillResult[]): Insight[] {
   const insights: Insight[] = [];
-  const modules = ['number_line', 'spatial_rotation', 'math_operations'] as const;
+  const modules = Object.keys(MODULE_DISPLAY_NAMES) as (keyof typeof MODULE_DISPLAY_NAMES)[];
 
   const avgTimes: { module: string; avg: number; accuracy: number }[] = [];
 
@@ -498,7 +508,7 @@ function detectConfidenceInsights(sessions: Session[]): Insight[] {
  */
 function detectAutomaticityInsights(_sessions: Session[], drillResults: DrillResult[]): Insight[] {
   const insights: Insight[] = [];
-  const modules = ['number_line', 'spatial_rotation', 'math_operations'] as const;
+  const modules = Object.keys(MODULE_DISPLAY_NAMES) as (keyof typeof MODULE_DISPLAY_NAMES)[];
   const MIN_DRILLS = 6; // need at least 3 early + 3 late
   const COMPARE_COUNT = 3;
 
@@ -552,7 +562,7 @@ function detectAutomaticityInsights(_sessions: Session[], drillResults: DrillRes
  */
 function detectStruggleToStrengthInsights(_sessions: Session[], drillResults: DrillResult[]): Insight[] {
   const insights: Insight[] = [];
-  const modules = ['number_line', 'spatial_rotation', 'math_operations'] as const;
+  const modules = Object.keys(MODULE_DISPLAY_NAMES) as (keyof typeof MODULE_DISPLAY_NAMES)[];
   const MIN_DRILLS = 6;
   const COMPARE_COUNT = 3;
 
@@ -609,7 +619,7 @@ function detectStruggleToStrengthInsights(_sessions: Session[], drillResults: Dr
  */
 function detectWeaknessInsights(_sessions: Session[], drillResults: DrillResult[]): Insight[] {
   const insights: Insight[] = [];
-  const modules = ['number_line', 'spatial_rotation', 'math_operations'] as const;
+  const modules = Object.keys(MODULE_DISPLAY_NAMES) as (keyof typeof MODULE_DISPLAY_NAMES)[];
   const RECENT_COUNT = 5;
 
   const moduleAccuracies: { module: string; recentAvg: number }[] = [];

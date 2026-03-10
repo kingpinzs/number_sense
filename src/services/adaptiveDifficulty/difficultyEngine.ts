@@ -25,7 +25,10 @@ export type DifficultyLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 /**
  * Module types that support difficulty adjustment
  */
-export type DifficultyModule = 'number_line' | 'spatial_rotation' | 'math_operations' | 'subitizing' | 'number_bonds';
+export type DifficultyModule =
+  | 'number_line' | 'spatial_rotation' | 'math_operations' | 'subitizing' | 'number_bonds'
+  | 'magnitude_comparison' | 'place_value' | 'estimation' | 'sequencing' | 'fact_fluency'
+  | 'fractions' | 'time_measurement' | 'working_memory';
 
 /**
  * Reasons for difficulty adjustment matching schema
@@ -93,7 +96,60 @@ export interface NumberBondsConfig {
   allowNegative: boolean;   // Allow negative decompositions
 }
 
-export type DifficultyConfig = NumberLineConfig | SpatialRotationConfig | MathOperationsConfig | SubitizingConfig | NumberBondsConfig;
+export interface MagnitudeComparisonConfig {
+  maxNumber: number;          // Upper bound for numbers to compare
+  minDifference: number;      // Minimum difference between numbers (smaller = harder)
+  digitCount: number;         // Number of digits (1-4)
+}
+
+export interface PlaceValueConfig {
+  maxNumber: number;          // Upper bound for the number
+  digitCount: number;         // Number of digits (2-4)
+  includeDecomposition: boolean; // Whether to include decomposition tasks
+}
+
+export interface EstimationConfig {
+  maxSum: number;             // Upper bound for estimation problems
+  choiceSpread: number;       // How far apart wrong answers are (percentage)
+  operations: ('addition' | 'subtraction' | 'multiplication')[];
+}
+
+export interface SequencingConfig {
+  sequenceLength: number;     // Number of items in the sequence
+  maxNumber: number;          // Upper bound for numbers
+  stepTypes: ('count_by_1' | 'count_by_2' | 'count_by_5' | 'count_by_10' | 'mixed')[];
+}
+
+export interface FactFluencyConfig {
+  timeLimitMs: number;        // Time limit per fact (ms)
+  operations: ('addition' | 'subtraction' | 'multiplication')[];
+  maxOperand: number;         // Max operand value
+}
+
+export interface FractionsConfig {
+  maxDenominator: number;     // Maximum denominator
+  includeComparison: boolean; // Compare two fractions
+  includeAddition: boolean;   // Add simple fractions
+}
+
+export interface TimeMeasurementConfig {
+  clockType: 'hours_only' | 'half_hours' | 'quarter_hours' | 'five_minutes' | 'any_minute';
+  includeElapsed: boolean;    // Elapsed time calculations
+  includeUnits: boolean;      // Unit conversion
+}
+
+export interface WorkingMemoryConfig {
+  digitSpan: number;          // Number of digits to remember (2-6)
+  displayTimeMs: number;      // How long each number is shown
+  operationType: 'sum' | 'sequence' | 'reverse';
+}
+
+export type DifficultyConfig =
+  | NumberLineConfig | SpatialRotationConfig | MathOperationsConfig
+  | SubitizingConfig | NumberBondsConfig
+  | MagnitudeComparisonConfig | PlaceValueConfig | EstimationConfig
+  | SequencingConfig | FactFluencyConfig | FractionsConfig
+  | TimeMeasurementConfig | WorkingMemoryConfig;
 
 /**
  * Result of a difficulty adjustment decision
@@ -210,6 +266,134 @@ export const NUMBER_BONDS_CONFIGS: Record<DifficultyLevel, NumberBondsConfig> = 
 };
 
 /**
+ * Magnitude comparison difficulty configurations per level
+ */
+export const MAGNITUDE_COMPARISON_CONFIGS: Record<DifficultyLevel, MagnitudeComparisonConfig> = {
+  1:  { maxNumber: 20,   minDifference: 10,  digitCount: 1 },
+  2:  { maxNumber: 50,   minDifference: 10,  digitCount: 2 },
+  3:  { maxNumber: 100,  minDifference: 10,  digitCount: 2 },
+  4:  { maxNumber: 100,  minDifference: 5,   digitCount: 2 },
+  5:  { maxNumber: 500,  minDifference: 10,  digitCount: 3 },
+  6:  { maxNumber: 500,  minDifference: 5,   digitCount: 3 },
+  7:  { maxNumber: 1000, minDifference: 5,   digitCount: 3 },
+  8:  { maxNumber: 1000, minDifference: 2,   digitCount: 3 },
+  9:  { maxNumber: 5000, minDifference: 3,   digitCount: 4 },
+  10: { maxNumber: 9999, minDifference: 1,   digitCount: 4 },
+};
+
+/**
+ * Place value difficulty configurations per level
+ */
+export const PLACE_VALUE_CONFIGS: Record<DifficultyLevel, PlaceValueConfig> = {
+  1:  { maxNumber: 99,    digitCount: 2, includeDecomposition: false },
+  2:  { maxNumber: 99,    digitCount: 2, includeDecomposition: true },
+  3:  { maxNumber: 999,   digitCount: 3, includeDecomposition: false },
+  4:  { maxNumber: 999,   digitCount: 3, includeDecomposition: true },
+  5:  { maxNumber: 999,   digitCount: 3, includeDecomposition: true },
+  6:  { maxNumber: 9999,  digitCount: 4, includeDecomposition: false },
+  7:  { maxNumber: 9999,  digitCount: 4, includeDecomposition: true },
+  8:  { maxNumber: 9999,  digitCount: 4, includeDecomposition: true },
+  9:  { maxNumber: 99999, digitCount: 5, includeDecomposition: true },
+  10: { maxNumber: 99999, digitCount: 5, includeDecomposition: true },
+};
+
+/**
+ * Estimation difficulty configurations per level
+ */
+export const ESTIMATION_CONFIGS: Record<DifficultyLevel, EstimationConfig> = {
+  1:  { maxSum: 20,   choiceSpread: 0.50, operations: ['addition'] },
+  2:  { maxSum: 50,   choiceSpread: 0.40, operations: ['addition'] },
+  3:  { maxSum: 100,  choiceSpread: 0.30, operations: ['addition'] },
+  4:  { maxSum: 100,  choiceSpread: 0.25, operations: ['addition', 'subtraction'] },
+  5:  { maxSum: 200,  choiceSpread: 0.20, operations: ['addition', 'subtraction'] },
+  6:  { maxSum: 500,  choiceSpread: 0.20, operations: ['addition', 'subtraction'] },
+  7:  { maxSum: 500,  choiceSpread: 0.15, operations: ['addition', 'subtraction', 'multiplication'] },
+  8:  { maxSum: 1000, choiceSpread: 0.15, operations: ['addition', 'subtraction', 'multiplication'] },
+  9:  { maxSum: 1000, choiceSpread: 0.10, operations: ['addition', 'subtraction', 'multiplication'] },
+  10: { maxSum: 5000, choiceSpread: 0.10, operations: ['addition', 'subtraction', 'multiplication'] },
+};
+
+/**
+ * Sequencing difficulty configurations per level
+ */
+export const SEQUENCING_CONFIGS: Record<DifficultyLevel, SequencingConfig> = {
+  1:  { sequenceLength: 4, maxNumber: 10,   stepTypes: ['count_by_1'] },
+  2:  { sequenceLength: 4, maxNumber: 20,   stepTypes: ['count_by_1'] },
+  3:  { sequenceLength: 5, maxNumber: 50,   stepTypes: ['count_by_2'] },
+  4:  { sequenceLength: 5, maxNumber: 50,   stepTypes: ['count_by_2', 'count_by_5'] },
+  5:  { sequenceLength: 5, maxNumber: 100,  stepTypes: ['count_by_5', 'count_by_10'] },
+  6:  { sequenceLength: 6, maxNumber: 100,  stepTypes: ['count_by_2', 'count_by_5', 'count_by_10'] },
+  7:  { sequenceLength: 6, maxNumber: 200,  stepTypes: ['count_by_5', 'count_by_10'] },
+  8:  { sequenceLength: 6, maxNumber: 500,  stepTypes: ['mixed'] },
+  9:  { sequenceLength: 7, maxNumber: 1000, stepTypes: ['mixed'] },
+  10: { sequenceLength: 8, maxNumber: 1000, stepTypes: ['mixed'] },
+};
+
+/**
+ * Fact fluency difficulty configurations per level
+ */
+export const FACT_FLUENCY_CONFIGS: Record<DifficultyLevel, FactFluencyConfig> = {
+  1:  { timeLimitMs: 10000, operations: ['addition'],                             maxOperand: 5 },
+  2:  { timeLimitMs: 8000,  operations: ['addition'],                             maxOperand: 10 },
+  3:  { timeLimitMs: 8000,  operations: ['addition', 'subtraction'],              maxOperand: 10 },
+  4:  { timeLimitMs: 6000,  operations: ['addition', 'subtraction'],              maxOperand: 10 },
+  5:  { timeLimitMs: 6000,  operations: ['addition', 'subtraction'],              maxOperand: 20 },
+  6:  { timeLimitMs: 5000,  operations: ['addition', 'subtraction', 'multiplication'], maxOperand: 10 },
+  7:  { timeLimitMs: 4000,  operations: ['addition', 'subtraction', 'multiplication'], maxOperand: 12 },
+  8:  { timeLimitMs: 3000,  operations: ['addition', 'subtraction', 'multiplication'], maxOperand: 12 },
+  9:  { timeLimitMs: 2500,  operations: ['addition', 'subtraction', 'multiplication'], maxOperand: 15 },
+  10: { timeLimitMs: 2000,  operations: ['addition', 'subtraction', 'multiplication'], maxOperand: 20 },
+};
+
+/**
+ * Fractions difficulty configurations per level
+ */
+export const FRACTIONS_CONFIGS: Record<DifficultyLevel, FractionsConfig> = {
+  1:  { maxDenominator: 2,  includeComparison: false, includeAddition: false },
+  2:  { maxDenominator: 4,  includeComparison: false, includeAddition: false },
+  3:  { maxDenominator: 4,  includeComparison: true,  includeAddition: false },
+  4:  { maxDenominator: 6,  includeComparison: true,  includeAddition: false },
+  5:  { maxDenominator: 8,  includeComparison: true,  includeAddition: false },
+  6:  { maxDenominator: 8,  includeComparison: true,  includeAddition: true },
+  7:  { maxDenominator: 10, includeComparison: true,  includeAddition: true },
+  8:  { maxDenominator: 12, includeComparison: true,  includeAddition: true },
+  9:  { maxDenominator: 12, includeComparison: true,  includeAddition: true },
+  10: { maxDenominator: 16, includeComparison: true,  includeAddition: true },
+};
+
+/**
+ * Time & measurement difficulty configurations per level
+ */
+export const TIME_MEASUREMENT_CONFIGS: Record<DifficultyLevel, TimeMeasurementConfig> = {
+  1:  { clockType: 'hours_only',     includeElapsed: false, includeUnits: false },
+  2:  { clockType: 'half_hours',     includeElapsed: false, includeUnits: false },
+  3:  { clockType: 'quarter_hours',  includeElapsed: false, includeUnits: false },
+  4:  { clockType: 'quarter_hours',  includeElapsed: true,  includeUnits: false },
+  5:  { clockType: 'five_minutes',   includeElapsed: false, includeUnits: false },
+  6:  { clockType: 'five_minutes',   includeElapsed: true,  includeUnits: false },
+  7:  { clockType: 'five_minutes',   includeElapsed: true,  includeUnits: true },
+  8:  { clockType: 'any_minute',     includeElapsed: true,  includeUnits: true },
+  9:  { clockType: 'any_minute',     includeElapsed: true,  includeUnits: true },
+  10: { clockType: 'any_minute',     includeElapsed: true,  includeUnits: true },
+};
+
+/**
+ * Working memory difficulty configurations per level
+ */
+export const WORKING_MEMORY_CONFIGS: Record<DifficultyLevel, WorkingMemoryConfig> = {
+  1:  { digitSpan: 2, displayTimeMs: 3000, operationType: 'sum' },
+  2:  { digitSpan: 2, displayTimeMs: 2500, operationType: 'sum' },
+  3:  { digitSpan: 3, displayTimeMs: 2500, operationType: 'sum' },
+  4:  { digitSpan: 3, displayTimeMs: 2000, operationType: 'sum' },
+  5:  { digitSpan: 3, displayTimeMs: 1500, operationType: 'sum' },
+  6:  { digitSpan: 4, displayTimeMs: 2000, operationType: 'sum' },
+  7:  { digitSpan: 4, displayTimeMs: 1500, operationType: 'sequence' },
+  8:  { digitSpan: 5, displayTimeMs: 1500, operationType: 'sequence' },
+  9:  { digitSpan: 5, displayTimeMs: 1000, operationType: 'reverse' },
+  10: { digitSpan: 6, displayTimeMs: 1000, operationType: 'reverse' },
+};
+
+/**
  * Get difficulty configuration for a specific module and level
  */
 export function getDifficultyConfig(module: DifficultyModule, level: DifficultyLevel): DifficultyConfig {
@@ -224,6 +408,22 @@ export function getDifficultyConfig(module: DifficultyModule, level: DifficultyL
       return SUBITIZING_CONFIGS[level];
     case 'number_bonds':
       return NUMBER_BONDS_CONFIGS[level];
+    case 'magnitude_comparison':
+      return MAGNITUDE_COMPARISON_CONFIGS[level];
+    case 'place_value':
+      return PLACE_VALUE_CONFIGS[level];
+    case 'estimation':
+      return ESTIMATION_CONFIGS[level];
+    case 'sequencing':
+      return SEQUENCING_CONFIGS[level];
+    case 'fact_fluency':
+      return FACT_FLUENCY_CONFIGS[level];
+    case 'fractions':
+      return FRACTIONS_CONFIGS[level];
+    case 'time_measurement':
+      return TIME_MEASUREMENT_CONFIGS[level];
+    case 'working_memory':
+      return WORKING_MEMORY_CONFIGS[level];
   }
 }
 
@@ -502,6 +702,48 @@ export function determineAdjustment(
 
     case 'number_bonds': {
       // Number bonds: accuracy-driven progression
+      if (metrics.averageAccuracy > 85 && currentLevel < 10) {
+        return {
+          module,
+          previousLevel: currentLevel,
+          newLevel: Math.min(10, currentLevel + 1) as DifficultyLevel,
+          reason: 'accuracy_high',
+          timestamp,
+          metrics,
+        };
+      }
+      if (metrics.averageAccuracy < 60 && currentLevel > 1) {
+        return {
+          module,
+          previousLevel: currentLevel,
+          newLevel: Math.max(1, currentLevel - 1) as DifficultyLevel,
+          reason: 'accuracy_low',
+          timestamp,
+          metrics,
+        };
+      }
+      if (metrics.medianTimeMs < 2000 && currentLevel < 10) {
+        return {
+          module,
+          previousLevel: currentLevel,
+          newLevel: Math.min(10, currentLevel + 1) as DifficultyLevel,
+          reason: 'speed_fast',
+          timestamp,
+          metrics,
+        };
+      }
+      break;
+    }
+
+    // New modules: standard accuracy + speed progression
+    case 'magnitude_comparison':
+    case 'place_value':
+    case 'estimation':
+    case 'sequencing':
+    case 'fact_fluency':
+    case 'fractions':
+    case 'time_measurement':
+    case 'working_memory': {
       if (metrics.averageAccuracy > 85 && currentLevel < 10) {
         return {
           module,

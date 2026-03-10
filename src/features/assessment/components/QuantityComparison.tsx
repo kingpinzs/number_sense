@@ -194,7 +194,7 @@ export function QuantityComparison({
             variant="outline"
             onClick={() => handleAnswer('left')}
             disabled={answered}
-            className="min-h-[44px] min-w-[80px]"
+            className="min-h-[44px] flex-1"
             data-testid="answer-left"
             aria-label="Left group has more"
           >
@@ -204,7 +204,7 @@ export function QuantityComparison({
             variant="outline"
             onClick={() => handleAnswer('same')}
             disabled={answered}
-            className="min-h-[44px] min-w-[80px]"
+            className="min-h-[44px] flex-1"
             data-testid="answer-same"
             aria-label="Both groups are the same"
           >
@@ -214,7 +214,7 @@ export function QuantityComparison({
             variant="outline"
             onClick={() => handleAnswer('right')}
             disabled={answered}
-            className="min-h-[44px] min-w-[80px]"
+            className="min-h-[44px] flex-1"
             data-testid="answer-right"
             aria-label="Right group has more"
           >

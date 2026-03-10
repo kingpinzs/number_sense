@@ -28,7 +28,7 @@ const createMockSession = (
 // Mock drill result fixture
 const createMockDrillResult = (
   sessionId: number,
-  module: 'number_line' | 'spatial_rotation' | 'math_operations'
+  module: DrillResult['module']
 ): DrillResult => ({
   id: Math.random() * 1000,
   sessionId,
@@ -46,8 +46,11 @@ describe('calculateDomainConfidence', () => {
 
     expect(result).toEqual({
       numberSense: 3.0,
+      placeValue: 3.0,
+      sequencing: 3.0,
+      arithmetic: 3.0,
       spatial: 3.0,
-      operations: 3.0,
+      applied: 3.0,
     });
   });
 
@@ -64,8 +67,8 @@ describe('calculateDomainConfidence', () => {
     expect(result.numberSense).toBeCloseTo(4, 1);
     // Session 2 has spatial with confidence 3
     expect(result.spatial).toBeCloseTo(3, 1);
-    // Session 3 has operations with confidence 2
-    expect(result.operations).toBeCloseTo(2, 1);
+    // Session 3 has arithmetic with confidence 2
+    expect(result.arithmetic).toBeCloseTo(2, 1);
   });
 
   it('applies recency weighting - recent sessions have more influence', () => {
@@ -95,7 +98,7 @@ describe('calculateDomainConfidence', () => {
 
     expect(result.numberSense).toBeCloseTo(4, 1);
     expect(result.spatial).toBeCloseTo(4, 1);
-    expect(result.operations).toBeCloseTo(3, 1); // Default, no drills
+    expect(result.arithmetic).toBeCloseTo(3, 1); // Default, no drills
   });
 
   it('handles sessions without confidenceAfter gracefully', () => {
@@ -136,10 +139,13 @@ describe('getBaselineConfidence', () => {
 
     expect(result).not.toBeNull();
     // Baseline should use earliest session's confidence for its domain
-    expect(result!.operations).toBe(2);
+    expect(result!.arithmetic).toBe(2);
     // Other domains should be default 3.0
     expect(result!.numberSense).toBe(3.0);
+    expect(result!.placeValue).toBe(3.0);
+    expect(result!.sequencing).toBe(3.0);
     expect(result!.spatial).toBe(3.0);
+    expect(result!.applied).toBe(3.0);
   });
 
   it('extracts baseline from first session drill results', () => {
@@ -157,7 +163,7 @@ describe('getBaselineConfidence', () => {
     expect(result).not.toBeNull();
     expect(result!.numberSense).toBe(2.5);
     expect(result!.spatial).toBe(2.5);
-    expect(result!.operations).toBe(3.0); // Default, not trained in first session
+    expect(result!.arithmetic).toBe(3.0); // Default, not trained in first session
   });
 });
 

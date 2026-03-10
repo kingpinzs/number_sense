@@ -53,7 +53,7 @@ describe('loadTrainingPlanWeights', () => {
   });
 
   it('derives weights from weaknesses array - all weak', async () => {
-    // Arrange: Assessment with all domains as weaknesses
+    // Arrange: Assessment with 3 domains as weaknesses (legacy format)
     const assessment: Partial<Assessment> = {
       id: 1,
       timestamp: new Date().toISOString(),
@@ -70,15 +70,20 @@ describe('loadTrainingPlanWeights', () => {
     // Act
     const weights = await loadTrainingPlanWeights();
 
-    // Assert: All equal weights (2.0 + 2.0 + 2.0 = 6.0, normalized to 1/3 each)
-    expect(weights.numberSense).toBeCloseTo(1 / 3, 5);
-    expect(weights.spatial).toBeCloseTo(1 / 3, 5);
-    expect(weights.operations).toBeCloseTo(1 / 3, 5);
-    expect(weights.numberSense + weights.spatial + weights.operations).toBeCloseTo(1.0, 5);
+    // Assert: number_sense→numberSense=2.0, spatial→spatial=2.0, operations→arithmetic=2.0
+    // placeValue=1.0, sequencing=1.0, applied=1.0 (defaults)
+    // Sum = 2+1+1+2+2+1 = 9.0
+    expect(weights.numberSense).toBeCloseTo(2.0 / 9.0, 5);
+    expect(weights.spatial).toBeCloseTo(2.0 / 9.0, 5);
+    expect(weights.arithmetic).toBeCloseTo(2.0 / 9.0, 5);
+    expect(weights.placeValue).toBeCloseTo(1.0 / 9.0, 5);
+    expect(weights.sequencing).toBeCloseTo(1.0 / 9.0, 5);
+    expect(weights.applied).toBeCloseTo(1.0 / 9.0, 5);
+    expect(Object.values(weights).reduce((a, b) => a + b, 0)).toBeCloseTo(1.0, 5);
   });
 
   it('derives weights from strengths array - all strong', async () => {
-    // Arrange: Assessment with all domains as strengths
+    // Arrange: Assessment with 3 domains as strengths (legacy format)
     const assessment: Partial<Assessment> = {
       id: 1,
       timestamp: new Date().toISOString(),
@@ -95,15 +100,20 @@ describe('loadTrainingPlanWeights', () => {
     // Act
     const weights = await loadTrainingPlanWeights();
 
-    // Assert: All equal weights (0.5 + 0.5 + 0.5 = 1.5, normalized to 1/3 each)
-    expect(weights.numberSense).toBeCloseTo(1 / 3, 5);
-    expect(weights.spatial).toBeCloseTo(1 / 3, 5);
-    expect(weights.operations).toBeCloseTo(1 / 3, 5);
-    expect(weights.numberSense + weights.spatial + weights.operations).toBeCloseTo(1.0, 5);
+    // Assert: number_sense→numberSense=0.5, spatial→spatial=0.5, operations→arithmetic=0.5
+    // placeValue=1.0, sequencing=1.0, applied=1.0 (defaults)
+    // Sum = 0.5+1+1+0.5+0.5+1 = 4.5
+    expect(weights.numberSense).toBeCloseTo(0.5 / 4.5, 5);
+    expect(weights.spatial).toBeCloseTo(0.5 / 4.5, 5);
+    expect(weights.arithmetic).toBeCloseTo(0.5 / 4.5, 5);
+    expect(weights.placeValue).toBeCloseTo(1.0 / 4.5, 5);
+    expect(weights.sequencing).toBeCloseTo(1.0 / 4.5, 5);
+    expect(weights.applied).toBeCloseTo(1.0 / 4.5, 5);
+    expect(Object.values(weights).reduce((a, b) => a + b, 0)).toBeCloseTo(1.0, 5);
   });
 
   it('derives weights from mixed weaknesses and strengths', async () => {
-    // Arrange: Mixed assessment - number_sense weak, operations strong, spatial moderate
+    // Arrange: Mixed assessment - number_sense weak, operations strong, others moderate
     const assessment: Partial<Assessment> = {
       id: 1,
       timestamp: new Date().toISOString(),
@@ -121,13 +131,15 @@ describe('loadTrainingPlanWeights', () => {
     const weights = await loadTrainingPlanWeights();
 
     // Assert:
-    // Raw weights: number_sense=2.0, spatial=1.0 (default), operations=0.5
-    // Sum = 3.5
-    // Normalized: 2.0/3.5=0.571, 1.0/3.5=0.286, 0.5/3.5=0.143
-    expect(weights.numberSense).toBeCloseTo(2.0 / 3.5, 5);
-    expect(weights.spatial).toBeCloseTo(1.0 / 3.5, 5);
-    expect(weights.operations).toBeCloseTo(0.5 / 3.5, 5);
-    expect(weights.numberSense + weights.spatial + weights.operations).toBeCloseTo(1.0, 5);
+    // Raw weights: numberSense=2.0, placeValue=1.0, sequencing=1.0, arithmetic=0.5, spatial=1.0, applied=1.0
+    // Sum = 6.5
+    expect(weights.numberSense).toBeCloseTo(2.0 / 6.5, 5);
+    expect(weights.placeValue).toBeCloseTo(1.0 / 6.5, 5);
+    expect(weights.sequencing).toBeCloseTo(1.0 / 6.5, 5);
+    expect(weights.arithmetic).toBeCloseTo(0.5 / 6.5, 5);
+    expect(weights.spatial).toBeCloseTo(1.0 / 6.5, 5);
+    expect(weights.applied).toBeCloseTo(1.0 / 6.5, 5);
+    expect(Object.values(weights).reduce((a, b) => a + b, 0)).toBeCloseTo(1.0, 5);
   });
 
   it('returns default equal weights when assessment has no weaknesses or strengths', async () => {
@@ -148,11 +160,14 @@ describe('loadTrainingPlanWeights', () => {
     // Act
     const weights = await loadTrainingPlanWeights();
 
-    // Assert: All moderate (1.0 + 1.0 + 1.0 = 3.0, normalized to 1/3 each)
-    expect(weights.numberSense).toBeCloseTo(1 / 3, 5);
-    expect(weights.spatial).toBeCloseTo(1 / 3, 5);
-    expect(weights.operations).toBeCloseTo(1 / 3, 5);
-    expect(weights.numberSense + weights.spatial + weights.operations).toBeCloseTo(1.0, 5);
+    // Assert: All moderate (1.0 * 6 = 6.0, normalized to 1/6 each)
+    expect(weights.numberSense).toBeCloseTo(1 / 6, 5);
+    expect(weights.placeValue).toBeCloseTo(1 / 6, 5);
+    expect(weights.sequencing).toBeCloseTo(1 / 6, 5);
+    expect(weights.arithmetic).toBeCloseTo(1 / 6, 5);
+    expect(weights.spatial).toBeCloseTo(1 / 6, 5);
+    expect(weights.applied).toBeCloseTo(1 / 6, 5);
+    expect(Object.values(weights).reduce((a, b) => a + b, 0)).toBeCloseTo(1.0, 5);
   });
 });
 
@@ -160,9 +175,12 @@ describe('selectDrills', () => {
   it('generates correct number of drills - quick session (6)', async () => {
     // Arrange
     const weights: TrainingPlanWeights = {
-      numberSense: 0.33,
-      spatial: 0.33,
-      operations: 0.34,
+      numberSense: 0.20,
+      placeValue: 0.15,
+      sequencing: 0.15,
+      arithmetic: 0.20,
+      spatial: 0.15,
+      applied: 0.15,
     };
 
     // Act
@@ -175,9 +193,12 @@ describe('selectDrills', () => {
   it('generates correct number of drills - full session (12)', async () => {
     // Arrange
     const weights: TrainingPlanWeights = {
-      numberSense: 0.33,
-      spatial: 0.33,
-      operations: 0.34,
+      numberSense: 0.20,
+      placeValue: 0.15,
+      sequencing: 0.15,
+      arithmetic: 0.20,
+      spatial: 0.15,
+      applied: 0.15,
     };
 
     // Act
@@ -190,18 +211,29 @@ describe('selectDrills', () => {
   it('respects weighted distribution over many runs', async () => {
     // Arrange: Heavy number_sense weight
     const weights: TrainingPlanWeights = {
-      numberSense: 0.7,  // 70% probability
-      spatial: 0.2,      // 20% probability
-      operations: 0.1,   // 10% probability
+      numberSense: 0.55,  // 55% probability
+      placeValue: 0.05,
+      sequencing: 0.05,
+      arithmetic: 0.10,   // 10% probability
+      spatial: 0.15,      // 15% probability
+      applied: 0.10,
     };
 
     // Act: Run 100 times to check distribution
     const counts: Record<string, number> = {
       number_line: 0,
-      spatial_rotation: 0,
-      math_operations: 0,
       subitizing: 0,
+      magnitude_comparison: 0,
+      place_value: 0,
+      estimation: 0,
+      sequencing: 0,
+      math_operations: 0,
       number_bonds: 0,
+      fact_fluency: 0,
+      spatial_rotation: 0,
+      fractions: 0,
+      time_measurement: 0,
+      working_memory: 0,
     };
 
     const totalDrills = 100;
@@ -211,26 +243,30 @@ describe('selectDrills', () => {
     }
 
     // Assert: Distribution should roughly match weights (with some variance)
-    // numberSense domain (number_line + subitizing + number_bonds) should be ~70%
-    const numberSenseTotal = counts.number_line + counts.subitizing + counts.number_bonds;
-    expect(numberSenseTotal).toBeGreaterThan(50);
-    expect(numberSenseTotal).toBeLessThan(90);
+    // numberSense domain (number_line + subitizing + magnitude_comparison) should be ~55%
+    const numberSenseTotal = counts.number_line + counts.subitizing + counts.magnitude_comparison;
+    expect(numberSenseTotal).toBeGreaterThan(35);
+    expect(numberSenseTotal).toBeLessThan(80);
 
-    // spatial_rotation should be ~20% (allow 5-35% range)
-    expect(counts.spatial_rotation).toBeGreaterThan(5);
+    // spatial_rotation should be ~15% (allow 3-35% range)
+    expect(counts.spatial_rotation).toBeGreaterThan(3);
     expect(counts.spatial_rotation).toBeLessThan(35);
 
-    // math_operations should be ~10% (allow 0-25% range)
-    expect(counts.math_operations).toBeGreaterThan(0);
-    expect(counts.math_operations).toBeLessThan(25);
+    // arithmetic domain (math_operations + number_bonds + fact_fluency) should be ~10% (allow 1-25% range)
+    const arithmeticTotal = counts.math_operations + counts.number_bonds + counts.fact_fluency;
+    expect(arithmeticTotal).toBeGreaterThan(1);
+    expect(arithmeticTotal).toBeLessThan(25);
   });
 
   it('enforces variety rule - no more than 3 consecutive drills of same type', async () => {
     // Arrange: Extreme weight to force variety enforcement
     const weights: TrainingPlanWeights = {
-      numberSense: 0.99,  // Almost always number_line
-      spatial: 0.005,
-      operations: 0.005,
+      numberSense: 0.95,  // Almost always numberSense
+      placeValue: 0.01,
+      sequencing: 0.01,
+      arithmetic: 0.01,
+      spatial: 0.01,
+      applied: 0.01,
     };
 
     // Act
@@ -256,16 +292,23 @@ describe('selectDrills', () => {
   it('returns valid drill types', async () => {
     // Arrange
     const weights: TrainingPlanWeights = {
-      numberSense: 0.33,
-      spatial: 0.33,
-      operations: 0.34,
+      numberSense: 0.20,
+      placeValue: 0.15,
+      sequencing: 0.15,
+      arithmetic: 0.20,
+      spatial: 0.15,
+      applied: 0.15,
     };
 
     // Act
     const drillQueue = await selectDrills(weights, 12);
 
     // Assert: All drills are valid types
-    const validDrills = ['number_line', 'spatial_rotation', 'math_operations', 'subitizing', 'number_bonds'];
+    const validDrills = [
+      'number_line', 'spatial_rotation', 'math_operations', 'subitizing', 'number_bonds',
+      'magnitude_comparison', 'place_value', 'estimation', 'sequencing', 'fact_fluency',
+      'fractions', 'time_measurement', 'working_memory',
+    ];
     for (const drill of drillQueue) {
       expect(validDrills).toContain(drill);
     }
@@ -274,9 +317,12 @@ describe('selectDrills', () => {
   it('handles edge case - count of 1 drill', async () => {
     // Arrange
     const weights: TrainingPlanWeights = {
-      numberSense: 0.5,
-      spatial: 0.3,
-      operations: 0.2,
+      numberSense: 0.30,
+      placeValue: 0.10,
+      sequencing: 0.10,
+      arithmetic: 0.20,
+      spatial: 0.15,
+      applied: 0.15,
     };
 
     // Act
@@ -284,6 +330,11 @@ describe('selectDrills', () => {
 
     // Assert
     expect(drillQueue).toHaveLength(1);
-    expect(['number_line', 'spatial_rotation', 'math_operations']).toContain(drillQueue[0]);
+    const validDrills = [
+      'number_line', 'spatial_rotation', 'math_operations', 'subitizing', 'number_bonds',
+      'magnitude_comparison', 'place_value', 'estimation', 'sequencing', 'fact_fluency',
+      'fractions', 'time_measurement', 'working_memory',
+    ];
+    expect(validDrills).toContain(drillQueue[0]);
   });
 });

@@ -20,9 +20,11 @@ import { Button } from '@/shared/components/ui/button';
 import { QuantityComparison } from './QuantityComparison';
 import { NumberLineEstimation } from './NumberLineEstimation';
 import { MentalRotation } from './MentalRotation';
-import { PatternMatching } from './PatternMatching';
 import { BasicOperations } from './BasicOperations';
 import { WordProblem } from './WordProblem';
+import { SymbolicComparison } from './SymbolicComparison';
+import { MirrorDiscrimination } from './MirrorDiscrimination';
+import { TimedFactRetrieval } from './TimedFactRetrieval';
 import {
   generateNumberSenseQuestions,
   generateSpatialQuestions,
@@ -30,7 +32,7 @@ import {
 } from '../content/questions';
 
 // Total number of assessment questions
-const TOTAL_QUESTIONS = 10;
+const TOTAL_QUESTIONS = 9;
 
 // Schema for wizard form state
 const assessmentSchema = z.object({
@@ -244,16 +246,34 @@ export function AssessmentWizard({
             onAnswer={typedHandler}
           />
         );
-      case 'pattern-matching':
+      case 'symbolic-comparison':
         return (
-          <PatternMatching
+          <SymbolicComparison
             key={currentStep}
-            patternType={questionConfig.patternType}
-            correctOption={questionConfig.correctOption}
-            targetPattern={questionConfig.targetPattern}
-            options={questionConfig.options}
+            leftNumber={questionConfig.leftNumber}
+            rightNumber={questionConfig.rightNumber}
             onAnswer={typedHandler}
-            initialAnswer={currentAnswer as 'A' | 'B' | 'C' | 'D' | undefined}
+          />
+        );
+      case 'mirror-discrimination':
+        return (
+          <MirrorDiscrimination
+            key={currentStep}
+            shapeType={questionConfig.shapeType}
+            isActuallyMirrored={questionConfig.isActuallyMirrored}
+            onAnswer={typedHandler}
+          />
+        );
+      case 'timed-fact-retrieval':
+        return (
+          <TimedFactRetrieval
+            key={currentStep}
+            operand1={questionConfig.operand1}
+            operand2={questionConfig.operand2}
+            operation={questionConfig.operation}
+            correctAnswer={questionConfig.correctAnswer}
+            timeLimitMs={questionConfig.timeLimitMs}
+            onAnswer={typedHandler}
           />
         );
       case 'basic-operations':

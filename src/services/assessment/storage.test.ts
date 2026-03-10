@@ -19,8 +19,11 @@ describe('saveAssessmentResults', () => {
   it('saves assessment results to Dexie', async () => {
     const domainScores: DomainScores = {
       number_sense: 3.75,
+      place_value: 2.5,
+      sequencing: 4.0,
+      arithmetic: 5.0,
       spatial: 3.33,
-      operations: 5.0,
+      applied: 3.0,
     };
 
     const id = await saveAssessmentResults({
@@ -36,11 +39,14 @@ describe('saveAssessmentResults', () => {
     expect(assessment?.status).toBe('completed');
   });
 
-  it('calculates total questions as 10', async () => {
+  it('calculates total questions as 18', async () => {
     const domainScores: DomainScores = {
       number_sense: 2.5,
+      place_value: 3.0,
+      sequencing: 2.0,
+      arithmetic: 3.33,
       spatial: 1.67,
-      operations: 3.33,
+      applied: 4.0,
     };
 
     const id = await saveAssessmentResults({
@@ -49,18 +55,25 @@ describe('saveAssessmentResults', () => {
     });
 
     const assessment = await db.assessments.get(id);
-    expect(assessment?.totalQuestions).toBe(10);
+    expect(assessment?.totalQuestions).toBe(18);
   });
 
   it('calculates correct answers from domain scores', async () => {
-    // Number sense: 3 correct out of 4 = 3.75
-    // Spatial: 2 correct out of 3 = 3.33
-    // Operations: 3 correct out of 3 = 5.0
-    // Total correct: 3 + 2 + 3 = 8
+    // Each domain has 3 questions, correct = Math.round((score * 3) / 5)
+    // Number sense: 3.75 → round(2.25) = 2
+    // Place value: 2.5 → round(1.5) = 2
+    // Sequencing: 4.0 → round(2.4) = 2
+    // Arithmetic: 5.0 → round(3.0) = 3
+    // Spatial: 3.33 → round(1.998) = 2
+    // Applied: 3.0 → round(1.8) = 2
+    // Total correct: 2 + 2 + 2 + 3 + 2 + 2 = 13
     const domainScores: DomainScores = {
       number_sense: 3.75,
+      place_value: 2.5,
+      sequencing: 4.0,
+      arithmetic: 5.0,
       spatial: 3.33,
-      operations: 5.0,
+      applied: 3.0,
     };
 
     const id = await saveAssessmentResults({
@@ -69,14 +82,17 @@ describe('saveAssessmentResults', () => {
     });
 
     const assessment = await db.assessments.get(id);
-    expect(assessment?.correctAnswers).toBe(8);
+    expect(assessment?.correctAnswers).toBe(13);
   });
 
   it('identifies weak domains (score ≤ 2.5)', async () => {
     const domainScores: DomainScores = {
       number_sense: 1.25, // weak
+      place_value: 3.0,   // moderate
+      sequencing: 3.0,    // moderate
+      arithmetic: 4.0,    // strong
       spatial: 2.5,       // weak (boundary)
-      operations: 4.0,    // strong
+      applied: 3.0,       // moderate
     };
 
     const id = await saveAssessmentResults({
@@ -93,8 +109,11 @@ describe('saveAssessmentResults', () => {
   it('identifies strong domains (score > 3.5)', async () => {
     const domainScores: DomainScores = {
       number_sense: 2.5,  // weak
+      place_value: 3.0,   // moderate
+      sequencing: 3.0,    // moderate
+      arithmetic: 3.75,   // strong
       spatial: 3.0,       // moderate
-      operations: 3.75,   // strong
+      applied: 3.0,       // moderate
     };
 
     const id = await saveAssessmentResults({
@@ -103,15 +122,18 @@ describe('saveAssessmentResults', () => {
     });
 
     const assessment = await db.assessments.get(id);
-    expect(assessment?.strengths).toContain('operations');
+    expect(assessment?.strengths).toContain('arithmetic');
     expect(assessment?.strengths).toHaveLength(1);
   });
 
   it('generates recommendations for weak domains', async () => {
     const domainScores: DomainScores = {
       number_sense: 1.25, // weak
+      place_value: 3.0,   // moderate
+      sequencing: 3.0,    // moderate
+      arithmetic: 3.33,   // moderate
       spatial: 5.0,       // strong
-      operations: 3.33,   // moderate
+      applied: 3.0,       // moderate
     };
 
     const id = await saveAssessmentResults({
@@ -128,8 +150,11 @@ describe('saveAssessmentResults', () => {
   it('sets status to completed', async () => {
     const domainScores: DomainScores = {
       number_sense: 3.0,
+      place_value: 3.0,
+      sequencing: 3.0,
+      arithmetic: 3.0,
       spatial: 3.0,
-      operations: 3.0,
+      applied: 3.0,
     };
 
     const id = await saveAssessmentResults({
@@ -144,8 +169,11 @@ describe('saveAssessmentResults', () => {
   it('sets userId to local_user', async () => {
     const domainScores: DomainScores = {
       number_sense: 3.0,
+      place_value: 3.0,
+      sequencing: 3.0,
+      arithmetic: 3.0,
       spatial: 3.0,
-      operations: 3.0,
+      applied: 3.0,
     };
 
     const id = await saveAssessmentResults({
@@ -160,8 +188,11 @@ describe('saveAssessmentResults', () => {
   it('includes timestamp in ISO format', async () => {
     const domainScores: DomainScores = {
       number_sense: 3.0,
+      place_value: 3.0,
+      sequencing: 3.0,
+      arithmetic: 3.0,
       spatial: 3.0,
-      operations: 3.0,
+      applied: 3.0,
     };
 
     const beforeSave = new Date().toISOString();
@@ -180,8 +211,11 @@ describe('saveAssessmentResults', () => {
   it('handles all domains weak', async () => {
     const domainScores: DomainScores = {
       number_sense: 0.0,
+      place_value: 1.5,
+      sequencing: 2.0,
+      arithmetic: 2.5,
       spatial: 1.0,
-      operations: 2.5,
+      applied: 0.5,
     };
 
     const id = await saveAssessmentResults({
@@ -190,16 +224,19 @@ describe('saveAssessmentResults', () => {
     });
 
     const assessment = await db.assessments.get(id);
-    expect(assessment?.weaknesses).toHaveLength(3);
+    expect(assessment?.weaknesses).toHaveLength(6);
     expect(assessment?.strengths).toHaveLength(0);
-    expect(assessment?.recommendations).toHaveLength(3);
+    expect(assessment?.recommendations).toHaveLength(6);
   });
 
   it('handles all domains strong', async () => {
     const domainScores: DomainScores = {
       number_sense: 5.0,
+      place_value: 4.0,
+      sequencing: 4.5,
+      arithmetic: 5.0,
       spatial: 4.0,
-      operations: 5.0,
+      applied: 3.75,
     };
 
     const id = await saveAssessmentResults({
@@ -209,15 +246,18 @@ describe('saveAssessmentResults', () => {
 
     const assessment = await db.assessments.get(id);
     expect(assessment?.weaknesses).toHaveLength(0);
-    expect(assessment?.strengths).toHaveLength(3);
+    expect(assessment?.strengths).toHaveLength(6);
     expect(assessment?.recommendations).toHaveLength(0);
   });
 
   it('handles boundary score values', async () => {
     const domainScores: DomainScores = {
       number_sense: 2.5,  // weak (boundary)
+      place_value: 3.0,   // moderate
+      sequencing: 3.0,    // moderate
+      arithmetic: 3.6,    // strong (just above boundary)
       spatial: 3.5,       // moderate (boundary)
-      operations: 3.6,    // strong (just above boundary)
+      applied: 3.0,       // moderate
     };
 
     const id = await saveAssessmentResults({
@@ -228,7 +268,7 @@ describe('saveAssessmentResults', () => {
     const assessment = await db.assessments.get(id);
     expect(assessment?.weaknesses).toContain('number_sense');
     expect(assessment?.weaknesses).toHaveLength(1);
-    expect(assessment?.strengths).toContain('operations');
+    expect(assessment?.strengths).toContain('arithmetic');
     expect(assessment?.strengths).toHaveLength(1);
   });
 });

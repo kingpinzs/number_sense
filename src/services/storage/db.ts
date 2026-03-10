@@ -42,8 +42,20 @@ export class DiscalculasDB extends Dexie {
   constructor() {
     super('DiscalculasDB');
 
+    // Schema v3: Expanded drill module types (3→13 drills, 3→6 domains)
+    // No index changes needed — module field accepts any string value
+    this.version(3).stores({
+      sessions: '++id, timestamp, module, [timestamp+module]',
+      assessments: '++id, timestamp, status',
+      drill_results: '++id, sessionId, timestamp, module, [sessionId+module]',
+      telemetry_logs: '++id, timestamp, event, [timestamp+event]',
+      magic_minute_sessions: '++id, sessionId, timestamp',
+      difficulty_history: '++id, sessionId, timestamp, module',
+      experiments: '++id, status',
+      experiment_observations: '++id, experimentId, variantId, timestamp'
+    });
+
     // Schema v2: Added [sessionId+module] compound index for drill_results (Story 4.4)
-    // Note: Dexie handles index migrations automatically
     this.version(2).stores({
       // ++id: auto-increment primary key
       // field: indexed field

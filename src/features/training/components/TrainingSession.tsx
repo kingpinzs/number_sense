@@ -21,6 +21,14 @@ import SpatialRotationDrill from '@/features/training/drills/SpatialRotationDril
 import MathOperationsDrill from '@/features/training/drills/MathOperationsDrill';
 import SubitizingDrill from '@/features/training/drills/SubitizingDrill';
 import NumberBondsDrill from '@/features/training/drills/NumberBondsDrill';
+import MagnitudeComparisonDrill from '@/features/training/drills/MagnitudeComparisonDrill';
+import PlaceValueDrill from '@/features/training/drills/PlaceValueDrill';
+import EstimationDrill from '@/features/training/drills/EstimationDrill';
+import SequencingDrill from '@/features/training/drills/SequencingDrill';
+import FactFluencyDrill from '@/features/training/drills/FactFluencyDrill';
+import FractionsDrill from '@/features/training/drills/FractionsDrill';
+import TimeMeasurementDrill from '@/features/training/drills/TimeMeasurementDrill';
+import WorkingMemoryDrill from '@/features/training/drills/WorkingMemoryDrill';
 import ConfidencePromptBefore from './ConfidencePromptBefore';
 import ConfidencePromptAfter from './ConfidencePromptAfter';
 import SessionCompletionSummary from './SessionCompletionSummary';
@@ -73,7 +81,7 @@ export default function TrainingSession() {
   const [lastDrillCorrect, setLastDrillCorrect] = useState<boolean>(false);
   const [lastCorrectAnswer, setLastCorrectAnswer] = useState<string | number | undefined>(undefined);
   const [showTransition, setShowTransition] = useState(false);
-  const [nextDrillType, setNextDrillType] = useState<'number_line' | 'spatial_rotation' | 'math_operations' | null>(null);
+  const [nextDrillType, setNextDrillType] = useState<string | null>(null);
 
   // Dexie auto-generated session ID for drill foreign keys
   const [dbSessionId, setDbSessionId] = useState<number | null>(null);
@@ -92,7 +100,7 @@ export default function TrainingSession() {
   const { showTransparencyToast } = useTransparencyToast();
 
   const { settings } = useUserSettings();
-  const { state: sessionState, startTrainingSession, nextDrill, endSession, setConfidenceBefore, setConfidenceAfter, triggerMagicMinute, completeMagicMinute } = useSession();
+  const { state: sessionState, startTrainingSession, nextDrill, recordDrillResult, endSession, setConfidenceBefore, setConfidenceAfter, triggerMagicMinute, completeMagicMinute } = useSession();
 
   // Story 3.7: Initialize telemetry and database maintenance on mount
   useEffect(() => {
@@ -124,10 +132,13 @@ export default function TrainingSession() {
           setTrainingWeights(weights);
 
           // Determine session goal based on highest weight
-          const domainGoals = {
+          const domainGoals: Record<string, string> = {
             numberSense: 'Number Sense',
-            spatial: 'Spatial Awareness',
-            operations: 'Math Operations',
+            placeValue: 'Place Value',
+            sequencing: 'Sequencing',
+            arithmetic: 'Arithmetic',
+            spatial: 'Spatial Reasoning',
+            applied: 'Applied Math',
           };
 
           // Find domain with highest weight
@@ -135,9 +146,9 @@ export default function TrainingSession() {
             .reduce((max, [domain, weight]) =>
               weight > max.weight ? { domain, weight } : max,
               { domain: 'numberSense', weight: 0 }
-            ).domain as keyof TrainingPlanWeights;
+            ).domain;
 
-          setSessionGoal(domainGoals[highestDomain]);
+          setSessionGoal(domainGoals[highestDomain] ?? 'Training');
         }
       } catch (error) {
         console.error('Error loading assessment and weights:', error);
@@ -160,7 +171,11 @@ export default function TrainingSession() {
         sessionState.drillQueue &&
         sessionState.currentDrillIndex !== undefined) {
       const currentDrillType = sessionState.drillQueue[sessionState.currentDrillIndex];
-      const implementedTypes = ['number_line', 'spatial_rotation', 'math_operations', 'subitizing', 'number_bonds'];
+      const implementedTypes = [
+        'number_line', 'spatial_rotation', 'math_operations', 'subitizing', 'number_bonds',
+        'magnitude_comparison', 'place_value', 'estimation', 'sequencing', 'fact_fluency',
+        'fractions', 'time_measurement', 'working_memory',
+      ];
 
       if (!implementedTypes.includes(currentDrillType)) {
         if (sessionState.currentDrillIndex < sessionState.drillQueue.length - 1) {
@@ -271,6 +286,9 @@ export default function TrainingSession() {
       }
     }
 
+    // Record drill result in session state for accuracy tracking
+    recordDrillResult(result);
+
     // Story 3.5: Show feedback for 1.5s before advancing
     setLastDrillCorrect(result.isCorrect);
     setLastCorrectAnswer(result.correctAnswer);
@@ -287,7 +305,7 @@ export default function TrainingSession() {
       // Story 3.5: Show transition for 0.5s before next drill
       const nextIndex = sessionState.currentDrillIndex + 1;
       const nextType = sessionState.drillQueue[nextIndex];
-      setNextDrillType(nextType as any);
+      setNextDrillType(nextType);
       setShowTransition(true);
 
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -431,7 +449,7 @@ export default function TrainingSession() {
       // Show transition then advance
       const nextIndex = sessionState.currentDrillIndex + 1;
       const nextType = sessionState.drillQueue[nextIndex];
-      setNextDrillType(nextType as any);
+      setNextDrillType(nextType);
       setShowTransition(true);
 
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -566,6 +584,78 @@ export default function TrainingSession() {
           />
         )}
 
+        {currentDrillType === 'magnitude_comparison' && (
+          <MagnitudeComparisonDrill
+            key={`drill-${drillIndex}`}
+            difficulty={difficulty}
+            sessionId={dbSessionId ?? 0}
+            onComplete={handleDrillComplete}
+          />
+        )}
+
+        {currentDrillType === 'place_value' && (
+          <PlaceValueDrill
+            key={`drill-${drillIndex}`}
+            difficulty={difficulty}
+            sessionId={dbSessionId ?? 0}
+            onComplete={handleDrillComplete}
+          />
+        )}
+
+        {currentDrillType === 'estimation' && (
+          <EstimationDrill
+            key={`drill-${drillIndex}`}
+            difficulty={difficulty}
+            sessionId={dbSessionId ?? 0}
+            onComplete={handleDrillComplete}
+          />
+        )}
+
+        {currentDrillType === 'sequencing' && (
+          <SequencingDrill
+            key={`drill-${drillIndex}`}
+            difficulty={difficulty}
+            sessionId={dbSessionId ?? 0}
+            onComplete={handleDrillComplete}
+          />
+        )}
+
+        {currentDrillType === 'fact_fluency' && (
+          <FactFluencyDrill
+            key={`drill-${drillIndex}`}
+            difficulty={difficulty}
+            sessionId={dbSessionId ?? 0}
+            onComplete={handleDrillComplete}
+          />
+        )}
+
+        {currentDrillType === 'fractions' && (
+          <FractionsDrill
+            key={`drill-${drillIndex}`}
+            difficulty={difficulty}
+            sessionId={dbSessionId ?? 0}
+            onComplete={handleDrillComplete}
+          />
+        )}
+
+        {currentDrillType === 'time_measurement' && (
+          <TimeMeasurementDrill
+            key={`drill-${drillIndex}`}
+            difficulty={difficulty}
+            sessionId={dbSessionId ?? 0}
+            onComplete={handleDrillComplete}
+          />
+        )}
+
+        {currentDrillType === 'working_memory' && (
+          <WorkingMemoryDrill
+            key={`drill-${drillIndex}`}
+            difficulty={difficulty}
+            sessionId={dbSessionId ?? 0}
+            onComplete={handleDrillComplete}
+          />
+        )}
+
         {/* Story 3.5: Feedback overlay */}
         {showFeedback && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/90 backdrop-blur-sm">
@@ -601,7 +691,7 @@ export default function TrainingSession() {
     <div className="bg-background pb-20">
       <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-4xl flex-col">
         {/* Header */}
-        <div className="border-b bg-background p-6">
+        <div className="border-b bg-background px-6 py-3">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-semibold text-foreground">Training</h1>
             <StreakCounter />

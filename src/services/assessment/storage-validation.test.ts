@@ -18,8 +18,11 @@ describe('saveAssessmentResults - Validation', () => {
   it('accepts valid domain scores within 0-5 range', async () => {
     const validScores: DomainScores = {
       number_sense: 3.5,
+      place_value: 3.0,
+      sequencing: 2.5,
+      arithmetic: 4.5,
       spatial: 2.0,
-      operations: 4.5,
+      applied: 3.5,
     };
 
     const id = await saveAssessmentResults({
@@ -33,8 +36,11 @@ describe('saveAssessmentResults - Validation', () => {
   it('accepts boundary values (0 and 5)', async () => {
     const boundaryScores: DomainScores = {
       number_sense: 0,
+      place_value: 2.5,
+      sequencing: 5,
+      arithmetic: 2.5,
       spatial: 5,
-      operations: 2.5,
+      applied: 0,
     };
 
     const id = await saveAssessmentResults({
@@ -48,8 +54,11 @@ describe('saveAssessmentResults - Validation', () => {
   it('rejects scores above 5', async () => {
     const invalidScores: DomainScores = {
       number_sense: 6.0,
+      place_value: 3.0,
+      sequencing: 3.0,
+      arithmetic: 2.0,
       spatial: 3.0,
-      operations: 2.0,
+      applied: 3.0,
     };
 
     await expect(
@@ -63,8 +72,11 @@ describe('saveAssessmentResults - Validation', () => {
   it('rejects scores below 0', async () => {
     const invalidScores: DomainScores = {
       number_sense: 2.0,
+      place_value: 3.0,
+      sequencing: 3.0,
+      arithmetic: 3.0,
       spatial: -1.0,
-      operations: 3.0,
+      applied: 3.0,
     };
 
     await expect(
@@ -78,8 +90,11 @@ describe('saveAssessmentResults - Validation', () => {
   it('rejects non-numeric scores', async () => {
     const invalidScores = {
       number_sense: 'high' as any,
+      place_value: 3.0,
+      sequencing: 3.0,
+      arithmetic: 2.0,
       spatial: 3.0,
-      operations: 2.0,
+      applied: 3.0,
     };
 
     await expect(

@@ -18,6 +18,14 @@ export const MODULE_FRIENDLY_NAMES: Record<DifficultyModule, string> = {
   math_operations: 'Math Operations',
   subitizing: 'Quick Count',
   number_bonds: 'Number Bonds',
+  magnitude_comparison: 'Number Comparison',
+  place_value: 'Place Value',
+  estimation: 'Estimation',
+  sequencing: 'Sequencing',
+  fact_fluency: 'Fact Fluency',
+  fractions: 'Fractions',
+  time_measurement: 'Time & Measurement',
+  working_memory: 'Working Memory',
 };
 
 /**

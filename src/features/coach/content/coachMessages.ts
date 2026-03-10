@@ -8,6 +8,16 @@ const MODULE_DISPLAY_NAMES: Record<string, string> = {
   'number_line': 'Number Line',
   'spatial_rotation': 'Spatial Rotation',
   'math_operations': 'Math Operations',
+  'subitizing': 'Quick Count',
+  'number_bonds': 'Number Bonds',
+  'magnitude_comparison': 'Number Comparison',
+  'place_value': 'Place Value',
+  'estimation': 'Estimation',
+  'sequencing': 'Sequencing',
+  'fact_fluency': 'Fact Fluency',
+  'fractions': 'Fractions',
+  'time_measurement': 'Time & Measurement',
+  'working_memory': 'Working Memory',
 };
 
 export function getModuleDisplayName(module: string | null): string {

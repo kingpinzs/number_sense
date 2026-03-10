@@ -9,8 +9,11 @@ import type { Assessment } from '@/services/storage/schemas';
 // Zod schema for runtime validation of domain scores
 const DomainScoresSchema = z.object({
   number_sense: z.number().min(0).max(5),
+  place_value: z.number().min(0).max(5),
+  sequencing: z.number().min(0).max(5),
+  arithmetic: z.number().min(0).max(5),
   spatial: z.number().min(0).max(5),
-  operations: z.number().min(0).max(5),
+  applied: z.number().min(0).max(5),
 });
 
 export interface AssessmentResults {
@@ -21,11 +24,14 @@ export interface AssessmentResults {
   };
 }
 
-// Question counts per domain (from scoring algorithm)
+// Question counts per domain (from scoring algorithm — 3 each, 18 total)
 const DOMAIN_QUESTION_COUNTS = {
-  number_sense: 4,
+  number_sense: 3,
+  place_value: 3,
+  sequencing: 3,
+  arithmetic: 3,
   spatial: 3,
-  operations: 3,
+  applied: 3,
 } as const;
 
 /**
@@ -101,10 +107,16 @@ function formatDomainName(domain: string): string {
   switch (domain) {
     case 'number_sense':
       return 'Number Sense';
+    case 'place_value':
+      return 'Place Value & Estimation';
+    case 'sequencing':
+      return 'Sequencing & Patterns';
+    case 'arithmetic':
+      return 'Arithmetic Fluency';
     case 'spatial':
-      return 'Spatial Awareness';
-    case 'operations':
-      return 'Operations';
+      return 'Spatial Reasoning';
+    case 'applied':
+      return 'Applied Math';
     default:
       return domain;
   }

@@ -112,8 +112,11 @@ export function ResultsSummary({ domainScores, completionTime, onStartTraining }
   // Domain display names
   const domains: { key: keyof DomainScores; name: string }[] = [
     { key: 'number_sense', name: 'Number Sense' },
-    { key: 'spatial', name: 'Spatial Awareness' },
-    { key: 'operations', name: 'Operations' },
+    { key: 'place_value', name: 'Place Value & Estimation' },
+    { key: 'sequencing', name: 'Sequencing & Patterns' },
+    { key: 'arithmetic', name: 'Arithmetic Fluency' },
+    { key: 'spatial', name: 'Spatial Reasoning' },
+    { key: 'applied', name: 'Applied Math' },
   ];
 
   // Get configurations for all domains
