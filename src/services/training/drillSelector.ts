@@ -3,6 +3,7 @@
 // Task 4: Implement Drill Selection Service
 
 import { db } from '@/services/storage/db';
+import { calculateSymptomBoost, applySymptomBoost } from '@/services/assessment/symptomWeighting';
 
 /**
  * Training plan weights from assessment (6 domains)
@@ -97,7 +98,7 @@ export async function loadTrainingPlanWeights(): Promise<TrainingPlanWeights> {
   }
 
   // Normalize each weight
-  const normalizedWeights: TrainingPlanWeights = {
+  let normalizedWeights: TrainingPlanWeights = {
     numberSense: rawWeights.numberSense / sum,
     placeValue: rawWeights.placeValue / sum,
     sequencing: rawWeights.sequencing / sum,
@@ -105,6 +106,21 @@ export async function loadTrainingPlanWeights(): Promise<TrainingPlanWeights> {
     spatial: rawWeights.spatial / sum,
     applied: rawWeights.applied / sum,
   };
+
+  // Apply symptom boost if a symptom checklist exists (backward compatible)
+  try {
+    const latestChecklist = await db.symptom_checklists
+      .orderBy('timestamp')
+      .reverse()
+      .first();
+
+    if (latestChecklist) {
+      const boost = calculateSymptomBoost(latestChecklist);
+      normalizedWeights = applySymptomBoost(normalizedWeights, boost);
+    }
+  } catch {
+    // Silently ignore — no symptom data means no boost
+  }
 
   return normalizedWeights;
 }

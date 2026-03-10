@@ -4,6 +4,7 @@
 
 import { db } from './db';
 import type { Session, DrillResult, TelemetryLog } from './schemas';
+import type { SymptomChecklistEntry, PersonalHistory } from '@/features/self-discovery/types';
 
 /**
  * Exported session data structure
@@ -130,19 +131,25 @@ export async function exportAllTrainingData(): Promise<{
   sessions: Session[];
   drillResults: DrillResult[];
   telemetryLogs: TelemetryLog[];
+  symptomChecklists: SymptomChecklistEntry[];
+  personalHistory: PersonalHistory[];
   exportedAt: string;
 }> {
   try {
-    const [sessions, drillResults, telemetryLogs] = await Promise.all([
+    const [sessions, drillResults, telemetryLogs, symptomChecklists, personalHistory] = await Promise.all([
       db.sessions.toArray(),
       db.drill_results.toArray(),
-      db.telemetry_logs.toArray()
+      db.telemetry_logs.toArray(),
+      db.symptom_checklists.toArray(),
+      db.personal_history.toArray()
     ]);
 
     return {
       sessions,
       drillResults,
       telemetryLogs,
+      symptomChecklists,
+      personalHistory,
       exportedAt: new Date().toISOString()
     };
   } catch (error) {

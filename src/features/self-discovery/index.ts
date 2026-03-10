@@ -1,0 +1,21 @@
+// Self-Discovery feature public API
+export type {
+  Domain,
+  SymptomSeverity,
+  SymptomResponse,
+  SymptomChecklistEntry,
+  HistoryCompletionStatus,
+  HistorySectionData,
+  PersonalHistory,
+  SymptomCategory,
+  SymptomDefinition,
+  IntakeFieldType,
+  IntakeField,
+  IntakeSection,
+  ColoredDotsDifficulty,
+  DotSize,
+  SizeMode,
+  ColoredDot,
+  ColorSizeStats,
+  ColoredDotsRoundResult,
+} from './types';

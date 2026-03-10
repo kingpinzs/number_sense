@@ -3,7 +3,7 @@
 // Extended: Speed Math, Number Rush, Sequence Snap, Clock Challenge, Estimate It
 
 import { useState } from 'react';
-import { Brain, Grid3X3, FlipHorizontal2, LayoutGrid, Zap, ArrowUpDown, ListOrdered, Clock, Target } from 'lucide-react';
+import { Brain, Grid3X3, FlipHorizontal2, LayoutGrid, Zap, ArrowUpDown, ListOrdered, Clock, Target, Eye } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
 import PatternMatchGame from '@/features/cognition/games/PatternMatchGame';
@@ -14,6 +14,7 @@ import NumberRushGame from '@/features/cognition/games/NumberRushGame';
 import SequenceSnapGame from '@/features/cognition/games/SequenceSnapGame';
 import ClockChallengeGame from '@/features/cognition/games/ClockChallengeGame';
 import EstimateItGame from '@/features/cognition/games/EstimateItGame';
+import ColoredDotsGame from '@/features/cognition/games/ColoredDotsGame';
 
 interface GameCardProps {
   title: string;
@@ -126,6 +127,13 @@ export default function CognitionRoute() {
             available={true}
             onPlay={() => setSelectedGame('memory-grid')}
           />
+          <GameCard
+            title="Colored Dots"
+            description="Spot the most common color"
+            icon={Eye}
+            available={true}
+            onPlay={() => setSelectedGame('colored-dots')}
+          />
         </div>
       </div>
     );
@@ -149,6 +157,8 @@ export default function CognitionRoute() {
       return <SpatialFlipGame onBack={handleBack} />;
     case 'memory-grid':
       return <MemoryGridGame onBack={handleBack} />;
+    case 'colored-dots':
+      return <ColoredDotsGame onBack={handleBack} />;
     default:
       return null;
   }

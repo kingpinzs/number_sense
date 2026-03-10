@@ -2,7 +2,8 @@
 // Story 8.4: Implement Research Mode Settings Toggle
 
 import { useState } from 'react';
-import { Volume2, Accessibility, Lightbulb, FlaskConical, Moon, Zap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Volume2, Accessibility, Lightbulb, FlaskConical, Moon, Zap, Search } from 'lucide-react';
 import type { ThemePreference } from '@/services/storage/localStorage';
 import { useUserSettings } from '@/context/UserSettingsContext';
 import { Switch } from '@/shared/components/ui/switch';
@@ -24,6 +25,7 @@ import {
 import { Button } from '@/shared/components/ui/button';
 
 export default function ProfileRoute() {
+  const navigate = useNavigate();
   const { settings, updateSettings } = useUserSettings();
   const [consentOpen, setConsentOpen] = useState(false);
 
@@ -186,6 +188,19 @@ export default function ProfileRoute() {
             />
           </div>
         </CardContent>
+      </Card>
+
+      {/* Self-Discovery Profile Link */}
+      <Card className="mb-4 cursor-pointer hover:border-primary/40 transition-colors" onClick={() => navigate('/self-discovery')}>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Search className="h-5 w-5 text-primary" aria-hidden="true" />
+            My Self-Discovery Profile
+          </CardTitle>
+          <CardDescription>
+            Symptom checklist, personal history, and visual processing results.
+          </CardDescription>
+        </CardHeader>
       </Card>
 
       {/* Research & Experiments */}

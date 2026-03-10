@@ -29,9 +29,9 @@ describe('Database Migrations', () => {
 
       const versionAfter = testDB.verno;
 
-      // Version should remain 3 (no migrations applied)
+      // Version should remain 4 (no migrations applied)
       expect(versionAfter).toBe(versionBefore);
-      expect(versionAfter).toBe(3);
+      expect(versionAfter).toBe(4);
     });
 
     it('preserves existing data', async () => {
@@ -62,7 +62,7 @@ describe('Database Migrations', () => {
       const tablesAfter = testDB.tables.length;
 
       expect(tablesAfter).toBe(tablesBefore);
-      expect(tablesAfter).toBe(8); // 8 tables in schema v1
+      expect(tablesAfter).toBe(10); // 10 tables in schema v4
     });
 
     it('maintains all table schemas', () => {
@@ -77,7 +77,9 @@ describe('Database Migrations', () => {
         'experiment_observations',
         'experiments',
         'magic_minute_sessions',
+        'personal_history',
         'sessions',
+        'symptom_checklists',
         'telemetry_logs'
       ]);
     });
@@ -86,7 +88,7 @@ describe('Database Migrations', () => {
   describe('Future Migration Preparedness', () => {
     it('database supports version upgrades', async () => {
       // Verify Dexie supports versioning
-      expect(testDB.verno).toBe(3);
+      expect(testDB.verno).toBe(4);
 
       // Verify version method exists
       expect(typeof testDB.version).toBe('function');

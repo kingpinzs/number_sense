@@ -14,11 +14,12 @@ import type {
   Experiment,
   ExperimentObservation
 } from './schemas';
+import type { SymptomChecklistEntry, PersonalHistory } from '@/features/self-discovery/types';
 
 /**
  * DiscalculasDB - Main database class for local data persistence
  *
- * Schema v1 includes 8 tables:
+ * Schema v4 includes 10 tables:
  * - sessions: User training/assessment sessions
  * - assessments: Diagnostic assessment results
  * - drill_results: Individual drill performance
@@ -27,6 +28,8 @@ import type {
  * - difficulty_history: Adaptive difficulty tracking
  * - experiments: A/B test definitions
  * - experiment_observations: Experiment metrics
+ * - symptom_checklists: Dyscalculia symptom self-assessments
+ * - personal_history: Developmental/medical/academic questionnaire
  */
 export class DiscalculasDB extends Dexie {
   // Table declarations with TypeScript types
@@ -38,9 +41,25 @@ export class DiscalculasDB extends Dexie {
   difficulty_history!: Table<DifficultyHistory, number>;
   experiments!: Table<Experiment, number>;
   experiment_observations!: Table<ExperimentObservation, number>;
+  symptom_checklists!: Table<SymptomChecklistEntry, number>;
+  personal_history!: Table<PersonalHistory, number>;
 
   constructor() {
     super('DiscalculasDB');
+
+    // Schema v4: Added symptom_checklists and personal_history tables
+    this.version(4).stores({
+      sessions: '++id, timestamp, module, [timestamp+module]',
+      assessments: '++id, timestamp, status',
+      drill_results: '++id, sessionId, timestamp, module, [sessionId+module]',
+      telemetry_logs: '++id, timestamp, event, [timestamp+event]',
+      magic_minute_sessions: '++id, sessionId, timestamp',
+      difficulty_history: '++id, sessionId, timestamp, module',
+      experiments: '++id, status',
+      experiment_observations: '++id, experimentId, variantId, timestamp',
+      symptom_checklists: '++id, timestamp',
+      personal_history: '++id, timestamp, completionStatus'
+    });
 
     // Schema v3: Expanded drill module types (3→13 drills, 3→6 domains)
     // No index changes needed — module field accepts any string value

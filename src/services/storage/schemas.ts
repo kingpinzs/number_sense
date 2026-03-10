@@ -56,7 +56,7 @@ export interface DrillResult {
   timestamp: string;        // ISO 8601 drill completion time
   module: 'number_line' | 'spatial_rotation' | 'math_operations' | 'subitizing' | 'number_bonds'
     | 'magnitude_comparison' | 'place_value' | 'estimation' | 'sequencing' | 'fact_fluency'
-    | 'fractions' | 'time_measurement' | 'working_memory';  // Drill type
+    | 'fractions' | 'time_measurement' | 'working_memory' | 'colored_dots';  // Drill type
   difficulty: 'easy' | 'medium' | 'hard';
   isCorrect: boolean;
   timeToAnswer: number;     // Milliseconds

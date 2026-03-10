@@ -22,6 +22,7 @@ const ProgressRoute = lazy(() => import('@/routes/ProgressRoute'));
 const ProfileRoute = lazy(() => import('@/routes/ProfileRoute'));
 const CognitionRoute = lazy(() => import('@/routes/CognitionRoute'));
 const ResearchRoute = lazy(() => import('@/routes/ResearchRoute'));
+const SelfDiscoveryRoute = lazy(() => import('@/routes/SelfDiscoveryRoute'));
 
 /**
  * App - Main application component
@@ -68,6 +69,7 @@ function AppContent() {
           <Route path="/progress" element={<ProgressRoute />} />
           <Route path="/profile" element={<ProfileRoute />} />
           <Route path="/research" element={<ResearchRoute />} />
+          <Route path="/self-discovery" element={<SelfDiscoveryRoute />} />
         </Routes>
       </Suspense>
       <BottomNav />

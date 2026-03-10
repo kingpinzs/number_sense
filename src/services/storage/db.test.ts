@@ -37,11 +37,11 @@ describe('DiscalculasDB', () => {
       expect(testDB.name).toBe('DiscalculasDB');
     });
 
-    it('has version 3', () => {
-      expect(testDB.verno).toBe(3);
+    it('has version 4', () => {
+      expect(testDB.verno).toBe(4);
     });
 
-    it('defines all 8 tables', () => {
+    it('defines all 10 tables', () => {
       const tables = testDB.tables.map(t => t.name).sort();
       expect(tables).toEqual([
         'assessments',
@@ -50,7 +50,9 @@ describe('DiscalculasDB', () => {
         'experiment_observations',
         'experiments',
         'magic_minute_sessions',
+        'personal_history',
         'sessions',
+        'symptom_checklists',
         'telemetry_logs'
       ]);
     });

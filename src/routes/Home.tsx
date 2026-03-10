@@ -6,7 +6,7 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Dumbbell, Target, Sparkles, Lock, Brain, BarChart3 } from 'lucide-react';
+import { Dumbbell, Target, Sparkles, Lock, Brain, BarChart3, Search } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { db } from '@/services/storage/db';
@@ -175,6 +175,21 @@ export default function Home() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Self-Discovery — always available */}
+          <Card className="mt-3 cursor-pointer hover:border-primary/40 transition-colors" onClick={() => navigate('/self-discovery')}>
+            <CardHeader className="pb-2 pt-4">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Search className="h-5 w-5 text-primary" />
+                Self-Discovery
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pb-4">
+              <p className="text-sm text-muted-foreground">
+                Understand your number processing patterns with symptom checklists and visual tests.
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </main>
     );
@@ -224,6 +239,21 @@ export default function Home() {
 
         {/* Quick Actions - Story 6.2 */}
         <QuickActions />
+
+        {/* Self-Discovery Card */}
+        <Card className="mt-4 cursor-pointer hover:border-primary/40 transition-colors" onClick={() => navigate('/self-discovery')}>
+          <CardHeader className="pb-2 pt-4">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Search className="h-5 w-5 text-primary" />
+              Self-Discovery
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pb-4">
+            <p className="text-sm text-muted-foreground">
+              Understand your number processing patterns.
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Milestone Celebration Modal */}
