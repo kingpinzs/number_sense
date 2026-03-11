@@ -30,7 +30,10 @@ export const STORAGE_KEYS = {
   SYNC_QUEUE: 'discalculas:syncQueue',
   // Story 8.1: Research mode experiment infrastructure
   USER_ID: 'discalculas:userId',
-  EXPERIMENT_ASSIGNMENTS: 'discalculas:experimentAssignments'
+  EXPERIMENT_ASSIGNMENTS: 'discalculas:experimentAssignments',
+  // Smart notifications
+  NOTIFICATION_SKIP_HISTORY: 'discalculas:notificationSkips',
+  NOTIFICATION_LAST_SHOWN: 'discalculas:notificationLastShown'
 } as const;
 
 /**
@@ -46,6 +49,11 @@ export interface UserSettings {
   showAdaptiveToasts: boolean;
   theme: ThemePreference;
   magicMinuteEnabled: boolean;
+  notificationsEnabled: boolean;
+  /** Preferred hour of day for training reminder (0-23) */
+  notificationHour: number;
+  /** Automatically shift reminder time based on performance patterns */
+  smartScheduling: boolean;
 }
 
 /**
@@ -58,7 +66,10 @@ export const DEFAULT_SETTINGS: UserSettings = {
   researchModeEnabled: false,
   showAdaptiveToasts: true,
   theme: 'system',
-  magicMinuteEnabled: true
+  magicMinuteEnabled: true,
+  notificationsEnabled: false,
+  notificationHour: 9,
+  smartScheduling: true
 };
 
 /**
@@ -73,6 +84,11 @@ const VALID_THEMES: ThemePreference[] = ['light', 'dark', 'system'];
 function validateUserSettings(obj: any): UserSettings {
   const rawTheme = obj?.theme;
   const theme: ThemePreference = VALID_THEMES.includes(rawTheme) ? rawTheme : DEFAULT_SETTINGS.theme;
+  const rawHour = Number(obj?.notificationHour);
+  const notificationHour =
+    Number.isInteger(rawHour) && rawHour >= 0 && rawHour <= 23
+      ? rawHour
+      : DEFAULT_SETTINGS.notificationHour;
   return {
     reducedMotion: Boolean(obj?.reducedMotion ?? DEFAULT_SETTINGS.reducedMotion),
     soundEnabled: Boolean(obj?.soundEnabled ?? DEFAULT_SETTINGS.soundEnabled),
@@ -80,7 +96,10 @@ function validateUserSettings(obj: any): UserSettings {
     researchModeEnabled: Boolean(obj?.researchModeEnabled ?? DEFAULT_SETTINGS.researchModeEnabled),
     showAdaptiveToasts: Boolean(obj?.showAdaptiveToasts ?? DEFAULT_SETTINGS.showAdaptiveToasts),
     theme,
-    magicMinuteEnabled: Boolean(obj?.magicMinuteEnabled ?? DEFAULT_SETTINGS.magicMinuteEnabled)
+    magicMinuteEnabled: Boolean(obj?.magicMinuteEnabled ?? DEFAULT_SETTINGS.magicMinuteEnabled),
+    notificationsEnabled: Boolean(obj?.notificationsEnabled ?? DEFAULT_SETTINGS.notificationsEnabled),
+    notificationHour,
+    smartScheduling: Boolean(obj?.smartScheduling ?? DEFAULT_SETTINGS.smartScheduling)
   };
 }
 

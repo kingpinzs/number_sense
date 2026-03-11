@@ -59,7 +59,10 @@ describe('LocalStorage Wrapper', () => {
         researchModeEnabled: true,
         showAdaptiveToasts: false,
         theme: 'dark',
-        magicMinuteEnabled: true
+        magicMinuteEnabled: true,
+        notificationsEnabled: true,
+        notificationHour: 18,
+        smartScheduling: false
       };
 
       localStorage.setItem(STORAGE_KEYS.USER_SETTINGS, JSON.stringify(customSettings));
@@ -122,7 +125,10 @@ describe('LocalStorage Wrapper', () => {
         researchModeEnabled: true,
         showAdaptiveToasts: false,
         theme: 'dark',
-        magicMinuteEnabled: true
+        magicMinuteEnabled: true,
+        notificationsEnabled: true,
+        notificationHour: 20,
+        smartScheduling: false
       };
 
       setUserSettings(newSettings);
@@ -300,8 +306,58 @@ describe('LocalStorage Wrapper', () => {
         researchModeEnabled: false,
         showAdaptiveToasts: true,
         theme: 'system',
-        magicMinuteEnabled: true
+        magicMinuteEnabled: true,
+        notificationsEnabled: false,
+        notificationHour: 9,
+        smartScheduling: true
       });
+    });
+  });
+
+  describe('notification settings', () => {
+    it('notificationsEnabled defaults to false', () => {
+      const settings = getUserSettings();
+      expect(settings.notificationsEnabled).toBe(false);
+    });
+
+    it('notificationHour defaults to 9', () => {
+      const settings = getUserSettings();
+      expect(settings.notificationHour).toBe(9);
+    });
+
+    it('smartScheduling defaults to true', () => {
+      const settings = getUserSettings();
+      expect(settings.smartScheduling).toBe(true);
+    });
+
+    it('persists notification settings', () => {
+      setUserSettings({ notificationsEnabled: true, notificationHour: 18, smartScheduling: false });
+      const settings = getUserSettings();
+      expect(settings.notificationsEnabled).toBe(true);
+      expect(settings.notificationHour).toBe(18);
+      expect(settings.smartScheduling).toBe(false);
+    });
+
+    it('validates notificationHour clamps to defaults for out-of-range values', () => {
+      const malformed = { ...DEFAULT_SETTINGS, notificationHour: 25 };
+      localStorage.setItem(STORAGE_KEYS.USER_SETTINGS, JSON.stringify(malformed));
+      const settings = getUserSettings();
+      expect(settings.notificationHour).toBe(DEFAULT_SETTINGS.notificationHour);
+    });
+
+    it('validates notificationHour for negative values', () => {
+      const malformed = { ...DEFAULT_SETTINGS, notificationHour: -1 };
+      localStorage.setItem(STORAGE_KEYS.USER_SETTINGS, JSON.stringify(malformed));
+      const settings = getUserSettings();
+      expect(settings.notificationHour).toBe(DEFAULT_SETTINGS.notificationHour);
+    });
+
+    it('accepts valid boundary values (0 and 23) for notificationHour', () => {
+      setUserSettings({ notificationHour: 0 });
+      expect(getUserSettings().notificationHour).toBe(0);
+
+      setUserSettings({ notificationHour: 23 });
+      expect(getUserSettings().notificationHour).toBe(23);
     });
   });
 

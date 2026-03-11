@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '../../tests/test-utils';
+import { render, screen } from '../../tests/test-utils';
 import userEvent from '@testing-library/user-event';
+import { fireEvent } from '@testing-library/react';
 import ProfileRoute from './ProfileRoute';
 
 // ─── Mocks ───────────────────────────────────────────────────────────────────
@@ -21,6 +22,10 @@ vi.mock('@/context/UserSettingsContext', async (importOriginal) => {
         dailyGoalMinutes: 60,
         showAdaptiveToasts: true,
         theme: 'system',
+        magicMinuteEnabled: true,
+        notificationsEnabled: false,
+        notificationHour: 9,
+        smartScheduling: true,
       },
       updateSettings: mockUpdateSettings,
     }),
@@ -29,9 +34,33 @@ vi.mock('@/context/UserSettingsContext', async (importOriginal) => {
 
 // ─── Setup ────────────────────────────────────────────────────────────────────
 
+// Install a minimal Notification API mock so the permission-request code path is testable
+let notificationPermission: NotificationPermission = 'default';
+const mockNotificationConstructor = vi.fn();
+const mockWindowNotificationRequestPermission = vi.fn(async () => notificationPermission);
+
+function installNotificationMock() {
+  function MockNotification(title: string, opts: unknown) {
+    mockNotificationConstructor(title, opts);
+  }
+  Object.defineProperty(MockNotification, 'permission', {
+    get: () => notificationPermission,
+    configurable: true
+  });
+  (MockNotification as any).requestPermission = mockWindowNotificationRequestPermission;
+  Object.defineProperty(window, 'Notification', {
+    value: MockNotification,
+    configurable: true,
+    writable: true
+  });
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
   mockResearchModeEnabled = false;
+  notificationPermission = 'default';
+  mockWindowNotificationRequestPermission.mockImplementation(async () => notificationPermission);
+  installNotificationMock();
 });
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
@@ -160,5 +189,57 @@ describe('ProfileRoute — toggle OFF behavior', () => {
 
     expect(mockUpdateSettings).toHaveBeenCalledWith({ researchModeEnabled: false });
     expect(screen.queryByText('About Research Mode')).not.toBeInTheDocument();
+  });
+});
+
+describe('ProfileRoute — smart notifications section', () => {
+  it('renders the "Smart Notifications" section heading', () => {
+    render(<ProfileRoute />);
+    expect(screen.getByText('Smart Notifications')).toBeInTheDocument();
+  });
+
+  it('renders the "Enable Reminders" switch as unchecked by default', () => {
+    render(<ProfileRoute />);
+    const toggle = screen.getByRole('switch', { name: 'Enable Reminders' });
+    expect(toggle).toHaveAttribute('data-state', 'unchecked');
+  });
+
+  it('does not render reminder time or smart scheduling controls when disabled', () => {
+    render(<ProfileRoute />);
+    expect(screen.queryByLabelText('Reminder Time')).not.toBeInTheDocument();
+    expect(screen.queryByRole('switch', { name: 'Smart Scheduling' })).not.toBeInTheDocument();
+  });
+
+  it('enabling the switch requests browser notification permission', async () => {
+    const user = userEvent.setup();
+    render(<ProfileRoute />);
+
+    await user.click(screen.getByRole('switch', { name: 'Enable Reminders' }));
+
+    expect(mockWindowNotificationRequestPermission).toHaveBeenCalledOnce();
+  });
+
+  it('enabling the switch calls updateSettings when permission is granted', async () => {
+    notificationPermission = 'default'; // triggers requestPermission
+    mockWindowNotificationRequestPermission.mockImplementation(async () => {
+      notificationPermission = 'granted';
+      return 'granted';
+    });
+    const user = userEvent.setup();
+    render(<ProfileRoute />);
+
+    await user.click(screen.getByRole('switch', { name: 'Enable Reminders' }));
+
+    expect(mockUpdateSettings).toHaveBeenCalledWith({ notificationsEnabled: true });
+  });
+
+  it('does NOT call updateSettings when permission is denied', async () => {
+    mockWindowNotificationRequestPermission.mockResolvedValue('denied');
+    const user = userEvent.setup();
+    render(<ProfileRoute />);
+
+    await user.click(screen.getByRole('switch', { name: 'Enable Reminders' }));
+
+    expect(mockUpdateSettings).not.toHaveBeenCalled();
   });
 });

@@ -1,9 +1,9 @@
 // ProfileRoute — User settings page
 // Story 8.4: Implement Research Mode Settings Toggle
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Volume2, Accessibility, Lightbulb, FlaskConical, Moon, Zap, Search } from 'lucide-react';
+import { Volume2, Accessibility, Lightbulb, FlaskConical, Moon, Zap, Search, Bell } from 'lucide-react';
 import type { ThemePreference } from '@/services/storage/localStorage';
 import { useUserSettings } from '@/context/UserSettingsContext';
 import { Switch } from '@/shared/components/ui/switch';
@@ -23,11 +23,17 @@ import {
   DialogTitle,
 } from '@/shared/components/ui/dialog';
 import { Button } from '@/shared/components/ui/button';
+import { requestNotificationPermission, formatHour } from '@/services/notifications';
 
 export default function ProfileRoute() {
   const navigate = useNavigate();
   const { settings, updateSettings } = useUserSettings();
   const [consentOpen, setConsentOpen] = useState(false);
+  const [notifPermission, setNotifPermission] = useState<NotificationPermission>(
+    typeof window !== 'undefined' && 'Notification' in window
+      ? Notification.permission
+      : 'denied'
+  );
 
   function handleResearchToggle(checked: boolean) {
     if (checked) {
@@ -43,6 +49,18 @@ export default function ProfileRoute() {
     updateSettings({ researchModeEnabled: true });
     setConsentOpen(false);
   }
+
+  const handleNotificationsToggle = useCallback(
+    async (checked: boolean) => {
+      if (checked && typeof window !== 'undefined' && 'Notification' in window) {
+        const permission = await requestNotificationPermission();
+        setNotifPermission(permission);
+        if (permission === 'denied') return; // Don't enable if user blocked
+      }
+      updateSettings({ notificationsEnabled: checked });
+    },
+    [updateSettings]
+  );
 
   return (
     <div className="min-h-screen bg-background p-4 max-w-2xl mx-auto pb-20">
@@ -187,6 +205,76 @@ export default function ProfileRoute() {
               aria-label="Enable Boost Round"
             />
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Smart Notifications */}
+      <Card className="mb-4">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Bell className="h-5 w-5 text-primary" aria-hidden="true" />
+            Smart Notifications
+          </CardTitle>
+          <CardDescription>
+            Get reminded at the best time to train. The app learns when you perform
+            best and automatically suggests adjusting your reminder.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between min-h-[44px]">
+            <label htmlFor="notifications-switch" className="text-sm font-medium">
+              Enable Reminders
+            </label>
+            <Switch
+              id="notifications-switch"
+              checked={settings.notificationsEnabled}
+              onCheckedChange={handleNotificationsToggle}
+              aria-label="Enable Reminders"
+            />
+          </div>
+          {notifPermission === 'denied' && (
+            <p className="text-xs text-destructive" role="alert">
+              Notifications are blocked by your browser. Enable them in your device settings to receive reminders.
+            </p>
+          )}
+          {settings.notificationsEnabled && (
+            <>
+              <div className="flex items-center justify-between min-h-[44px]">
+                <label htmlFor="notification-hour-select" className="text-sm font-medium">
+                  Reminder Time
+                </label>
+                <select
+                  id="notification-hour-select"
+                  value={settings.notificationHour}
+                  onChange={(e) => updateSettings({ notificationHour: Number(e.target.value) })}
+                  className="rounded-md border border-input bg-background px-3 py-1.5 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  aria-label="Reminder Time"
+                >
+                  {Array.from({ length: 24 }, (_, i) => (
+                    <option key={i} value={i}>
+                      {formatHour(i)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-center justify-between min-h-[44px]">
+                <div>
+                  <label htmlFor="smart-scheduling-switch" className="text-sm font-medium">
+                    Smart Scheduling
+                  </label>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Suggest better times based on your performance patterns
+                  </p>
+                </div>
+                <Switch
+                  id="smart-scheduling-switch"
+                  checked={settings.smartScheduling}
+                  onCheckedChange={(checked) => updateSettings({ smartScheduling: checked })}
+                  aria-label="Smart Scheduling"
+                />
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 
