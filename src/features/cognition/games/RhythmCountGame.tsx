@@ -88,10 +88,16 @@ function shuffle<T>(arr: T[]): T[] {
 function generateRoundQuestion(difficulty: 'easy' | 'medium' | 'hard'): RoundQuestion {
   const cfg = DIFFICULTY_CONFIGS[difficulty];
   const step = pickRandom(cfg.steps);
-  // Start must be a multiple of step (like kids learn: 5, 10, 15... not 8, 13, 18)
-  const maxMultiple = Math.floor(cfg.maxStart / step);
-  const minMultiple = Math.ceil(cfg.minStart / step);
-  const start = randInt(minMultiple, maxMultiple) * step;
+  // Easy: start on multiples (5, 10, 15) for memorization/rhythm
+  // Medium/Hard: any start (8, 13, 18) forces understanding the pattern, not reciting
+  let start: number;
+  if (difficulty === 'easy') {
+    const maxMultiple = Math.floor(cfg.maxStart / step);
+    const minMultiple = Math.ceil(cfg.minStart / step);
+    start = randInt(minMultiple, maxMultiple) * step;
+  } else {
+    start = randInt(cfg.minStart, cfg.maxStart);
+  }
 
   const values: number[] = [];
   for (let i = 0; i < cfg.sequenceLength; i++) {
