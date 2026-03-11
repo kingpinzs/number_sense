@@ -230,7 +230,7 @@ describe('useTransparencyToast', () => {
       expect(options?.position).toBe('top-right');
     });
 
-    it('uses bottom-center position on mobile', () => {
+    it('uses top-center position on mobile', () => {
       Object.defineProperty(window, 'innerWidth', { value: 600 });
 
       const { result } = renderHook(() => useTransparencyToast());
@@ -241,7 +241,7 @@ describe('useTransparencyToast', () => {
       });
 
       const [, options] = mockToast.mock.calls[0];
-      expect(options?.position).toBe('bottom-center');
+      expect(options?.position).toBe('top-center');
     });
   });
 
