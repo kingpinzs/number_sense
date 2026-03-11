@@ -142,7 +142,10 @@ describe('UserSettingsContext', () => {
         researchModeEnabled: false,
         showAdaptiveToasts: true,
         theme: 'system',
-        magicMinuteEnabled: true
+        magicMinuteEnabled: true,
+        notificationsEnabled: false,
+        notificationHour: 9,
+        smartScheduling: true
       });
     });
 

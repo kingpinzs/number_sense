@@ -35,6 +35,9 @@ export default [
         cancelAnimationFrame: 'readonly',
         getComputedStyle: 'readonly',
         AudioContext: 'readonly',
+        // Notifications
+        Notification: 'readonly',
+        NotificationPermission: 'readonly',
         // URL/Blob
         URL: 'readonly',
         Blob: 'readonly',

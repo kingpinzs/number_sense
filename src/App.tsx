@@ -12,6 +12,7 @@ import { useServiceWorker } from '@/services/pwa/useServiceWorker';
 import { InstallPrompt } from '@/shared/components/InstallPrompt';
 import { SyncIndicator } from '@/shared/components/SyncIndicator';
 import { useInstallPrompt } from '@/services/pwa/useInstallPrompt';
+import { useSmartNotifications } from '@/services/notifications';
 
 const isNative = Capacitor.isNativePlatform();
 
@@ -37,6 +38,11 @@ const SelfDiscoveryRoute = lazy(() => import('@/routes/SelfDiscoveryRoute'));
  */
 function ServiceWorkerRegistration() {
   useServiceWorker();
+  return null;
+}
+
+function SmartNotificationsRegistration() {
+  useSmartNotifications();
   return null;
 }
 
@@ -86,6 +92,7 @@ function App() {
       <UserSettingsProvider>
         <AppProvider>
           <SessionProvider>
+            <SmartNotificationsRegistration />
             <AppContent />
           </SessionProvider>
         </AppProvider>
