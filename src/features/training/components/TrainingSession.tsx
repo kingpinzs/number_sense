@@ -14,7 +14,7 @@ import { StreakCounter } from '@/shared/components/StreakCounter';
 import { db, cleanOldSessions } from '@/services/storage/db';
 import { STORAGE_KEYS } from '@/services/storage/localStorage';
 import { useSession } from '@/context/SessionContext';
-import { selectDrills, loadTrainingPlanWeights, type TrainingPlanWeights } from '@/services/training/drillSelector';
+import { selectDrills, loadTrainingPlanWeights, type TrainingPlanWeights, type DrillType } from '@/services/training/drillSelector';
 import type { DrillResult } from '@/services/storage/schemas';
 import NumberLineDrill from '@/features/training/drills/NumberLineDrill';
 import SpatialRotationDrill from '@/features/training/drills/SpatialRotationDrill';
@@ -43,6 +43,9 @@ import SessionFeedback from './SessionFeedback';
 import DrillTransition from './DrillTransition';
 import { AnimatePresence } from 'framer-motion';
 import { updateStreak } from '@/services/training/streakManager';
+import { analyzePerformance } from '@/services/training/insightEngine';
+import type { InsightEngineResult } from '@/services/training/insightTypes';
+import SuggestedPractice from './SuggestedPractice';
 import {
   logSessionStart,
   logDrillComplete,
@@ -74,6 +77,10 @@ export default function TrainingSession() {
   const [trainingWeights, setTrainingWeights] = useState<TrainingPlanWeights | null>(null);
   const [weightsLoading, setWeightsLoading] = useState(true);
   const [selectedSessionType, setSelectedSessionType] = useState<'quick' | 'full'>('quick');
+
+  // InsightEngine state
+  const [insightResult, setInsightResult] = useState<InsightEngineResult | null>(null);
+  const [insightLoading, setInsightLoading] = useState(true);
 
   // Story 3.6: Confidence prompt and completion states
   const [showConfidenceBefore, setShowConfidenceBefore] = useState(false);
@@ -155,6 +162,17 @@ export default function TrainingSession() {
 
           setSessionGoal(domainGoals[highestDomain] ?? 'Training');
         }
+      // Run InsightEngine analysis (non-blocking)
+      try {
+        const result = await analyzePerformance();
+        setInsightResult(result);
+      } catch (insightError) {
+        console.error('Error running insight analysis:', insightError);
+        // Non-critical — don't show error toast, just skip insights
+      } finally {
+        setInsightLoading(false);
+      }
+
       } catch (error) {
         console.error('Error loading assessment and weights:', error);
         toast.error('Failed to load training data', {
@@ -162,6 +180,7 @@ export default function TrainingSession() {
         });
       } finally {
         setWeightsLoading(false);
+        setInsightLoading(false);
       }
     }
 
@@ -258,6 +277,39 @@ export default function TrainingSession() {
         sessionType: selectedSessionType,
         drillQueue: drillQueue,
       }));
+    }
+  };
+
+  // Handle drill selection from SuggestedPractice — starts a single-drill quick session
+  const handleDrillSelect = async (drillType: string, _difficulty: 'easy' | 'medium' | 'hard') => {
+    // Build a single-drill queue with the selected type repeated 3 times for focused practice
+    const drillQueue = [drillType, drillType, drillType] as DrillType[];
+
+    // Reset session state
+    usedProblemsRef.current = new Set<string>();
+    resetTrigger();
+    sessionAnalyzer.reset();
+    setSessionStartTime(Date.now());
+
+    // Skip confidence prompt for focused practice — go straight to drills
+    try {
+      const newDbId = await db.sessions.add({
+        timestamp: new Date().toISOString(),
+        module: 'training',
+        duration: 0,
+        completionStatus: 'paused',
+        sessionType: 'quick',
+        drillQueue,
+      });
+      const sessionId = newDbId as number;
+      setDbSessionId(sessionId);
+      startTrainingSession(sessionId, 'quick', drillQueue);
+      await logSessionStart(sessionId, 'quick', drillQueue.length);
+    } catch (error) {
+      console.error('Failed to persist focused session:', error);
+      const fallbackId = Date.now();
+      setDbSessionId(fallbackId);
+      startTrainingSession(fallbackId, 'quick', drillQueue);
     }
   };
 
@@ -761,62 +813,71 @@ export default function TrainingSession() {
           )}
         </div>
 
-        {/* Main content */}
-        <div className="flex flex-1 items-center justify-center p-6">
-          <Card className="w-full max-w-md">
-            <CardHeader>
-              <CardTitle>Ready to Train?</CardTitle>
-              <CardDescription>
-                Start your personalized training session
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Based on your assessment, we've created a personalized training plan to help strengthen your skills.
-              </p>
+        {/* Main content: Session card + SuggestedPractice */}
+        <div className="p-6">
+          <div className="mx-auto max-w-md">
+            <Card className="w-full">
+              <CardHeader>
+                <CardTitle>Ready to Train?</CardTitle>
+                <CardDescription>
+                  Start your personalized training session
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Based on your assessment, we've created a personalized training plan to help strengthen your skills.
+                </p>
 
-              {/* Session type selection */}
-              <div className="space-y-2">
-                <p className="text-sm font-medium">Session Type:</p>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    variant={selectedSessionType === 'quick' ? 'default' : 'outline'}
-                    className="h-auto flex-col gap-1 py-3"
-                    onClick={() => setSelectedSessionType('quick')}
-                    data-testid="session-type-quick"
-                  >
-                    <span className="font-semibold">Quick</span>
-                    <span className="text-xs opacity-70">6 drills</span>
-                  </Button>
-                  <Button
-                    variant={selectedSessionType === 'full' ? 'default' : 'outline'}
-                    className="h-auto flex-col gap-1 py-3"
-                    onClick={() => setSelectedSessionType('full')}
-                    data-testid="session-type-full"
-                  >
-                    <span className="font-semibold">Full</span>
-                    <span className="text-xs opacity-70">12 drills</span>
-                  </Button>
+                {/* Session type selection */}
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Session Type:</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      variant={selectedSessionType === 'quick' ? 'default' : 'outline'}
+                      className="h-auto flex-col gap-1 py-3"
+                      onClick={() => setSelectedSessionType('quick')}
+                      data-testid="session-type-quick"
+                    >
+                      <span className="font-semibold">Quick</span>
+                      <span className="text-xs opacity-70">6 drills</span>
+                    </Button>
+                    <Button
+                      variant={selectedSessionType === 'full' ? 'default' : 'outline'}
+                      className="h-auto flex-col gap-1 py-3"
+                      onClick={() => setSelectedSessionType('full')}
+                      data-testid="session-type-full"
+                    >
+                      <span className="font-semibold">Full</span>
+                      <span className="text-xs opacity-70">12 drills</span>
+                    </Button>
+                  </div>
                 </div>
-              </div>
 
-              {/* Start Training Button */}
-              <Button
-                onClick={handleStartTraining}
-                className="w-full min-h-[44px] bg-primary hover:bg-primary/90"
-                disabled={weightsLoading || sessionState.sessionStatus === 'active'}
-                data-testid="start-training-button"
-              >
-                {weightsLoading ? (
-                  <span className="flex items-center gap-2">
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                    Preparing your session…
-                  </span>
-                ) : 'Start Training'}
-              </Button>
-            </CardContent>
-          </Card>
+                {/* Start Training Button */}
+                <Button
+                  onClick={handleStartTraining}
+                  className="w-full min-h-[44px] bg-primary hover:bg-primary/90"
+                  disabled={weightsLoading || sessionState.sessionStatus === 'active'}
+                  data-testid="start-training-button"
+                >
+                  {weightsLoading ? (
+                    <span className="flex items-center gap-2">
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      Preparing your session…
+                    </span>
+                  ) : 'Start Training'}
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </div>
+
+        {/* Suggested Practice: Insights, weakness-first drills, domain progress, all drills */}
+        <SuggestedPractice
+          result={insightResult}
+          loading={insightLoading}
+          onDrillSelect={handleDrillSelect}
+        />
       </div>
 
       {/* Story 3.6: Confidence prompts and completion summary */}

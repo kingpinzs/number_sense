@@ -41,10 +41,14 @@ interface Round {
   targetOutput: number;
   /** Four multiple-choice options including the correct answer */
   choices: number[];
+  /** Four rule-name options including the correct rule */
+  ruleChoices: string[];
 }
 
 interface RoundResult {
   isCorrect: boolean;
+  ruleCorrect: boolean;
+  outputCorrect: boolean;
   timeMs: number;
 }
 
@@ -128,6 +132,30 @@ function generateExampleInputs(difficulty: Difficulty): number[] {
 }
 
 /**
+ * Generate 4 rule-name choices (including the correct one) as distractors.
+ */
+function generateRuleChoices(correctRule: Rule, difficulty: Difficulty): string[] {
+  // Pull all rules from the same difficulty + adjacent difficulties for better distractors
+  const allRules = [
+    ...RULES_BY_DIFFICULTY[difficulty],
+    ...(difficulty === 'easy' ? MEDIUM_RULES.slice(0, 3) : []),
+    ...(difficulty === 'medium' ? [...EASY_RULES.slice(0, 2), ...HARD_RULES.slice(0, 2)] : []),
+    ...(difficulty === 'hard' ? MEDIUM_RULES.slice(0, 3) : []),
+  ];
+
+  const distractorNames = new Set<string>();
+  const shuffledRules = shuffle([...allRules]);
+  for (const r of shuffledRules) {
+    if (r.name !== correctRule.name && !distractorNames.has(r.name)) {
+      distractorNames.add(r.name);
+      if (distractorNames.size >= 3) break;
+    }
+  }
+
+  return shuffle([correctRule.name, ...Array.from(distractorNames)]);
+}
+
+/**
  * Build a complete Round object for one game question.
  */
 function generateRound(difficulty: Difficulty): Round {
@@ -141,8 +169,9 @@ function generateRound(difficulty: Difficulty): Round {
   const targetInput = inputs[exampleCount];
   const targetOutput = rule.apply(targetInput);
   const choices = generateDistractors(targetOutput, rule, difficulty, targetInput);
+  const ruleChoices = generateRuleChoices(rule, difficulty);
 
-  return { rule, examples, targetInput, targetOutput, choices };
+  return { rule, examples, targetInput, targetOutput, choices, ruleChoices };
 }
 
 /**
@@ -324,11 +353,15 @@ export default function WhatsMyRuleGame({ onBack }: GameProps) {
   const [round, setRound] = useState<Round | null>(null);
   const [answerState, setAnswerState] = useState<AnswerState>('idle');
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const [selectedRule, setSelectedRule] = useState<string | null>(null);
+
+  // Refs to avoid stale closures when auto-submitting on second selection
+  const selectedAnswerRef = useRef<number | null>(null);
+  const selectedRuleRef = useRef<string | null>(null);
 
   // Accumulated results
   const [results, setResults] = useState<RoundResult[]>([]);
   const [totalScore, setTotalScore] = useState(0);
-  const [rulesFound, setRulesFound] = useState(0);
 
   // Timing
   const roundStartRef = useRef<number>(0);
@@ -353,13 +386,16 @@ export default function WhatsMyRuleGame({ onBack }: GameProps) {
     setRound(newRound);
     setAnswerState('idle');
     setSelectedAnswer(null);
+    setSelectedRule(null);
+    selectedAnswerRef.current = null;
+    selectedRuleRef.current = null;
     roundStartRef.current = Date.now();
   }, []);
 
   const startGame = useCallback(() => {
     setResults([]);
     setTotalScore(0);
-    setRulesFound(0);
+
     setRoundIndex(0);
     gameStartRef.current = Date.now();
     setPhase('playing');
@@ -373,23 +409,29 @@ export default function WhatsMyRuleGame({ onBack }: GameProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, roundIndex]);
 
-  const handleAnswer = useCallback(
-    (chosen: number) => {
+  /** Submit both answers (rule + output). Called when both are selected. */
+  const handleSubmit = useCallback(
+    (chosenOutput: number, chosenRule: string) => {
       if (!round || answerState !== 'idle') return;
 
       const timeMs = Date.now() - roundStartRef.current;
-      const isCorrect = chosen === round.targetOutput;
+      const outputCorrect = chosenOutput === round.targetOutput;
+      const ruleCorrect = chosenRule === round.rule.name;
+      // "Correct" overall if either the rule or output is right
+      const isCorrect = outputCorrect || ruleCorrect;
 
-      setSelectedAnswer(chosen);
-      setAnswerState(isCorrect ? 'correct' : 'wrong');
+      setAnswerState(outputCorrect ? 'correct' : 'wrong');
 
-      const points = isCorrect
-        ? BASE_POINTS + (timeMs <= BONUS_TIME_MS ? BONUS_POINTS : 0)
-        : 0;
+      // Scoring: full points for both, half for either one alone
+      let points = 0;
+      if (outputCorrect && ruleCorrect) {
+        points = BASE_POINTS + (timeMs <= BONUS_TIME_MS ? BONUS_POINTS : 0);
+      } else if (outputCorrect || ruleCorrect) {
+        points = Math.round(BASE_POINTS / 2);
+      }
 
-      setResults(prev => [...prev, { isCorrect, timeMs }]);
+      setResults(prev => [...prev, { isCorrect, ruleCorrect, outputCorrect, timeMs }]);
       setTotalScore(prev => prev + points);
-      if (isCorrect) setRulesFound(prev => prev + 1);
 
       advanceTimerRef.current = setTimeout(() => {
         advanceTimerRef.current = null;
@@ -402,6 +444,31 @@ export default function WhatsMyRuleGame({ onBack }: GameProps) {
       }, FEEDBACK_DURATION_MS);
     },
     [round, answerState, roundIndex],
+  );
+
+  /** When both selections are made, auto-submit */
+  const handleOutputChoice = useCallback(
+    (choice: number) => {
+      if (answerState !== 'idle') return;
+      setSelectedAnswer(choice);
+      selectedAnswerRef.current = choice;
+      if (selectedRuleRef.current !== null) {
+        handleSubmit(choice, selectedRuleRef.current);
+      }
+    },
+    [answerState, handleSubmit],
+  );
+
+  const handleRuleChoice = useCallback(
+    (ruleName: string) => {
+      if (answerState !== 'idle') return;
+      setSelectedRule(ruleName);
+      selectedRuleRef.current = ruleName;
+      if (selectedAnswerRef.current !== null) {
+        handleSubmit(selectedAnswerRef.current, ruleName);
+      }
+    },
+    [answerState, handleSubmit],
   );
 
   /** Persist results to Dexie. */
@@ -453,10 +520,13 @@ export default function WhatsMyRuleGame({ onBack }: GameProps) {
     setRoundIndex(0);
     setResults([]);
     setTotalScore(0);
-    setRulesFound(0);
+
     setRound(null);
     setAnswerState('idle');
     setSelectedAnswer(null);
+    setSelectedRule(null);
+    selectedAnswerRef.current = null;
+    selectedRuleRef.current = null;
   }, []);
 
   // -------------------------------------------------------------------------
@@ -464,6 +534,8 @@ export default function WhatsMyRuleGame({ onBack }: GameProps) {
   // -------------------------------------------------------------------------
 
   const correctCount = results.filter(r => r.isCorrect).length;
+  const outputCorrectCount = results.filter(r => r.outputCorrect).length;
+  const ruleCorrectCount = results.filter(r => r.ruleCorrect).length;
   const accuracy = results.length > 0 ? Math.round((correctCount / results.length) * 100) : 0;
   const avgTimeS =
     results.length > 0
@@ -509,6 +581,8 @@ export default function WhatsMyRuleGame({ onBack }: GameProps) {
   if (phase === 'results') {
     let encouragement: string;
     if (accuracy === 100) encouragement = 'Perfect pattern recognition!';
+    else if (ruleCorrectCount >= 7 && outputCorrectCount < 5)
+      encouragement = 'You see the patterns! Focus on computing the output now.';
     else if (accuracy >= 70) encouragement = 'Well done! Patterns are getting clearer.';
     else encouragement = 'Pattern spotting improves with practice. Try again!';
 
@@ -523,9 +597,15 @@ export default function WhatsMyRuleGame({ onBack }: GameProps) {
             <span className="font-semibold">{totalScore}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span>Rules Found:</span>
+            <span>Rules Identified:</span>
             <span className="font-semibold">
-              {rulesFound}/{TOTAL_ROUNDS}
+              {ruleCorrectCount}/{TOTAL_ROUNDS}
+            </span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span>Outputs Correct:</span>
+            <span className="font-semibold">
+              {outputCorrectCount}/{TOTAL_ROUNDS}
             </span>
           </div>
           <div className="flex justify-between text-sm">
@@ -586,7 +666,7 @@ export default function WhatsMyRuleGame({ onBack }: GameProps) {
       {/* Title prompt */}
       <h2 className="text-xl font-bold text-center mb-1">What's My Rule?</h2>
       <p className="text-sm text-center text-muted-foreground mb-4">
-        Study the pattern, then predict the missing output.
+        Study the pattern. Pick the rule AND the output — answer both!
       </p>
 
       {/* Examples + target table */}
@@ -603,47 +683,119 @@ export default function WhatsMyRuleGame({ onBack }: GameProps) {
         aria-live="assertive"
         aria-atomic="true"
       >
-        {answerState === 'correct' && (
-          <span className="text-green-500">
-            You found the rule! The rule is: {round.rule.name}
-          </span>
-        )}
-        {answerState === 'wrong' && selectedAnswer !== null && (
-          <span className="text-red-500">
-            Not quite — the rule is: {round.rule.name} (answer: {round.targetOutput})
-          </span>
+        {answerState !== 'idle' && selectedAnswer !== null && selectedRule !== null && (
+          <>
+            {selectedRule === round.rule.name && selectedAnswer === round.targetOutput && (
+              <span className="text-green-500" data-testid="feedback-both-correct">
+                Both correct! Rule: {round.rule.name}
+              </span>
+            )}
+            {selectedRule === round.rule.name && selectedAnswer !== round.targetOutput && (
+              <span className="text-yellow-500" data-testid="feedback-rule-only">
+                Rule correct! But the output was {round.targetOutput} ({round.rule.name})
+              </span>
+            )}
+            {selectedRule !== round.rule.name && selectedAnswer === round.targetOutput && (
+              <span className="text-yellow-500" data-testid="feedback-output-only">
+                Output correct! But the rule was: {round.rule.name}
+              </span>
+            )}
+            {selectedRule !== round.rule.name && selectedAnswer !== round.targetOutput && (
+              <span className="text-red-500" data-testid="feedback-both-wrong">
+                Not quite — the rule is: {round.rule.name} (answer: {round.targetOutput})
+              </span>
+            )}
+          </>
         )}
       </div>
 
-      {/* Answer choices */}
-      <div className="grid grid-cols-2 gap-3" role="group" aria-label="Choose the output">
-        {round.choices.map(choice => {
-          let extraClass = '';
+      {/* Rule selection */}
+      <div className="mb-4">
+        <p className="text-xs font-medium text-muted-foreground mb-2 text-center">
+          1. What is the rule?
+        </p>
+        <div
+          className="grid grid-cols-1 gap-2"
+          role="group"
+          aria-label="Choose the rule"
+          data-testid="rule-choices"
+        >
+          {round.ruleChoices.map(ruleName => {
+            const isSelected = selectedRule === ruleName;
+            let extraClass = '';
 
-          if (answerState !== 'idle') {
-            if (choice === round.targetOutput) {
-              extraClass = 'border-green-500 bg-green-500/10 text-green-700 dark:text-green-400';
-            } else if (choice === selectedAnswer) {
-              extraClass = 'border-red-500 bg-red-500/10 text-red-700 dark:text-red-400';
+            if (answerState !== 'idle') {
+              if (ruleName === round.rule.name) {
+                extraClass = 'border-green-500 bg-green-500/10 text-green-700 dark:text-green-400';
+              } else if (ruleName === selectedRule) {
+                extraClass = 'border-red-500 bg-red-500/10 text-red-700 dark:text-red-400';
+              }
+            } else if (isSelected) {
+              extraClass = 'border-primary bg-primary/10';
             }
-          }
 
-          return (
-            <button
-              key={choice}
-              onClick={() => handleAnswer(choice)}
-              disabled={answerState !== 'idle'}
-              className={`min-h-[56px] rounded-lg border text-lg font-bold transition-colors
-                ${answerState === 'idle' ? 'border-border hover:border-primary/50 hover:bg-primary/5' : ''}
-                ${extraClass}
-                disabled:cursor-default
-              `}
-              aria-label={`Answer ${choice}`}
-            >
-              {choice}
-            </button>
-          );
-        })}
+            return (
+              <button
+                key={ruleName}
+                onClick={() => handleRuleChoice(ruleName)}
+                disabled={answerState !== 'idle'}
+                className={`min-h-[44px] px-4 py-2 rounded-lg border text-sm font-medium text-left transition-colors
+                  ${answerState === 'idle' && !isSelected ? 'border-border hover:border-primary/50 hover:bg-primary/5' : ''}
+                  ${extraClass}
+                  disabled:cursor-default
+                `}
+                aria-label={`Rule: ${ruleName}`}
+                data-testid={`rule-choice-${ruleName}`}
+              >
+                {ruleName}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Output selection */}
+      <div>
+        <p className="text-xs font-medium text-muted-foreground mb-2 text-center">
+          2. What is the output?
+        </p>
+        <div
+          className="grid grid-cols-2 gap-3"
+          role="group"
+          aria-label="Choose the output"
+          data-testid="output-choices"
+        >
+          {round.choices.map(choice => {
+            const isSelected = selectedAnswer === choice;
+            let extraClass = '';
+
+            if (answerState !== 'idle') {
+              if (choice === round.targetOutput) {
+                extraClass = 'border-green-500 bg-green-500/10 text-green-700 dark:text-green-400';
+              } else if (choice === selectedAnswer) {
+                extraClass = 'border-red-500 bg-red-500/10 text-red-700 dark:text-red-400';
+              }
+            } else if (isSelected) {
+              extraClass = 'border-primary bg-primary/10';
+            }
+
+            return (
+              <button
+                key={choice}
+                onClick={() => handleOutputChoice(choice)}
+                disabled={answerState !== 'idle'}
+                className={`min-h-[56px] rounded-lg border text-lg font-bold transition-colors
+                  ${answerState === 'idle' && !isSelected ? 'border-border hover:border-primary/50 hover:bg-primary/5' : ''}
+                  ${extraClass}
+                  disabled:cursor-default
+                `}
+                aria-label={`Answer ${choice}`}
+              >
+                {choice}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

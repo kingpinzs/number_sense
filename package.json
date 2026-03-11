@@ -19,7 +19,9 @@
     "lint": "eslint . --max-warnings=0",
     "generate-icons": "node scripts/generate-icons.mjs",
     "postinstall": "patch-package",
-    "cap:build": "npm run build && npx cap sync android"
+    "cap:build": "npm run build && npx cap sync android",
+    "release": "npm version --no-git-tag-version",
+    "release:push": "git push && git push --tags"
   },
   "dependencies": {
     "@capacitor/android": "^8.2.0",

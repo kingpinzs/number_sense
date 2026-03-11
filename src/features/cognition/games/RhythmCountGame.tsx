@@ -10,6 +10,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { ArrowLeft, Music } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { NumberKeypad } from '@/shared/components/NumberKeypad';
 import { db } from '@/services/storage/db';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -50,7 +51,7 @@ const DIFFICULTY_CONFIGS: Record<'easy' | 'medium' | 'hard', DifficultyConfig> =
   },
   hard: {
     label: 'Hard',
-    description: 'Count by 7, 8, 9, 11, or 12. Fast beat.',
+    description: 'Count by 7, 8, 9, 11, or 12. Fast beat. Type your answer!',
     steps: [7, 8, 9, 11, 12],
     sequenceLength: 10,
     beatIntervalMs: 500,
@@ -228,6 +229,7 @@ export default function RhythmCountGame({ onBack }: RhythmCountGameProps) {
   const [isPulsing, setIsPulsing] = useState(false);
 
   // Answer phase
+  const [userInput, setUserInput] = useState('');
   const [lastCorrect, setLastCorrect] = useState(false);
   const [lastBonus, setLastBonus] = useState(false);
 
@@ -280,7 +282,7 @@ export default function RhythmCountGame({ onBack }: RhythmCountGameProps) {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [phase, question, cfg]);
+  }, [phase, question, cfg, difficulty]);
 
   // ── Start a new round ────────────────────────────────────────────────────
 
@@ -290,6 +292,7 @@ export default function RhythmCountGame({ onBack }: RhythmCountGameProps) {
       setQuestion(q);
       setRound(roundIndex);
       setCurrentBeatIndex(-1);
+      setUserInput('');
       setPhase('playing');
     },
     [difficulty]
@@ -306,7 +309,10 @@ export default function RhythmCountGame({ onBack }: RhythmCountGameProps) {
     startRound(0);
   }, [startRound]);
 
-  // ── Handle a multiple-choice answer ─────────────────────────────────────
+  // Whether this difficulty uses fill-in-the-blank (hard) or multiple choice
+  const isKeypadMode = difficulty === 'hard';
+
+  // ── Handle answer (from MC choice or keypad input) ────────────────────
 
   const handleAnswer = useCallback(
     (choice: number) => {
@@ -496,7 +502,7 @@ export default function RhythmCountGame({ onBack }: RhythmCountGameProps) {
     );
   }
 
-  // Answer phase — multiple choice
+  // Answer phase — multiple choice (easy/medium) or fill-in-the-blank (hard)
   if (phase === 'answer' && question) {
     return (
       <div className="max-w-md mx-auto px-4 py-6 pb-24 text-center">
@@ -520,7 +526,9 @@ export default function RhythmCountGame({ onBack }: RhythmCountGameProps) {
             }`;
             return (
               <div key={i} className={cls} data-testid={`answer-pos-${i}`}>
-                {isBlank ? '?' : val}
+                {isBlank
+                  ? (isKeypadMode && userInput ? userInput : '?')
+                  : val}
               </div>
             );
           })}
@@ -531,20 +539,48 @@ export default function RhythmCountGame({ onBack }: RhythmCountGameProps) {
           Score: {score} &bull; Answer within 3s for a bonus!
         </p>
 
-        {/* Choices */}
-        <div className="grid grid-cols-2 gap-3">
-          {question.choices.map(choice => (
-            <Button
-              key={choice}
-              onClick={() => handleAnswer(choice)}
-              variant="outline"
-              className="min-h-[56px] text-xl font-bold"
-              data-testid={`choice-${choice}`}
-            >
-              {choice}
-            </Button>
-          ))}
-        </div>
+        {/* Hard: fill-in-the-blank with NumberKeypad */}
+        {isKeypadMode ? (
+          <>
+            <div className="text-center mb-4">
+              <div
+                className="mx-auto inline-block min-w-[120px] rounded-lg border-2 border-primary bg-card px-6 py-4"
+                data-testid="user-answer-display"
+              >
+                <span className="text-3xl font-semibold text-foreground">
+                  {userInput || '\u00A0'}
+                </span>
+              </div>
+            </div>
+            <div className="flex justify-center">
+              <NumberKeypad
+                value={userInput}
+                onChange={setUserInput}
+                onSubmit={() => {
+                  const parsed = parseInt(userInput, 10);
+                  if (!isNaN(parsed)) handleAnswer(parsed);
+                }}
+                maxDigits={4}
+                disabled={false}
+              />
+            </div>
+          </>
+        ) : (
+          /* Easy/Medium: multiple choice */
+          <div className="grid grid-cols-2 gap-3">
+            {question.choices.map(choice => (
+              <Button
+                key={choice}
+                onClick={() => handleAnswer(choice)}
+                variant="outline"
+                className="min-h-[56px] text-xl font-bold"
+                data-testid={`choice-${choice}`}
+              >
+                {choice}
+              </Button>
+            ))}
+          </div>
+        )}
       </div>
     );
   }

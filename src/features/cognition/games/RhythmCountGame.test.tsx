@@ -62,8 +62,14 @@ const BEAT_ADVANCE_MS = 12_000;
 
 /**
  * Play all 10 rounds, advancing timers as needed.
+ * For hard difficulty, uses NumberKeypad instead of multiple-choice buttons.
  */
-async function playAllRounds(user: ReturnType<typeof userEvent.setup>): Promise<void> {
+async function playAllRounds(
+  user: ReturnType<typeof userEvent.setup>,
+  difficulty: 'easy' | 'medium' | 'hard' = 'easy',
+): Promise<void> {
+  const isKeypad = difficulty === 'hard';
+
   for (let round = 0; round < 10; round++) {
     // Advance past beat sequence
     await act(async () => {
@@ -74,21 +80,22 @@ async function playAllRounds(user: ReturnType<typeof userEvent.setup>): Promise<
       expect(screen.getByText('What is the missing number?')).toBeInTheDocument();
     });
 
-    const choiceButtons = screen.getAllByRole('button').filter(
-      btn => btn.getAttribute('data-testid')?.startsWith('choice-')
-    );
-    await user.click(choiceButtons[0]);
-
-    if (round < 9) {
-      await act(async () => {
-        vi.advanceTimersByTime(1100);
-      });
+    if (isKeypad) {
+      // Hard mode: type a number via keypad and submit
+      await user.click(screen.getByTestId('digit-5'));
+      await user.click(screen.getByTestId('digit-0'));
+      await user.click(screen.getByTestId('submit'));
     } else {
-      // Last round — advance just past feedback to trigger complete
-      await act(async () => {
-        vi.advanceTimersByTime(1100);
-      });
+      // Easy/Medium: click first multiple-choice button
+      const choiceButtons = screen.getAllByRole('button').filter(
+        btn => btn.getAttribute('data-testid')?.startsWith('choice-')
+      );
+      await user.click(choiceButtons[0]);
     }
+
+    await act(async () => {
+      vi.advanceTimersByTime(1100);
+    });
   }
 }
 
@@ -137,7 +144,7 @@ describe('RhythmCountGame', () => {
     render(<RhythmCountGame onBack={mockOnBack} />);
     expect(screen.getByText(/Count by 2, 5, or 10/)).toBeInTheDocument();
     expect(screen.getByText(/Count by 3, 4, or 6/)).toBeInTheDocument();
-    expect(screen.getByText(/Count by 7, 8, 9, 11, or 12/)).toBeInTheDocument();
+    expect(screen.getByText(/Count by 7, 8, 9, 11, or 12.*Type your answer/)).toBeInTheDocument();
   });
 
   it('renders the Back to games button on setup', () => {
@@ -818,7 +825,7 @@ describe('RhythmCountGame', () => {
     await user.click(screen.getByTestId('difficulty-hard'));
     await user.click(screen.getByTestId('start-game-btn'));
 
-    await playAllRounds(user);
+    await playAllRounds(user, 'hard');
 
     await waitFor(() => {
       expect(screen.getByText('Game Complete!')).toBeInTheDocument();
@@ -834,7 +841,7 @@ describe('RhythmCountGame', () => {
     await user.click(screen.getByTestId('difficulty-medium'));
     await user.click(screen.getByTestId('start-game-btn'));
 
-    await playAllRounds(user);
+    await playAllRounds(user, 'medium');
 
     await waitFor(() => {
       expect(screen.getByText('Game Complete!')).toBeInTheDocument();
@@ -854,7 +861,7 @@ describe('RhythmCountGame', () => {
     await user.click(screen.getByTestId('difficulty-hard'));
     await user.click(screen.getByTestId('start-game-btn'));
 
-    await playAllRounds(user);
+    await playAllRounds(user, 'hard');
 
     await waitFor(() => {
       expect(screen.getByText('Game Complete!')).toBeInTheDocument();
@@ -865,6 +872,139 @@ describe('RhythmCountGame', () => {
         expect.objectContaining({ difficulty: 'hard' })
       );
     });
+  });
+
+  // ── Hard mode: fill-in-the-blank ─────────────────────────────────────────
+
+  it('hard mode shows NumberKeypad instead of multiple-choice buttons', async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<RhythmCountGame onBack={mockOnBack} />);
+
+    await user.click(screen.getByTestId('difficulty-hard'));
+    await user.click(screen.getByTestId('start-game-btn'));
+
+    await act(async () => { vi.advanceTimersByTime(BEAT_ADVANCE_MS); });
+
+    await waitFor(() => {
+      expect(screen.getByText('What is the missing number?')).toBeInTheDocument();
+    });
+
+    // Should have keypad, not choice buttons
+    expect(screen.getByTestId('number-keypad')).toBeInTheDocument();
+    expect(screen.getByTestId('user-answer-display')).toBeInTheDocument();
+    const choiceButtons = screen.getAllByRole('button').filter(
+      btn => btn.getAttribute('data-testid')?.startsWith('choice-')
+    );
+    expect(choiceButtons).toHaveLength(0);
+  });
+
+  it('hard mode keypad digits appear in the answer display', async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<RhythmCountGame onBack={mockOnBack} />);
+
+    await user.click(screen.getByTestId('difficulty-hard'));
+    await user.click(screen.getByTestId('start-game-btn'));
+
+    await act(async () => { vi.advanceTimersByTime(BEAT_ADVANCE_MS); });
+
+    await waitFor(() => {
+      expect(screen.getByText('What is the missing number?')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByTestId('digit-4'));
+    await user.click(screen.getByTestId('digit-2'));
+
+    expect(screen.getByTestId('user-answer-display').textContent).toContain('42');
+  });
+
+  it('hard mode keypad typed value shows in the blank slot', async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<RhythmCountGame onBack={mockOnBack} />);
+
+    await user.click(screen.getByTestId('difficulty-hard'));
+    await user.click(screen.getByTestId('start-game-btn'));
+
+    await act(async () => { vi.advanceTimersByTime(BEAT_ADVANCE_MS); });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('answer-sequence-row')).toBeInTheDocument();
+    });
+
+    // Before typing, the blank should show '?'
+    const row = screen.getByTestId('answer-sequence-row');
+    const blankBefore = Array.from(
+      row.querySelectorAll('[data-testid^="answer-pos-"]')
+    ).filter(el => el.textContent === '?');
+    expect(blankBefore).toHaveLength(1);
+
+    // After typing, the blank should show the typed value
+    await user.click(screen.getByTestId('digit-7'));
+
+    const blankAfter = Array.from(
+      row.querySelectorAll('[data-testid^="answer-pos-"]')
+    ).filter(el => el.textContent === '7');
+    expect(blankAfter).toHaveLength(1);
+  });
+
+  it('hard mode submitting keypad answer shows feedback', async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<RhythmCountGame onBack={mockOnBack} />);
+
+    await user.click(screen.getByTestId('difficulty-hard'));
+    await user.click(screen.getByTestId('start-game-btn'));
+
+    await act(async () => { vi.advanceTimersByTime(BEAT_ADVANCE_MS); });
+
+    await waitFor(() => {
+      expect(screen.getByText('What is the missing number?')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByTestId('digit-9'));
+    await user.click(screen.getByTestId('digit-9'));
+    await user.click(screen.getByTestId('submit'));
+
+    await waitFor(() => {
+      const feedback = screen.getByTestId('feedback-result');
+      expect(['Correct!', 'Incorrect']).toContain(feedback.textContent?.trim());
+    });
+  });
+
+  it('easy mode still shows 4 multiple-choice buttons (not keypad)', async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<RhythmCountGame onBack={mockOnBack} />);
+    await user.click(screen.getByTestId('start-game-btn'));
+
+    await act(async () => { vi.advanceTimersByTime(BEAT_ADVANCE_MS); });
+
+    await waitFor(() => {
+      expect(screen.getByText('What is the missing number?')).toBeInTheDocument();
+    });
+
+    const choiceButtons = screen.getAllByRole('button').filter(
+      btn => btn.getAttribute('data-testid')?.startsWith('choice-')
+    );
+    expect(choiceButtons).toHaveLength(4);
+    expect(screen.queryByTestId('number-keypad')).not.toBeInTheDocument();
+  });
+
+  it('medium mode still shows 4 multiple-choice buttons (not keypad)', async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<RhythmCountGame onBack={mockOnBack} />);
+
+    await user.click(screen.getByTestId('difficulty-medium'));
+    await user.click(screen.getByTestId('start-game-btn'));
+
+    await act(async () => { vi.advanceTimersByTime(BEAT_ADVANCE_MS); });
+
+    await waitFor(() => {
+      expect(screen.getByText('What is the missing number?')).toBeInTheDocument();
+    });
+
+    const choiceButtons = screen.getAllByRole('button').filter(
+      btn => btn.getAttribute('data-testid')?.startsWith('choice-')
+    );
+    expect(choiceButtons).toHaveLength(4);
+    expect(screen.queryByTestId('number-keypad')).not.toBeInTheDocument();
   });
 
   // ── AudioContext optional ─────────────────────────────────────────────────
@@ -883,7 +1023,7 @@ describe('RhythmCountGame', () => {
       expect(screen.getByText('What is the missing number?')).toBeInTheDocument();
     });
 
-    // Game progresses normally without audio
+    // Game progresses normally without audio (easy mode = multiple choice)
     const choiceButtons = screen.getAllByRole('button').filter(
       btn => btn.getAttribute('data-testid')?.startsWith('choice-')
     );
@@ -894,7 +1034,7 @@ describe('RhythmCountGame', () => {
 
   // ── Touch target sizes ────────────────────────────────────────────────────
 
-  it('choice buttons have min-h-[56px] touch target', async () => {
+  it('choice buttons have min-h-[56px] touch target (easy mode)', async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     render(<RhythmCountGame onBack={mockOnBack} />);
     await user.click(screen.getByTestId('start-game-btn'));
