@@ -141,10 +141,10 @@ function RectangleShape({ numerator, denominator, submitted, isCorrect }: {
             i < numerator
               ? submitted
                 ? isCorrect ? '#22c55e' : '#eab308'
-                : 'hsl(var(--primary))'
-              : 'transparent'
+                : 'var(--primary)'
+              : 'var(--muted)'
           }
-          stroke="hsl(var(--border))"
+          stroke="var(--border)"
           strokeWidth={2}
         />
       ))}
@@ -188,10 +188,10 @@ function CircleShape({ numerator, denominator, submitted, isCorrect }: {
             i < numerator
               ? submitted
                 ? isCorrect ? '#22c55e' : '#eab308'
-                : 'hsl(var(--primary))'
-              : 'transparent'
+                : 'var(--primary)'
+              : 'var(--muted)'
           }
-          stroke="hsl(var(--border))"
+          stroke="var(--border)"
           strokeWidth={2}
         />
       ))}
