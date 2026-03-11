@@ -170,37 +170,39 @@ describe('SVG Shape Components', () => {
       });
     });
 
-    it('EASY_SHAPES contains only simple symmetric shapes', () => {
-      expect(EASY_SHAPES).toEqual(['square', 'circle', 'triangle']);
+    it('EASY_SHAPES contains asymmetric shapes suitable for rotation drills', () => {
+      expect(EASY_SHAPES).toEqual(['triangle', 'rectangle', 'lshape']);
       expect(EASY_SHAPES).toHaveLength(3);
     });
 
-    it('MEDIUM_SHAPES contains easy shapes plus more complex ones', () => {
+    it('MEDIUM_SHAPES contains asymmetric shapes for meaningful challenges', () => {
       expect(MEDIUM_SHAPES).toEqual([
-        'square',
-        'circle',
         'triangle',
         'rectangle',
         'pentagon',
         'lshape',
+        'tshape',
+        'arrow',
       ]);
       expect(MEDIUM_SHAPES).toHaveLength(6);
     });
 
-    it('HARD_SHAPES contains all 10 shapes', () => {
+    it('HARD_SHAPES contains all 12 asymmetric shapes', () => {
       expect(HARD_SHAPES).toEqual([
-        'square',
-        'circle',
         'triangle',
         'rectangle',
         'pentagon',
-        'hexagon',
         'lshape',
         'tshape',
         'arrow',
-        'star',
+        'zshape',
+        'sshape',
+        'hookshape',
+        'ushape',
+        'fshape',
+        'wshape',
       ]);
-      expect(HARD_SHAPES).toHaveLength(10);
+      expect(HARD_SHAPES).toHaveLength(12);
     });
   });
 

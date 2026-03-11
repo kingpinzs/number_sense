@@ -55,22 +55,31 @@ const ROTATION_ANGLES = {
 };
 
 /**
- * Generate a random drill problem based on difficulty
+ * Generate a random drill problem based on difficulty.
+ *
+ * Key invariant: when the correct answer is "different", the comparison shape
+ * MUST be a genuinely different shape type. Previously, random selection could
+ * accidentally pick the same shape, causing a "different" answer for two
+ * identical-looking shapes.
  */
 const generateDrillProblem = (difficulty: 'easy' | 'medium' | 'hard'): DrillProblem => {
   const shapeSet = difficulty === 'easy' ? EASY_SHAPES : difficulty === 'medium' ? MEDIUM_SHAPES : HARD_SHAPES;
   const rotations = ROTATION_ANGLES[difficulty];
 
-  // Select random shape
+  // Select random reference shape
   const referenceShape = shapeSet[Math.floor(Math.random() * shapeSet.length)];
 
   // 50% chance that comparison is the same shape
   const isSame = Math.random() < 0.5;
 
-  // If same, apply transformations. If different, select different shape
-  const comparisonShape = isSame
-    ? referenceShape
-    : shapeSet[Math.floor(Math.random() * shapeSet.length)];
+  let comparisonShape: ShapeType;
+  if (isSame) {
+    comparisonShape = referenceShape;
+  } else {
+    // Filter out the reference shape to guarantee the "different" answer is truly different
+    const alternatives = shapeSet.filter(s => s !== referenceShape);
+    comparisonShape = alternatives[Math.floor(Math.random() * alternatives.length)];
+  }
 
   // Apply rotation based on difficulty
   const rotationDegrees = rotations[Math.floor(Math.random() * rotations.length)];
@@ -90,7 +99,7 @@ const generateDrillProblem = (difficulty: 'easy' | 'medium' | 'hard'): DrillProb
     comparisonShape,
     rotationDegrees,
     isMirrored,
-    correctAnswer: isSame,
+    correctAnswer: referenceShape === comparisonShape,
   };
 };
 

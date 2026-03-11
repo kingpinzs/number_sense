@@ -16,6 +16,8 @@
  * 12. Highlights drills that are in suggestedDrills (star icon)
  * 13. data-testid="suggested-practice" on wrapper in all states
  * 14. All interactive elements have min-h-[44px]
+ * 15. Non-drill insight actions show toast instead of silently failing
+ * 16. Drill insight actions don't show toast (they launch drills)
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -59,6 +61,12 @@ vi.mock('framer-motion', () => ({
       return <section {...htmlProps}>{children}</section>;
     },
   },
+}));
+
+// Mock sonner toast
+const mockToast = vi.fn();
+vi.mock('sonner', () => ({
+  toast: (...args: unknown[]) => mockToast(...args),
 }));
 
 // Mock the Progress component since it uses Radix primitives
@@ -143,6 +151,7 @@ describe('SuggestedPractice', () => {
 
   beforeEach(() => {
     mockOnDrillSelect = vi.fn<(drillType: string, difficulty: 'easy' | 'medium' | 'hard') => void>();
+    mockToast.mockClear();
   });
 
   // ── 1. Loading State ────────────────────────────────────────────────────
@@ -346,6 +355,54 @@ describe('SuggestedPractice', () => {
       fireEvent.click(actionButton);
 
       expect(mockOnDrillSelect).not.toHaveBeenCalled();
+    });
+
+    it('shows toast for non-drill insight actions (e.g., "Schedule morning sessions")', () => {
+      const result = createEngineResult({
+        insights: [
+          createInsight({
+            id: 'disc-toast',
+            type: 'discovery',
+            title: 'You do best in the morning',
+            message: 'Schedule morning sessions.',
+            action: { label: 'Schedule morning sessions' },
+          }),
+        ],
+      });
+
+      render(
+        <SuggestedPractice result={result} onDrillSelect={mockOnDrillSelect} />,
+      );
+
+      const actionButton = screen.getByTestId('insight-action-button');
+      fireEvent.click(actionButton);
+
+      expect(mockToast).toHaveBeenCalledWith('Schedule morning sessions', { duration: 3000 });
+      expect(mockOnDrillSelect).not.toHaveBeenCalled();
+    });
+
+    it('does not show toast when action has drillType', () => {
+      const result = createEngineResult({
+        insights: [
+          createInsight({
+            id: 'rec-no-toast',
+            type: 'recommendation',
+            title: 'Try Number Bonds',
+            message: 'Good for you.',
+            action: { label: 'Try it', drillType: 'number_bonds', difficulty: 'easy' },
+          }),
+        ],
+      });
+
+      render(
+        <SuggestedPractice result={result} onDrillSelect={mockOnDrillSelect} />,
+      );
+
+      const actionButton = screen.getByTestId('insight-action-button');
+      fireEvent.click(actionButton);
+
+      expect(mockToast).not.toHaveBeenCalled();
+      expect(mockOnDrillSelect).toHaveBeenCalled();
     });
   });
 

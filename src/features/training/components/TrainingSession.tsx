@@ -88,6 +88,9 @@ const IMPLEMENTED_DRILL_TYPES: ReadonlySet<string> = new Set([
 export default function TrainingSession() {
   const [sessionGoal, setSessionGoal] = useState<string>('');
   const [trainingWeights, setTrainingWeights] = useState<TrainingPlanWeights | null>(null);
+  // Store the original assessment-derived weights so insight adjustments can be re-applied
+  // from the base without double-applying multipliers after session completion.
+  const baseWeightsRef = useRef<TrainingPlanWeights | null>(null);
   const [weightsLoading, setWeightsLoading] = useState(true);
   const [selectedSessionType, setSelectedSessionType] = useState<'quick' | 'full'>('quick');
 
@@ -157,6 +160,7 @@ export default function TrainingSession() {
         if (latestAssessment) {
           // Load training plan weights
           const weights = await loadTrainingPlanWeights();
+          baseWeightsRef.current = weights;
           setTrainingWeights(weights);
 
           // Determine session goal based on highest weight
@@ -184,9 +188,13 @@ export default function TrainingSession() {
         setInsightResult(result);
 
         // Apply insight-derived weight adjustments to drill selection weights
+        // Always adjust from base weights to avoid double-applying multipliers
         if (result.hasEnoughData && result.domainPerformance.length > 0) {
           const adjustments = calculateInsightWeightAdjustments(result.domainPerformance);
-          setTrainingWeights(prev => prev ? applyInsightWeightAdjustments(prev, adjustments) : prev);
+          const base = baseWeightsRef.current;
+          if (base) {
+            setTrainingWeights(applyInsightWeightAdjustments(base, adjustments));
+          }
         }
       } catch (insightError) {
         console.error('Error running insight analysis:', insightError);
@@ -229,6 +237,9 @@ export default function TrainingSession() {
   }, [sessionState.sessionStatus, sessionState.currentDrillIndex, sessionState.drillQueue, nextDrill, endSession]);
 
   const handleStartTraining = async () => {
+    // Clear any stale focused difficulty from a previously abandoned focused session
+    setFocusedDifficulty(null);
+
     // Ensure we have training weights loaded
     if (!trainingWeights) {
       toast.error('Training data still loading', {
@@ -299,6 +310,8 @@ export default function TrainingSession() {
   // Handle drill selection from SuggestedPractice — starts a single-drill quick session
   const handleDrillSelect = async (drillType: string, difficulty: 'easy' | 'medium' | 'hard') => {
     setFocusedDifficulty(difficulty);
+    // Defensive: dismiss confidence-before prompt if somehow open
+    setShowConfidenceBefore(false);
     // Build a single-drill queue with the selected type repeated 3 times for focused practice
     const drillQueue = [drillType, drillType, drillType] as DrillType[];
 
@@ -503,6 +516,16 @@ export default function TrainingSession() {
     try {
       const refreshedInsights = await analyzePerformance();
       setInsightResult(refreshedInsights);
+
+      // Re-apply weight adjustments from base weights so the next session
+      // uses updated domain performance data (not stale initial load data)
+      if (refreshedInsights.hasEnoughData && refreshedInsights.domainPerformance.length > 0) {
+        const weightAdjustments = calculateInsightWeightAdjustments(refreshedInsights.domainPerformance);
+        const base = baseWeightsRef.current;
+        if (base) {
+          setTrainingWeights(applyInsightWeightAdjustments(base, weightAdjustments));
+        }
+      }
     } catch (insightError) {
       console.error('Failed to refresh insights after session:', insightError);
     }

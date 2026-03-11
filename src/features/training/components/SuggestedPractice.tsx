@@ -14,6 +14,7 @@ import {
   Lightbulb,
   Star,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Progress } from '@/shared/components/ui/progress';
 import InsightCards from './InsightCards';
 import type { InsightEngineResult } from '@/services/training/insightTypes';
@@ -195,6 +196,10 @@ function SuggestedPractice({ result, loading = false, onDrillSelect }: Suggested
             onAction={(action) => {
               if (action.drillType && onDrillSelect) {
                 onDrillSelect(action.drillType, action.difficulty || 'easy');
+              } else {
+                // Non-drill actions (e.g., "Practice daily", "Keep the streak alive")
+                // show the tip as a toast so the button isn't silently dead
+                toast(action.label, { duration: 3000 });
               }
             }}
           />

@@ -289,32 +289,46 @@ export const SHAPES: Record<ShapeType, React.FC<ShapeProps>> = {
 };
 
 // Difficulty-based shape sets
-// Easy: Simple symmetric shapes
-export const EASY_SHAPES: ShapeType[] = ['square', 'circle', 'triangle'];
+// Easy: Simple shapes (triangle is asymmetric under mirroring, rectangle under 90° rotation)
+export const EASY_SHAPES: ShapeType[] = ['triangle', 'rectangle', 'lshape'];
 
-// Medium: More complex shapes (pentagon, L-shape)
+// Medium: More complex shapes (asymmetric preferred for meaningful rotation/mirror challenges)
 export const MEDIUM_SHAPES: ShapeType[] = [
-  'square',
-  'circle',
   'triangle',
   'rectangle',
   'pentagon',
   'lshape',
+  'tshape',
+  'arrow',
 ];
 
 // Hard: All shapes including complex asymmetric ones
 export const HARD_SHAPES: ShapeType[] = [
-  'square',
-  'circle',
   'triangle',
   'rectangle',
   'pentagon',
-  'hexagon',
   'lshape',
   'tshape',
   'arrow',
-  'star',
+  'zshape',
+  'sshape',
+  'hookshape',
+  'ushape',
+  'fshape',
+  'wshape',
 ];
+
+/**
+ * Shapes that look identical under all rotations and mirrors (high symmetry).
+ * These should be avoided in rotation/mirror drills since transformations
+ * produce no visible change, making the question trivial or confusing.
+ */
+export const SYMMETRIC_SHAPES: ReadonlySet<ShapeType> = new Set([
+  'circle',   // Infinite rotational symmetry
+  'square',   // 4-fold rotational + mirror symmetry
+  'hexagon',  // 6-fold rotational + mirror symmetry
+  'star',     // 5-fold rotational symmetry
+]);
 
 // Transformation utility: Apply rotation transform
 export const rotateShape = (degrees: number): React.CSSProperties => ({
