@@ -14,7 +14,7 @@
  */
 
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import InsightCards from './InsightCards';
 import type { Insight } from '@/services/training/insightTypes';
 
@@ -300,6 +300,71 @@ describe('InsightCards', () => {
 
       const buttons = screen.getAllByTestId('insight-action-button');
       expect(buttons).toHaveLength(2);
+    });
+  });
+
+  describe('Action Button Click Handler', () => {
+    it('calls onAction with correct InsightAction when button is clicked', () => {
+      const onAction = vi.fn();
+      const insightWithAction = createInsight({
+        id: 'actionable',
+        type: 'weakness',
+        action: { label: 'Focus here', drillType: 'place_value', domain: 'placeValue', difficulty: 'easy' },
+      });
+
+      render(<InsightCards insights={[insightWithAction]} maxCards={1} onAction={onAction} />);
+
+      const button = screen.getByTestId('insight-action-button');
+      fireEvent.click(button);
+
+      expect(onAction).toHaveBeenCalledTimes(1);
+      expect(onAction).toHaveBeenCalledWith({
+        label: 'Focus here',
+        drillType: 'place_value',
+        domain: 'placeValue',
+        difficulty: 'easy',
+      });
+    });
+
+    it('does not throw when onAction is not provided', () => {
+      const insightWithAction = createInsight({
+        id: 'no-handler',
+        type: 'recommendation',
+        action: { label: 'Try this', drillType: 'number_bonds' },
+      });
+
+      render(<InsightCards insights={[insightWithAction]} maxCards={1} />);
+
+      expect(() => {
+        fireEvent.click(screen.getByTestId('insight-action-button'));
+      }).not.toThrow();
+    });
+
+    it('calls onAction for the correct insight when multiple insights have actions', () => {
+      const onAction = vi.fn();
+      const insights = [
+        createInsight({
+          id: 'a1',
+          type: 'weakness',
+          action: { label: 'Action A', drillType: 'place_value', difficulty: 'easy' },
+        }),
+        createInsight({
+          id: 'a2',
+          type: 'recommendation',
+          action: { label: 'Action B', drillType: 'number_bonds', difficulty: 'hard' },
+        }),
+      ];
+
+      render(<InsightCards insights={insights} maxCards={2} onAction={onAction} />);
+
+      const buttons = screen.getAllByTestId('insight-action-button');
+      fireEvent.click(buttons[1]);
+
+      expect(onAction).toHaveBeenCalledWith({
+        label: 'Action B',
+        drillType: 'number_bonds',
+        difficulty: 'hard',
+      });
     });
   });
 });

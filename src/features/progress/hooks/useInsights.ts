@@ -1,14 +1,13 @@
 // useInsights Hook - Story 5.4
-// Fetches session and drill data from Dexie, generates insights
-// Pattern: Cloned from useConfidenceData with extended query
+// Now powered by the unified InsightEngine (analyzePerformance)
+// Maps InsightEngine results to the legacy Insight format used by InsightsPanel
 
 import { useState, useEffect, useCallback } from 'react';
-import { db } from '@/services/storage/db';
-import { generateInsights } from '../services/insightsEngine';
+import { analyzePerformance } from '@/services/training/insightEngine';
+import type { Insight as EngineInsight } from '@/services/training/insightTypes';
 import type { Insight } from '../services/insightsEngine';
 
-const MAX_SESSIONS_TO_QUERY = 30;
-const MIN_SESSIONS_REQUIRED = 3;
+const MAX_INSIGHTS = 5;
 
 export interface UseInsightsResult {
   isLoading: boolean;
@@ -18,9 +17,54 @@ export interface UseInsightsResult {
   refetch: () => Promise<void>;
 }
 
+/** Map InsightEngine insight type to old icon */
+const TYPE_TO_ICON: Record<string, string> = {
+  strength: '💪',
+  weakness: '🎯',
+  trend: '📈',
+  recommendation: '⚡',
+  discovery: '📊',
+  milestone: '🎯',
+};
+
+/** Map InsightEngine insight type to old category */
+const TYPE_TO_CATEGORY: Record<string, Insight['category']> = {
+  strength: 'positive',
+  weakness: 'concern',
+  trend: 'positive',
+  recommendation: 'general',
+  discovery: 'general',
+  milestone: 'milestone',
+};
+
 /**
- * Hook to fetch session data and generate personalized insights
- * Queries last 30 training sessions for trend analysis
+ * Map a new-engine Insight to the legacy Insight format consumed by InsightsPanel.
+ */
+function mapToLegacyInsight(insight: EngineInsight): Insight {
+  const legacy: Insight = {
+    id: insight.id,
+    category: TYPE_TO_CATEGORY[insight.type] ?? 'general',
+    icon: TYPE_TO_ICON[insight.type] ?? '📊',
+    title: insight.title,
+    message: insight.message,
+    priority: insight.priority,
+  };
+
+  // Map action — the new engine uses drillType, old panel expects route
+  if (insight.action) {
+    legacy.action = {
+      label: insight.action.label,
+      route: '/training',
+    };
+  }
+
+  return legacy;
+}
+
+/**
+ * Hook to fetch session data and generate personalized insights.
+ * Delegates to the unified InsightEngine (analyzePerformance) which
+ * runs 10 analyses on all drill_results and sessions.
  */
 export function useInsights(): UseInsightsResult {
   const [isLoading, setIsLoading] = useState(true);
@@ -33,38 +77,19 @@ export function useInsights(): UseInsightsResult {
     setError(null);
 
     try {
-      // Query training sessions (same pattern as useConfidenceData)
-      const sessions = await db.sessions
-        .where('module')
-        .equals('training')
-        .reverse()
-        .limit(MAX_SESSIONS_TO_QUERY)
-        .toArray();
+      const result = await analyzePerformance();
+      setHasEnoughData(result.hasEnoughData);
 
-      const completedSessions = sessions.filter(s => s.completionStatus === 'completed');
-      const enoughData = completedSessions.length >= MIN_SESSIONS_REQUIRED;
-      setHasEnoughData(enoughData);
-
-      if (!enoughData) {
+      if (!result.hasEnoughData) {
         setInsights([]);
         return;
       }
 
-      // Join drill results for these sessions
-      const sessionIds = completedSessions
-        .map(s => s.id)
-        .filter((id): id is number => id !== undefined);
-
-      const drillResults = sessionIds.length > 0
-        ? await db.drill_results
-            .where('sessionId')
-            .anyOf(sessionIds)
-            .toArray()
-        : [];
-
-      // Generate insights
-      const generated = generateInsights(completedSessions, drillResults);
-      setInsights(generated);
+      // Map new engine insights to legacy format, capped at MAX_INSIGHTS
+      const mapped = result.insights
+        .slice(0, MAX_INSIGHTS)
+        .map(mapToLegacyInsight);
+      setInsights(mapped);
     } catch (err) {
       console.error('Error generating insights:', err);
       setError('Failed to generate insights');

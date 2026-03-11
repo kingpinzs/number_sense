@@ -1,4 +1,7 @@
 // Insights Generation Engine - Story 5.4
+// @deprecated — Use analyzePerformance() from @/services/training/insightEngine instead.
+// This file is kept for reference and backward compatibility with its exported types.
+// The useInsights hook now delegates to the unified InsightEngine.
 // Analyzes session data to generate personalized progress insights
 // Architecture: Pure functions for insight generation, no side effects
 

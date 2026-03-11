@@ -160,13 +160,19 @@ function SuggestedPractice({ result, loading = false, onDrillSelect }: Suggested
 
   return (
     <div data-testid="suggested-practice" className="px-6 space-y-6 mt-6">
-      {/* ── Not enough data banner (shows above drills when no insights yet) */}
+      {/* ── Not enough data: guided start for new users */}
       {!hasData && (
-        <div className="rounded-xl border bg-card p-6 text-center" data-testid="not-enough-data">
-          <Lightbulb className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">
-            Complete more drills to unlock personalized suggestions
-          </p>
+        <div className="rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-4" data-testid="not-enough-data">
+          <div className="flex items-start gap-3">
+            <Lightbulb className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold mb-1">New here? Start with these:</p>
+              <p className="text-xs text-muted-foreground">
+                Try Number Line, Subitizing, or Math Operations to begin.
+                After a few sessions, we'll personalize your training.
+              </p>
+            </div>
+          </div>
         </div>
       )}
 
@@ -183,7 +189,15 @@ function SuggestedPractice({ result, loading = false, onDrillSelect }: Suggested
             <h2 className="text-lg font-semibold">Your Insights</h2>
           </div>
 
-          <InsightCards insights={insights} maxCards={3} />
+          <InsightCards
+            insights={insights}
+            maxCards={3}
+            onAction={(action) => {
+              if (action.drillType && onDrillSelect) {
+                onDrillSelect(action.drillType, action.difficulty || 'easy');
+              }
+            }}
+          />
         </motion.section>
       )}
 

@@ -11,13 +11,15 @@ import {
   Trophy,
 } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
-import type { Insight, InsightType } from '@/services/training/insightTypes';
+import type { Insight, InsightAction, InsightType } from '@/services/training/insightTypes';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface InsightCardsProps {
   insights: Insight[];
   maxCards?: number;
+  /** Callback when a user clicks an insight's action button */
+  onAction?: (action: InsightAction) => void;
 }
 
 // ─── Icon mapping by insight type ─────────────────────────────────────────────
@@ -60,7 +62,7 @@ const cardVariants = {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-function InsightCards({ insights, maxCards = 3 }: InsightCardsProps) {
+function InsightCards({ insights, maxCards = 3, onAction }: InsightCardsProps) {
   const visibleInsights = insights.slice(0, maxCards);
 
   if (visibleInsights.length === 0) {
@@ -110,6 +112,7 @@ function InsightCards({ insights, maxCards = 3 }: InsightCardsProps) {
                     size="sm"
                     className="mt-2 min-h-[44px]"
                     data-testid="insight-action-button"
+                    onClick={() => onAction?.(insight.action!)}
                   >
                     {insight.action.label}
                   </Button>

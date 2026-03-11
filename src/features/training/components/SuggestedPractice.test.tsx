@@ -187,7 +187,7 @@ describe('SuggestedPractice', () => {
       render(<SuggestedPractice result={null} />);
 
       expect(
-        screen.getByText('Complete more drills to unlock personalized suggestions'),
+        screen.getByText('New here? Start with these:'),
       ).toBeInTheDocument();
     });
 
@@ -220,7 +220,7 @@ describe('SuggestedPractice', () => {
       render(<SuggestedPractice result={result} />);
 
       expect(
-        screen.getByText('Complete more drills to unlock personalized suggestions'),
+        screen.getByText('New here? Start with these:'),
       ).toBeInTheDocument();
     });
 
@@ -273,6 +273,79 @@ describe('SuggestedPractice', () => {
 
       expect(screen.queryByTestId('insights-section')).not.toBeInTheDocument();
       expect(screen.queryByText('Your Insights')).not.toBeInTheDocument();
+    });
+  });
+
+  // ── 4b. Insight Action Buttons → onDrillSelect ──────────────────────────
+
+  describe('Insight Action Buttons', () => {
+    it('calls onDrillSelect when an insight action button with drillType is clicked', () => {
+      const result = createEngineResult({
+        insights: [
+          createInsight({
+            id: 'rec-1',
+            type: 'recommendation',
+            title: 'Try Medium Difficulty',
+            message: 'Ready for a challenge.',
+            action: { label: 'Try medium', drillType: 'number_bonds', difficulty: 'medium' },
+          }),
+        ],
+      });
+
+      render(
+        <SuggestedPractice result={result} onDrillSelect={mockOnDrillSelect} />,
+      );
+
+      const actionButton = screen.getByTestId('insight-action-button');
+      fireEvent.click(actionButton);
+
+      expect(mockOnDrillSelect).toHaveBeenCalledWith('number_bonds', 'medium');
+    });
+
+    it('defaults to easy when action has no difficulty', () => {
+      const result = createEngineResult({
+        insights: [
+          createInsight({
+            id: 'rec-2',
+            type: 'weakness',
+            title: 'Focus on Place Value',
+            message: 'Needs work.',
+            action: { label: 'Focus here', drillType: 'place_value' },
+          }),
+        ],
+      });
+
+      render(
+        <SuggestedPractice result={result} onDrillSelect={mockOnDrillSelect} />,
+      );
+
+      const actionButton = screen.getByTestId('insight-action-button');
+      fireEvent.click(actionButton);
+
+      expect(mockOnDrillSelect).toHaveBeenCalledWith('place_value', 'easy');
+    });
+
+    it('does not call onDrillSelect when action has no drillType', () => {
+      const result = createEngineResult({
+        insights: [
+          createInsight({
+            id: 'disc-1',
+            type: 'discovery',
+            title: 'You do best in the morning',
+            message: 'Schedule morning sessions.',
+            action: { label: 'Schedule morning sessions' },
+          }),
+        ],
+      });
+
+      render(
+        <SuggestedPractice result={result} onDrillSelect={mockOnDrillSelect} />,
+      );
+
+      const actionButton = screen.getByTestId('insight-action-button');
+      fireEvent.click(actionButton);
+
+      expect(mockOnDrillSelect).not.toHaveBeenCalled();
     });
   });
 
@@ -781,6 +854,40 @@ describe('SuggestedPractice', () => {
       cards.forEach((card) => {
         expect(card).toHaveClass('focus-visible:ring-2');
       });
+    });
+  });
+
+  // ── New User Guided Start ─────────────────────────────────────────────
+
+  describe('New User Guided Start', () => {
+    it('shows guided start banner when no data', () => {
+      render(<SuggestedPractice result={null} />);
+
+      expect(screen.getByText('New here? Start with these:')).toBeInTheDocument();
+      expect(
+        screen.getByText(/Try Number Line, Subitizing, or Math Operations/),
+      ).toBeInTheDocument();
+    });
+
+    it('shows guided start when hasEnoughData is false', () => {
+      const result = createEngineResult({ hasEnoughData: false });
+      render(<SuggestedPractice result={result} />);
+
+      expect(screen.getByText('New here? Start with these:')).toBeInTheDocument();
+    });
+
+    it('does not show guided start when hasEnoughData is true', () => {
+      const result = createEngineResult({ hasEnoughData: true });
+      render(<SuggestedPractice result={result} />);
+
+      expect(screen.queryByText('New here? Start with these:')).not.toBeInTheDocument();
+    });
+
+    it('guided start banner has dashed border styling', () => {
+      render(<SuggestedPractice result={null} />);
+
+      const banner = screen.getByTestId('not-enough-data');
+      expect(banner).toHaveClass('border-dashed', 'border-2');
     });
   });
 

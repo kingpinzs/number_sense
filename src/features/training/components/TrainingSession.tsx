@@ -45,6 +45,7 @@ import { AnimatePresence } from 'framer-motion';
 import { updateStreak } from '@/services/training/streakManager';
 import { analyzePerformance } from '@/services/training/insightEngine';
 import type { InsightEngineResult } from '@/services/training/insightTypes';
+import { calculateInsightWeightAdjustments, applyInsightWeightAdjustments } from '@/services/training/insightWeighting';
 import SuggestedPractice from './SuggestedPractice';
 import {
   logSessionStart,
@@ -69,6 +70,18 @@ import { processSessionEnd } from '@/services/adaptiveDifficulty/difficultyEngin
 import { useUserSettings } from '@/context/UserSettingsContext';
 
 /**
+ * All drill types that have a corresponding React component.
+ * Used by both the auto-skip useEffect and the render guard to ensure
+ * they never diverge — any new drill implementation should be added here.
+ */
+const IMPLEMENTED_DRILL_TYPES: ReadonlySet<string> = new Set([
+  'number_line', 'spatial_rotation', 'math_operations', 'subitizing', 'number_bonds',
+  'magnitude_comparison', 'place_value', 'estimation', 'sequencing', 'fact_fluency',
+  'fractions', 'time_measurement', 'working_memory',
+  'rhythmic_counting', 'mental_math_strategy', 'fact_family', 'everyday_math', 'number_decomposition',
+]);
+
+/**
  * TrainingSession component
  * Displays session header with date, streak, and "Start Training" button
  */
@@ -81,6 +94,9 @@ export default function TrainingSession() {
   // InsightEngine state
   const [insightResult, setInsightResult] = useState<InsightEngineResult | null>(null);
   const [insightLoading, setInsightLoading] = useState(true);
+
+  // Focused practice: difficulty override from SuggestedPractice drill selection
+  const [focusedDifficulty, setFocusedDifficulty] = useState<'easy' | 'medium' | 'hard' | null>(null);
 
   // Story 3.6: Confidence prompt and completion states
   const [showConfidenceBefore, setShowConfidenceBefore] = useState(false);
@@ -166,6 +182,12 @@ export default function TrainingSession() {
       try {
         const result = await analyzePerformance();
         setInsightResult(result);
+
+        // Apply insight-derived weight adjustments to drill selection weights
+        if (result.hasEnoughData && result.domainPerformance.length > 0) {
+          const adjustments = calculateInsightWeightAdjustments(result.domainPerformance);
+          setTrainingWeights(prev => prev ? applyInsightWeightAdjustments(prev, adjustments) : prev);
+        }
       } catch (insightError) {
         console.error('Error running insight analysis:', insightError);
         // Non-critical — don't show error toast, just skip insights
@@ -195,14 +217,8 @@ export default function TrainingSession() {
         sessionState.drillQueue &&
         sessionState.currentDrillIndex !== undefined) {
       const currentDrillType = sessionState.drillQueue[sessionState.currentDrillIndex];
-      const implementedTypes = [
-        'number_line', 'spatial_rotation', 'math_operations', 'subitizing', 'number_bonds',
-        'magnitude_comparison', 'place_value', 'estimation', 'sequencing', 'fact_fluency',
-        'fractions', 'time_measurement', 'working_memory',
-        'rhythmic_counting', 'mental_math_strategy', 'fact_family', 'everyday_math', 'number_decomposition',
-      ];
 
-      if (!implementedTypes.includes(currentDrillType)) {
+      if (!IMPLEMENTED_DRILL_TYPES.has(currentDrillType)) {
         if (sessionState.currentDrillIndex < sessionState.drillQueue.length - 1) {
           nextDrill();
         } else {
@@ -281,7 +297,8 @@ export default function TrainingSession() {
   };
 
   // Handle drill selection from SuggestedPractice — starts a single-drill quick session
-  const handleDrillSelect = async (drillType: string, _difficulty: 'easy' | 'medium' | 'hard') => {
+  const handleDrillSelect = async (drillType: string, difficulty: 'easy' | 'medium' | 'hard') => {
+    setFocusedDifficulty(difficulty);
     // Build a single-drill queue with the selected type repeated 3 times for focused practice
     const drillQueue = [drillType, drillType, drillType] as DrillType[];
 
@@ -479,6 +496,17 @@ export default function TrainingSession() {
       }));
     }
 
+    // Clear focused difficulty override when session ends
+    setFocusedDifficulty(null);
+
+    // Refresh insights with new drill data from the completed session
+    try {
+      const refreshedInsights = await analyzePerformance();
+      setInsightResult(refreshedInsights);
+    } catch (insightError) {
+      console.error('Failed to refresh insights after session:', insightError);
+    }
+
     // Show completion summary
     setShowCompletionSummary(true);
   };
@@ -546,12 +574,7 @@ export default function TrainingSession() {
     const drillIndex = sessionState.currentDrillIndex;
 
     // Show loading state while auto-skipping unimplemented drill types
-    const implementedTypes = [
-      'number_line', 'spatial_rotation', 'math_operations', 'subitizing', 'number_bonds',
-      'magnitude_comparison', 'place_value', 'estimation', 'sequencing', 'fact_fluency',
-      'fractions', 'time_measurement', 'working_memory',
-    ];
-    if (!implementedTypes.includes(currentDrillType)) {
+    if (!IMPLEMENTED_DRILL_TYPES.has(currentDrillType)) {
       return (
         <div className="flex h-screen items-center justify-center bg-background">
           <p className="text-muted-foreground">Loading next drill...</p>
@@ -559,10 +582,12 @@ export default function TrainingSession() {
       );
     }
 
-    // Calculate difficulty based on drill index and performance
-    // First 2 drills: Easy, Next 3: Medium, Remaining: Hard only if accuracy > 80%
+    // Calculate difficulty based on focused practice override, drill index, or performance
     let difficulty: 'easy' | 'medium' | 'hard';
-    if (drillIndex < 2) {
+    if (focusedDifficulty) {
+      // Use difficulty selected from SuggestedPractice for focused practice sessions
+      difficulty = focusedDifficulty;
+    } else if (drillIndex < 2) {
       difficulty = 'easy';
     } else if (drillIndex < 5) {
       difficulty = 'medium';

@@ -1,11 +1,11 @@
 // useInsights Hook Tests - Story 5.4
-// Tests for insights data fetching hook
-// Pattern: Cloned from useConfidenceData.test.ts
+// Updated to test unified InsightEngine integration
+// The hook now wraps analyzePerformance() from @/services/training/insightEngine
 
 import { describe, it, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useInsights } from './useInsights';
-import type { Session, DrillResult } from '@/services/storage/schemas';
+import type { InsightEngineResult } from '@/services/training/insightTypes';
 
 // Suppress React act() warnings from async state updates settling after test assertions
 const originalConsoleError = console.error;
@@ -20,82 +20,48 @@ afterAll(() => {
   console.error = originalConsoleError;
 });
 
-// Mock Dexie database
-vi.mock('@/services/storage/db', () => ({
-  db: {
-    sessions: {
-      where: vi.fn(),
-    },
-    drill_results: {
-      where: vi.fn(),
-    },
-  },
+// Mock the unified InsightEngine
+vi.mock('@/services/training/insightEngine', () => ({
+  analyzePerformance: vi.fn(),
 }));
 
-import { db } from '@/services/storage/db';
+import { analyzePerformance } from '@/services/training/insightEngine';
 
-// Mock session data
-function createMockSession(
-  id: number,
-  timestamp: string,
-  completionStatus: 'completed' | 'abandoned' | 'paused' = 'completed',
-): Session {
+function createMockResult(overrides: Partial<InsightEngineResult> = {}): InsightEngineResult {
   return {
-    id,
-    timestamp,
-    module: 'training',
-    duration: 600000,
-    completionStatus,
-    accuracy: 80,
-    drillCount: 10,
+    analyzedAt: '2026-03-10T10:00:00Z',
+    dataPointCount: 50,
+    hasEnoughData: true,
+    insights: [
+      {
+        id: 'strength_arithmetic',
+        type: 'strength',
+        confidence: 0.85,
+        domain: 'arithmetic',
+        title: 'Strong in Arithmetic',
+        message: 'Your accuracy is 92%.',
+        priority: 50,
+        variables: ['domain', 'recentAccuracy'],
+        generatedAt: '2026-03-10T10:00:00Z',
+        action: { label: 'Practice to maintain', drillType: 'math_operations', difficulty: 'hard' },
+      },
+      {
+        id: 'weakness_placevalue',
+        type: 'weakness',
+        confidence: 0.7,
+        domain: 'placeValue',
+        title: 'Place Value needs attention',
+        message: 'Your accuracy is 45%.',
+        priority: 80,
+        variables: ['domain', 'recentAccuracy'],
+        generatedAt: '2026-03-10T10:00:00Z',
+      },
+    ],
+    suggestedDrills: [],
+    domainPerformance: [],
+    contextAnalysis: [],
+    ...overrides,
   };
-}
-
-const mockSessions: Session[] = [
-  createMockSession(5, '2026-02-07T10:00:00Z'),
-  createMockSession(4, '2026-02-06T10:00:00Z'),
-  createMockSession(3, '2026-02-05T10:00:00Z'),
-  createMockSession(2, '2026-02-04T10:00:00Z'),
-  createMockSession(1, '2026-02-03T10:00:00Z'),
-];
-
-const mockDrillResults: DrillResult[] = [
-  {
-    sessionId: 5,
-    timestamp: '2026-02-07T10:01:00Z',
-    module: 'number_line',
-    difficulty: 'medium',
-    isCorrect: true,
-    timeToAnswer: 2000,
-    accuracy: 85,
-  },
-  {
-    sessionId: 4,
-    timestamp: '2026-02-06T10:01:00Z',
-    module: 'number_line',
-    difficulty: 'medium',
-    isCorrect: true,
-    timeToAnswer: 2200,
-    accuracy: 80,
-  },
-];
-
-function setupMocks(sessions: Session[], drillResults: DrillResult[] = []) {
-  const sessionsChain = {
-    equals: vi.fn().mockReturnThis(),
-    reverse: vi.fn().mockReturnThis(),
-    limit: vi.fn().mockReturnThis(),
-    toArray: vi.fn().mockResolvedValue(sessions),
-  };
-  vi.mocked(db.sessions.where).mockReturnValue(sessionsChain as any);
-
-  const drillsChain = {
-    anyOf: vi.fn().mockReturnThis(),
-    toArray: vi.fn().mockResolvedValue(drillResults),
-  };
-  vi.mocked(db.drill_results.where).mockReturnValue(drillsChain as any);
-
-  return { sessionsChain, drillsChain };
 }
 
 describe('useInsights', () => {
@@ -108,13 +74,7 @@ describe('useInsights', () => {
   });
 
   it('returns loading state initially', async () => {
-    const sessionsChain = {
-      equals: vi.fn().mockReturnThis(),
-      reverse: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockReturnThis(),
-      toArray: vi.fn().mockImplementation(() => new Promise(() => {})), // Never resolves
-    };
-    vi.mocked(db.sessions.where).mockReturnValue(sessionsChain as any);
+    vi.mocked(analyzePerformance).mockImplementation(() => new Promise(() => {})); // Never resolves
 
     const { result } = renderHook(() => useInsights());
 
@@ -124,7 +84,7 @@ describe('useInsights', () => {
   });
 
   it('returns insights after successful fetch', async () => {
-    setupMocks(mockSessions, mockDrillResults);
+    vi.mocked(analyzePerformance).mockResolvedValue(createMockResult());
 
     const { result } = renderHook(() => useInsights());
 
@@ -134,13 +94,11 @@ describe('useInsights', () => {
 
     expect(result.current.hasEnoughData).toBe(true);
     expect(result.current.error).toBeNull();
-    // With 5 daily sessions, should generate at least a consistency insight
-    expect(result.current.insights.length).toBeGreaterThan(0);
+    expect(result.current.insights.length).toBe(2);
   });
 
-  it('returns hasEnoughData false when fewer than 3 completed sessions', async () => {
-    const fewSessions = mockSessions.slice(0, 2);
-    setupMocks(fewSessions);
+  it('maps engine insights to legacy format with icon and category', async () => {
+    vi.mocked(analyzePerformance).mockResolvedValue(createMockResult());
 
     const { result } = renderHook(() => useInsights());
 
@@ -148,17 +106,20 @@ describe('useInsights', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    expect(result.current.hasEnoughData).toBe(false);
-    expect(result.current.insights).toEqual([]);
+    const strengthInsight = result.current.insights.find(i => i.id === 'strength_arithmetic');
+    expect(strengthInsight).toBeDefined();
+    expect(strengthInsight!.category).toBe('positive');
+    expect(strengthInsight!.icon).toBe('💪');
+    expect(strengthInsight!.title).toBe('Strong in Arithmetic');
+
+    const weaknessInsight = result.current.insights.find(i => i.id === 'weakness_placevalue');
+    expect(weaknessInsight).toBeDefined();
+    expect(weaknessInsight!.category).toBe('concern');
+    expect(weaknessInsight!.icon).toBe('🎯');
   });
 
-  it('filters out non-completed sessions for hasEnoughData check', async () => {
-    const mixedSessions: Session[] = [
-      createMockSession(3, '2026-02-07T10:00:00Z', 'completed'),
-      createMockSession(2, '2026-02-06T10:00:00Z', 'abandoned'),
-      createMockSession(1, '2026-02-05T10:00:00Z', 'paused'),
-    ];
-    setupMocks(mixedSessions);
+  it('maps engine action to legacy route format', async () => {
+    vi.mocked(analyzePerformance).mockResolvedValue(createMockResult());
 
     const { result } = renderHook(() => useInsights());
 
@@ -166,20 +127,30 @@ describe('useInsights', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    // Only 1 completed session → not enough data
+    const withAction = result.current.insights.find(i => i.action);
+    expect(withAction).toBeDefined();
+    expect(withAction!.action!.label).toBe('Practice to maintain');
+    expect(withAction!.action!.route).toBe('/training');
+  });
+
+  it('returns hasEnoughData false when engine reports insufficient data', async () => {
+    vi.mocked(analyzePerformance).mockResolvedValue(
+      createMockResult({ hasEnoughData: false, insights: [] }),
+    );
+
+    const { result } = renderHook(() => useInsights());
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
     expect(result.current.hasEnoughData).toBe(false);
     expect(result.current.insights).toEqual([]);
   });
 
   it('handles fetch errors gracefully', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const sessionsChain = {
-      equals: vi.fn().mockReturnThis(),
-      reverse: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockReturnThis(),
-      toArray: vi.fn().mockRejectedValue(new Error('DB error')),
-    };
-    vi.mocked(db.sessions.where).mockReturnValue(sessionsChain as any);
+    vi.mocked(analyzePerformance).mockRejectedValue(new Error('DB error'));
 
     const { result } = renderHook(() => useInsights());
 
@@ -192,8 +163,8 @@ describe('useInsights', () => {
     consoleSpy.mockRestore();
   });
 
-  it('queries training sessions from Dexie', async () => {
-    setupMocks(mockSessions, mockDrillResults);
+  it('calls analyzePerformance from the unified engine', async () => {
+    vi.mocked(analyzePerformance).mockResolvedValue(createMockResult());
 
     const { result } = renderHook(() => useInsights());
 
@@ -201,23 +172,11 @@ describe('useInsights', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    expect(db.sessions.where).toHaveBeenCalledWith('module');
-  });
-
-  it('joins drill results by session IDs', async () => {
-    setupMocks(mockSessions, mockDrillResults);
-
-    const { result } = renderHook(() => useInsights());
-
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-
-    expect(db.drill_results.where).toHaveBeenCalledWith('sessionId');
+    expect(analyzePerformance).toHaveBeenCalledTimes(1);
   });
 
   it('provides refetch function', async () => {
-    setupMocks(mockSessions, mockDrillResults);
+    vi.mocked(analyzePerformance).mockResolvedValue(createMockResult());
 
     const { result } = renderHook(() => useInsights());
 
@@ -230,7 +189,31 @@ describe('useInsights', () => {
     // Call refetch
     await result.current.refetch();
 
-    // Should have called database again
-    expect(db.sessions.where).toHaveBeenCalledTimes(2);
+    // Should have called analyzePerformance again
+    expect(analyzePerformance).toHaveBeenCalledTimes(2);
+  });
+
+  it('caps insights at 5 maximum', async () => {
+    const manyInsights = Array.from({ length: 8 }, (_, i) => ({
+      id: `insight-${i}`,
+      type: 'trend' as const,
+      confidence: 0.8,
+      title: `Insight ${i}`,
+      message: `Message ${i}`,
+      priority: 50 - i,
+      variables: ['test'],
+      generatedAt: '2026-03-10T10:00:00Z',
+    }));
+    vi.mocked(analyzePerformance).mockResolvedValue(
+      createMockResult({ insights: manyInsights }),
+    );
+
+    const { result } = renderHook(() => useInsights());
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    expect(result.current.insights).toHaveLength(5);
   });
 });
