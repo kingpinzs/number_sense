@@ -12,6 +12,7 @@ import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { NumberKeypad } from '@/shared/components/NumberKeypad';
 import { db } from '@/services/storage/db';
+import { playStepMelodyNote, tryCreateAudioContext } from '@/shared/utils/skipCountingAudio';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -137,59 +138,9 @@ function generateRoundQuestion(difficulty: 'easy' | 'medium' | 'hard'): RoundQue
   return { values, step, missingIndex, correctAnswer, choices };
 }
 
-// ─── Audio: Melodies for skip counting (like kids' songs) ─────────────────────
-
-// Note frequencies (Hz) — C major scale
-const NOTE = {
-  C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00,
-  A4: 440.00, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25,
-};
-
-// Melody patterns based on familiar children's songs
-// Each array maps beat index → frequency, cycling if sequence is longer
-const MELODIES = {
-  // "Twinkle Twinkle" intervals — easy, singable, memorable
-  easy: [NOTE.C4, NOTE.C4, NOTE.G4, NOTE.G4, NOTE.A4, NOTE.A4, NOTE.G4,
-         NOTE.F4, NOTE.F4, NOTE.E4, NOTE.E4, NOTE.D4, NOTE.D4, NOTE.C4],
-  // "Row Row Row Your Boat" — medium complexity, familiar round
-  medium: [NOTE.C4, NOTE.C4, NOTE.C4, NOTE.D4, NOTE.E4,
-           NOTE.E4, NOTE.D4, NOTE.E4, NOTE.F4, NOTE.G4,
-           NOTE.C5, NOTE.C5, NOTE.C5, NOTE.G4, NOTE.G4, NOTE.G4,
-           NOTE.E4, NOTE.E4, NOTE.E4, NOTE.C4, NOTE.C4, NOTE.C4,
-           NOTE.G4, NOTE.F4, NOTE.E4, NOTE.D4, NOTE.C4],
-  // Ascending scale with bounce — harder, less predictable
-  hard: [NOTE.C4, NOTE.E4, NOTE.G4, NOTE.C5, NOTE.B4, NOTE.G4, NOTE.A4, NOTE.F4,
-         NOTE.E4, NOTE.G4, NOTE.C5, NOTE.E5, NOTE.D5, NOTE.C5, NOTE.A4, NOTE.G4],
-};
-
-function tryCreateAudioContext(): AudioContext | null {
-  try {
-    return new AudioContext();
-  } catch {
-    return null;
-  }
-}
-
-function playMelodyNote(audioCtx: AudioContext, beatIndex: number, difficulty: 'easy' | 'medium' | 'hard'): void {
-  try {
-    const melody = MELODIES[difficulty];
-    const freq = melody[beatIndex % melody.length];
-
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'sine';
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.frequency.value = freq;
-    gain.gain.value = 0.15;
-    osc.start();
-    // Gentle decay for a pleasant tone
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-    osc.stop(audioCtx.currentTime + 0.35);
-  } catch {
-    // Silently degrade
-  }
-}
+// ─── Audio: Step-specific melodies provided by shared utility ─────────────────
+// Each skip-counting step (2, 3, 4 … 12) plays its own distinct melody so
+// learners develop a unique auditory association for each counting pattern.
 
 // ─── Encouragement ────────────────────────────────────────────────────────────
 
@@ -267,7 +218,7 @@ export default function RhythmCountGame({ onBack }: RhythmCountGameProps) {
       setIsPulsing(true);
 
       if (audioCtxRef.current) {
-        playMelodyNote(audioCtxRef.current, beat, difficulty);
+        playStepMelodyNote(audioCtxRef.current, beat, question.step);
       }
 
       timerRef.current = setTimeout(() => {
@@ -282,7 +233,7 @@ export default function RhythmCountGame({ onBack }: RhythmCountGameProps) {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [phase, question, cfg, difficulty]);
+  }, [phase, question, cfg]);
 
   // ── Start a new round ────────────────────────────────────────────────────
 
