@@ -73,20 +73,40 @@ const DIFFICULTY_CONFIG: Record<'easy' | 'medium' | 'hard', DifficultyConfig> = 
 
 // ─── Audio ───────────────────────────────────────────────────────────────────
 
-/**
- * Play a short 800 Hz click using the Web Audio API.
- * Wrapped in try/catch — silently degrades when AudioContext is unavailable.
- */
-function playBeat(audioCtx: AudioContext): void {
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-  osc.frequency.value = 800;
-  gain.gain.value = 0.1;
-  osc.start();
-  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
-  osc.stop(audioCtx.currentTime + 0.1);
+// ─── Audio: Melodies for skip counting (like kids' songs) ─────────────────────
+
+const NOTE = {
+  C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00,
+  A4: 440.00, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25,
+};
+
+const MELODIES = {
+  easy: [NOTE.C4, NOTE.C4, NOTE.G4, NOTE.G4, NOTE.A4, NOTE.A4, NOTE.G4,
+         NOTE.F4, NOTE.F4, NOTE.E4, NOTE.E4, NOTE.D4, NOTE.D4, NOTE.C4],
+  medium: [NOTE.C4, NOTE.C4, NOTE.C4, NOTE.D4, NOTE.E4,
+           NOTE.E4, NOTE.D4, NOTE.E4, NOTE.F4, NOTE.G4,
+           NOTE.C5, NOTE.C5, NOTE.C5, NOTE.G4, NOTE.G4, NOTE.G4],
+  hard: [NOTE.C4, NOTE.E4, NOTE.G4, NOTE.C5, NOTE.B4, NOTE.G4, NOTE.A4, NOTE.F4,
+         NOTE.E4, NOTE.G4, NOTE.C5, NOTE.E5, NOTE.D5, NOTE.C5, NOTE.A4, NOTE.G4],
+};
+
+function playMelodyNote(audioCtx: AudioContext, beatIndex: number, difficulty: 'easy' | 'medium' | 'hard'): void {
+  try {
+    const melody = MELODIES[difficulty];
+    const freq = melody[beatIndex % melody.length];
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.frequency.value = freq;
+    gain.gain.value = 0.15;
+    osc.start();
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+    osc.stop(audioCtx.currentTime + 0.35);
+  } catch {
+    // Silently degrade
+  }
 }
 
 function tryCreateAudioContext(): AudioContext | null {
@@ -240,13 +260,9 @@ export default function RhythmicCountingDrill({
       setCurrentBeatIndex(beat);
       setIsPulsing(true);
 
-      // Play audio click
+      // Play melody note for this beat
       if (audioCtxRef.current) {
-        try {
-          playBeat(audioCtxRef.current);
-        } catch {
-          // Silently ignore audio errors
-        }
+        playMelodyNote(audioCtxRef.current, beat, difficulty);
       }
 
       // Turn off pulse after half a beat interval

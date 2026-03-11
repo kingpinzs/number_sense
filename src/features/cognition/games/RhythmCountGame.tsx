@@ -136,7 +136,30 @@ function generateRoundQuestion(difficulty: 'easy' | 'medium' | 'hard'): RoundQue
   return { values, step, missingIndex, correctAnswer, choices };
 }
 
-// ─── Audio ────────────────────────────────────────────────────────────────────
+// ─── Audio: Melodies for skip counting (like kids' songs) ─────────────────────
+
+// Note frequencies (Hz) — C major scale
+const NOTE = {
+  C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00,
+  A4: 440.00, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25,
+};
+
+// Melody patterns based on familiar children's songs
+// Each array maps beat index → frequency, cycling if sequence is longer
+const MELODIES = {
+  // "Twinkle Twinkle" intervals — easy, singable, memorable
+  easy: [NOTE.C4, NOTE.C4, NOTE.G4, NOTE.G4, NOTE.A4, NOTE.A4, NOTE.G4,
+         NOTE.F4, NOTE.F4, NOTE.E4, NOTE.E4, NOTE.D4, NOTE.D4, NOTE.C4],
+  // "Row Row Row Your Boat" — medium complexity, familiar round
+  medium: [NOTE.C4, NOTE.C4, NOTE.C4, NOTE.D4, NOTE.E4,
+           NOTE.E4, NOTE.D4, NOTE.E4, NOTE.F4, NOTE.G4,
+           NOTE.C5, NOTE.C5, NOTE.C5, NOTE.G4, NOTE.G4, NOTE.G4,
+           NOTE.E4, NOTE.E4, NOTE.E4, NOTE.C4, NOTE.C4, NOTE.C4,
+           NOTE.G4, NOTE.F4, NOTE.E4, NOTE.D4, NOTE.C4],
+  // Ascending scale with bounce — harder, less predictable
+  hard: [NOTE.C4, NOTE.E4, NOTE.G4, NOTE.C5, NOTE.B4, NOTE.G4, NOTE.A4, NOTE.F4,
+         NOTE.E4, NOTE.G4, NOTE.C5, NOTE.E5, NOTE.D5, NOTE.C5, NOTE.A4, NOTE.G4],
+};
 
 function tryCreateAudioContext(): AudioContext | null {
   try {
@@ -146,17 +169,22 @@ function tryCreateAudioContext(): AudioContext | null {
   }
 }
 
-function playBeat(audioCtx: AudioContext): void {
+function playMelodyNote(audioCtx: AudioContext, beatIndex: number, difficulty: 'easy' | 'medium' | 'hard'): void {
   try {
+    const melody = MELODIES[difficulty];
+    const freq = melody[beatIndex % melody.length];
+
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
+    osc.type = 'sine';
     osc.connect(gain);
     gain.connect(audioCtx.destination);
-    osc.frequency.value = 800;
-    gain.gain.value = 0.1;
+    osc.frequency.value = freq;
+    gain.gain.value = 0.15;
     osc.start();
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
-    osc.stop(audioCtx.currentTime + 0.1);
+    // Gentle decay for a pleasant tone
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+    osc.stop(audioCtx.currentTime + 0.35);
   } catch {
     // Silently degrade
   }
@@ -237,7 +265,7 @@ export default function RhythmCountGame({ onBack }: RhythmCountGameProps) {
       setIsPulsing(true);
 
       if (audioCtxRef.current) {
-        playBeat(audioCtxRef.current);
+        playMelodyNote(audioCtxRef.current, beat, difficulty);
       }
 
       timerRef.current = setTimeout(() => {
