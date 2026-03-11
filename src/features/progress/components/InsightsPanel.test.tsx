@@ -7,8 +7,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import InsightsPanel from './InsightsPanel';
-import type { UseInsightsResult } from '../hooks/useInsights';
-import type { Insight } from '../services/insightsEngine';
+import type { UseInsightsResult, Insight } from '../hooks/useInsights';
 
 // Mock the useInsights hook
 vi.mock('../hooks/useInsights', () => ({

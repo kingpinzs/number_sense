@@ -302,7 +302,9 @@ export default function NumberDecompositionDrill({
       targetNumber,
       userAnswer: parsed[0],
       correctAnswer: answers[0],
-      problem: equationTemplate,
+      problem: isEasy
+        ? `${targetNumber} = ${parsed[0]} + ${parsed[1]} (correct: ${answers[0]} + ${answers[1]})`
+        : equationTemplate,
     };
 
     // Persist to Dexie; fall back to localStorage on failure

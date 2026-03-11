@@ -19,6 +19,7 @@ import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent } from '@/shared/components/ui/card';
 import { db } from '@/services/storage/db';
 import type { DrillResult } from '@/services/storage/schemas';
+import { STORAGE_KEYS } from '@/services/storage/localStorage';
 
 // ---------------------------------------------------------------------------
 // Public interface — must be re-declared in each drill file per project spec
@@ -486,6 +487,14 @@ export default function MentalMathStrategyDrill({ difficulty, sessionId, onCompl
       await db.drill_results.add(result);
     } catch (error) {
       console.error('Failed to persist drill result:', error);
+      try {
+        const backup = localStorage.getItem(STORAGE_KEYS.DRILL_RESULTS_BACKUP);
+        const results: DrillResult[] = backup ? JSON.parse(backup) : [];
+        results.push(result);
+        localStorage.setItem(STORAGE_KEYS.DRILL_RESULTS_BACKUP, JSON.stringify(results));
+      } catch {
+        localStorage.setItem(STORAGE_KEYS.DRILL_RESULTS_BACKUP, JSON.stringify([result]));
+      }
     }
 
     feedbackTimerRef.current = setTimeout(() => {

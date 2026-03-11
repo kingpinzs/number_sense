@@ -74,8 +74,9 @@ function generateFractionProblem(difficulty: 'easy' | 'medium' | 'hard'): Fracti
   distractors.add(correctFraction);
 
   // Strategy: vary numerator and denominator to create plausible wrong answers
-  const attempts = 0;
+  let attempts = 0;
   while (distractors.size < 4 && attempts < 50) {
+    attempts++;
     let dNum: number;
     let dDen: number;
     const strategy = Math.floor(Math.random() * 3);

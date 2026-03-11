@@ -5,7 +5,22 @@
 import { useState, useEffect, useCallback } from 'react';
 import { analyzePerformance } from '@/services/training/insightEngine';
 import type { Insight as EngineInsight } from '@/services/training/insightTypes';
-import type { Insight } from '../services/insightsEngine';
+
+// Types previously in insightsEngine.ts — inlined here to remove the deprecated import
+export type InsightCategory = 'milestone' | 'concern' | 'positive' | 'general';
+
+export interface Insight {
+  id: string;
+  category: InsightCategory;
+  icon: string;
+  title: string;
+  message: string;
+  action?: {
+    label: string;
+    route: string;
+  };
+  priority: number;
+}
 
 const MAX_INSIGHTS = 5;
 

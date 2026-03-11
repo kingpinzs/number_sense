@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui
 import { Button } from '@/shared/components/ui/button';
 import { LoadingSpinner } from '@/shared/components/LoadingSpinner';
 import { useInsights } from '../hooks/useInsights';
-import type { Insight } from '../services/insightsEngine';
+import type { Insight } from '../hooks/useInsights';
 
 const EMOJI_LABELS: Record<string, string> = {
   '📈': 'Upward trend',

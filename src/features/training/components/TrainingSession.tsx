@@ -309,6 +309,10 @@ export default function TrainingSession() {
 
   // Handle drill selection from SuggestedPractice — starts a single-drill quick session
   const handleDrillSelect = async (drillType: string, difficulty: 'easy' | 'medium' | 'hard') => {
+    if (!IMPLEMENTED_DRILL_TYPES.has(drillType)) {
+      toast.error('This drill is not yet available');
+      return;
+    }
     setFocusedDifficulty(difficulty);
     // Defensive: dismiss confidence-before prompt if somehow open
     setShowConfidenceBefore(false);
@@ -422,8 +426,8 @@ export default function TrainingSession() {
     setShowConfidenceAfter(false);
 
     // Calculate session stats
-    const drillCount = sessionState.drillQueue?.length || 0;
     const results = sessionState.results || [];
+    const drillCount = results.length;
     const correctCount = results.filter(r => r.isCorrect).length;
     const accuracy = drillCount > 0 ? Math.round((correctCount / drillCount) * 100) : 0;
     const duration = sessionStartTime ? Date.now() - sessionStartTime : 0;
@@ -432,8 +436,8 @@ export default function TrainingSession() {
       : null;
 
     // Calculate drillTypes distribution (Story 3.7)
-    const drillTypeCounts = (sessionState.drillQueue || []).reduce((acc, drillType) => {
-      acc[drillType] = (acc[drillType] || 0) + 1;
+    const drillTypeCounts = results.reduce((acc, r) => {
+      acc[r.module] = (acc[r.module] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
