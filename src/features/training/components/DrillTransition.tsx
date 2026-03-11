@@ -26,6 +26,12 @@ const DRILL_METADATA: Record<DrillType, { icon: string; name: string }> = {
   fractions: { icon: '🍕', name: 'Fractions' },
   time_measurement: { icon: '🕐', name: 'Time & Measurement' },
   working_memory: { icon: '🧠', name: 'Working Memory' },
+  // Extended drill types
+  rhythmic_counting: { icon: '🥁', name: 'Rhythmic Counting' },
+  mental_math_strategy: { icon: '💡', name: 'Mental Math Strategy' },
+  fact_family: { icon: '🔄', name: 'Fact Family' },
+  everyday_math: { icon: '🛒', name: 'Everyday Math' },
+  number_decomposition: { icon: '🧩', name: 'Number Decomposition' },
 };
 
 /**

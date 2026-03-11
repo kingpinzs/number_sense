@@ -226,14 +226,19 @@ describe('selectDrills', () => {
       magnitude_comparison: 0,
       place_value: 0,
       estimation: 0,
+      number_decomposition: 0,
       sequencing: 0,
+      rhythmic_counting: 0,
       math_operations: 0,
       number_bonds: 0,
       fact_fluency: 0,
+      mental_math_strategy: 0,
+      fact_family: 0,
       spatial_rotation: 0,
       fractions: 0,
       time_measurement: 0,
       working_memory: 0,
+      everyday_math: 0,
     };
 
     const totalDrills = 100;
@@ -252,8 +257,8 @@ describe('selectDrills', () => {
     expect(counts.spatial_rotation).toBeGreaterThan(3);
     expect(counts.spatial_rotation).toBeLessThan(35);
 
-    // arithmetic domain (math_operations + number_bonds + fact_fluency) should be ~10% (allow 1-25% range)
-    const arithmeticTotal = counts.math_operations + counts.number_bonds + counts.fact_fluency;
+    // arithmetic domain (math_operations + number_bonds + fact_fluency + mental_math_strategy + fact_family) should be ~10% (allow 1-25% range)
+    const arithmeticTotal = counts.math_operations + counts.number_bonds + counts.fact_fluency + counts.mental_math_strategy + counts.fact_family;
     expect(arithmeticTotal).toBeGreaterThan(1);
     expect(arithmeticTotal).toBeLessThan(25);
   });
@@ -308,6 +313,7 @@ describe('selectDrills', () => {
       'number_line', 'spatial_rotation', 'math_operations', 'subitizing', 'number_bonds',
       'magnitude_comparison', 'place_value', 'estimation', 'sequencing', 'fact_fluency',
       'fractions', 'time_measurement', 'working_memory',
+      'rhythmic_counting', 'mental_math_strategy', 'fact_family', 'everyday_math', 'number_decomposition',
     ];
     for (const drill of drillQueue) {
       expect(validDrills).toContain(drill);
@@ -334,6 +340,7 @@ describe('selectDrills', () => {
       'number_line', 'spatial_rotation', 'math_operations', 'subitizing', 'number_bonds',
       'magnitude_comparison', 'place_value', 'estimation', 'sequencing', 'fact_fluency',
       'fractions', 'time_measurement', 'working_memory',
+      'rhythmic_counting', 'mental_math_strategy', 'fact_family', 'everyday_math', 'number_decomposition',
     ];
     expect(validDrills).toContain(drillQueue[0]);
   });

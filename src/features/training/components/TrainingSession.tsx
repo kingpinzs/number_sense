@@ -29,6 +29,11 @@ import FactFluencyDrill from '@/features/training/drills/FactFluencyDrill';
 import FractionsDrill from '@/features/training/drills/FractionsDrill';
 import TimeMeasurementDrill from '@/features/training/drills/TimeMeasurementDrill';
 import WorkingMemoryDrill from '@/features/training/drills/WorkingMemoryDrill';
+import RhythmicCountingDrill from '@/features/training/drills/RhythmicCountingDrill';
+import MentalMathStrategyDrill from '@/features/training/drills/MentalMathStrategyDrill';
+import FactFamilyDrill from '@/features/training/drills/FactFamilyDrill';
+import EverydayMathDrill from '@/features/training/drills/EverydayMathDrill';
+import NumberDecompositionDrill from '@/features/training/drills/NumberDecompositionDrill';
 import ConfidencePromptBefore from './ConfidencePromptBefore';
 import ConfidencePromptAfter from './ConfidencePromptAfter';
 import SessionCompletionSummary from './SessionCompletionSummary';
@@ -175,6 +180,7 @@ export default function TrainingSession() {
         'number_line', 'spatial_rotation', 'math_operations', 'subitizing', 'number_bonds',
         'magnitude_comparison', 'place_value', 'estimation', 'sequencing', 'fact_fluency',
         'fractions', 'time_measurement', 'working_memory',
+        'rhythmic_counting', 'mental_math_strategy', 'fact_family', 'everyday_math', 'number_decomposition',
       ];
 
       if (!implementedTypes.includes(currentDrillType)) {
@@ -649,6 +655,51 @@ export default function TrainingSession() {
 
         {currentDrillType === 'working_memory' && (
           <WorkingMemoryDrill
+            key={`drill-${drillIndex}`}
+            difficulty={difficulty}
+            sessionId={dbSessionId ?? 0}
+            onComplete={handleDrillComplete}
+          />
+        )}
+
+        {currentDrillType === 'rhythmic_counting' && (
+          <RhythmicCountingDrill
+            key={`drill-${drillIndex}`}
+            difficulty={difficulty}
+            sessionId={dbSessionId ?? 0}
+            onComplete={handleDrillComplete}
+          />
+        )}
+
+        {currentDrillType === 'mental_math_strategy' && (
+          <MentalMathStrategyDrill
+            key={`drill-${drillIndex}`}
+            difficulty={difficulty}
+            sessionId={dbSessionId ?? 0}
+            onComplete={handleDrillComplete}
+          />
+        )}
+
+        {currentDrillType === 'fact_family' && (
+          <FactFamilyDrill
+            key={`drill-${drillIndex}`}
+            difficulty={difficulty}
+            sessionId={dbSessionId ?? 0}
+            onComplete={handleDrillComplete}
+          />
+        )}
+
+        {currentDrillType === 'everyday_math' && (
+          <EverydayMathDrill
+            key={`drill-${drillIndex}`}
+            difficulty={difficulty}
+            sessionId={dbSessionId ?? 0}
+            onComplete={handleDrillComplete}
+          />
+        )}
+
+        {currentDrillType === 'number_decomposition' && (
+          <NumberDecompositionDrill
             key={`drill-${drillIndex}`}
             difficulty={difficulty}
             sessionId={dbSessionId ?? 0}

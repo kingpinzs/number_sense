@@ -130,11 +130,11 @@ export async function loadTrainingPlanWeights(): Promise<TrainingPlanWeights> {
  */
 export type DrillType =
   | 'number_line' | 'subitizing' | 'magnitude_comparison'
-  | 'place_value' | 'estimation'
-  | 'sequencing'
-  | 'math_operations' | 'number_bonds' | 'fact_fluency'
+  | 'place_value' | 'estimation' | 'number_decomposition'
+  | 'sequencing' | 'rhythmic_counting'
+  | 'math_operations' | 'number_bonds' | 'fact_fluency' | 'mental_math_strategy' | 'fact_family'
   | 'spatial_rotation'
-  | 'fractions' | 'time_measurement' | 'working_memory';
+  | 'fractions' | 'time_measurement' | 'working_memory' | 'everyday_math';
 
 /**
  * All available drill types grouped by their training domain.
@@ -142,20 +142,20 @@ export type DrillType =
  */
 const DOMAIN_DRILLS: Record<keyof TrainingPlanWeights, DrillType[]> = {
   numberSense: ['number_line', 'subitizing', 'magnitude_comparison'],
-  placeValue: ['place_value', 'estimation'],
-  sequencing: ['sequencing'],
-  arithmetic: ['math_operations', 'number_bonds', 'fact_fluency'],
+  placeValue: ['place_value', 'estimation', 'number_decomposition'],
+  sequencing: ['sequencing', 'rhythmic_counting'],
+  arithmetic: ['math_operations', 'number_bonds', 'fact_fluency', 'mental_math_strategy', 'fact_family'],
   spatial: ['spatial_rotation'],
-  applied: ['fractions', 'time_measurement', 'working_memory'],
+  applied: ['fractions', 'time_measurement', 'working_memory', 'everyday_math'],
 };
 
 const ALL_DRILL_TYPES: DrillType[] = [
   'number_line', 'subitizing', 'magnitude_comparison',
-  'place_value', 'estimation',
-  'sequencing',
-  'math_operations', 'number_bonds', 'fact_fluency',
+  'place_value', 'estimation', 'number_decomposition',
+  'sequencing', 'rhythmic_counting',
+  'math_operations', 'number_bonds', 'fact_fluency', 'mental_math_strategy', 'fact_family',
   'spatial_rotation',
-  'fractions', 'time_measurement', 'working_memory',
+  'fractions', 'time_measurement', 'working_memory', 'everyday_math',
 ];
 
 /**

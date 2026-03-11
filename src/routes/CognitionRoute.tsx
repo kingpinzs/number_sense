@@ -3,7 +3,7 @@
 // Extended: Speed Math, Number Rush, Sequence Snap, Clock Challenge, Estimate It
 
 import { useState } from 'react';
-import { Brain, Grid3X3, FlipHorizontal2, LayoutGrid, Zap, ArrowUpDown, ListOrdered, Clock, Target, Eye } from 'lucide-react';
+import { Brain, Grid3X3, FlipHorizontal2, LayoutGrid, Zap, ArrowUpDown, ListOrdered, Clock, Target, Eye, Scale, Music, Lightbulb } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
 import PatternMatchGame from '@/features/cognition/games/PatternMatchGame';
@@ -15,6 +15,9 @@ import SequenceSnapGame from '@/features/cognition/games/SequenceSnapGame';
 import ClockChallengeGame from '@/features/cognition/games/ClockChallengeGame';
 import EstimateItGame from '@/features/cognition/games/EstimateItGame';
 import ColoredDotsGame from '@/features/cognition/games/ColoredDotsGame';
+import RhythmCountGame from '@/features/cognition/games/RhythmCountGame';
+import NumberBalanceGame from '@/features/cognition/games/NumberBalanceGame';
+import WhatsMyRuleGame from '@/features/cognition/games/WhatsMyRuleGame';
 
 interface GameCardProps {
   title: string;
@@ -134,6 +137,27 @@ export default function CognitionRoute() {
             available={true}
             onPlay={() => setSelectedGame('colored-dots')}
           />
+          <GameCard
+            title="Rhythm Count"
+            description="Skip count to the beat"
+            icon={Music}
+            available={true}
+            onPlay={() => setSelectedGame('rhythm-count')}
+          />
+          <GameCard
+            title="Number Balance"
+            description="Balance the equation"
+            icon={Scale}
+            available={true}
+            onPlay={() => setSelectedGame('number-balance')}
+          />
+          <GameCard
+            title="What's My Rule"
+            description="Find the hidden pattern"
+            icon={Lightbulb}
+            available={true}
+            onPlay={() => setSelectedGame('whats-my-rule')}
+          />
         </div>
       </div>
     );
@@ -159,6 +183,12 @@ export default function CognitionRoute() {
       return <MemoryGridGame onBack={handleBack} />;
     case 'colored-dots':
       return <ColoredDotsGame onBack={handleBack} />;
+    case 'rhythm-count':
+      return <RhythmCountGame onBack={handleBack} />;
+    case 'number-balance':
+      return <NumberBalanceGame onBack={handleBack} />;
+    case 'whats-my-rule':
+      return <WhatsMyRuleGame onBack={handleBack} />;
     default:
       return null;
   }

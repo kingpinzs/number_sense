@@ -29,8 +29,8 @@ describe('CognitionRoute', () => {
     expect(screen.getByText('Quick exercises to strengthen cognitive skills')).toBeInTheDocument();
   });
 
-  // Test 2: Shows all 9 games as available
-  it('shows all nine games as available with Play buttons', () => {
+  // Test 2: Shows all 12 games as available
+  it('shows all twelve games as available with Play buttons', () => {
     render(<CognitionRoute />);
 
     expect(screen.getByText('Speed Math')).toBeInTheDocument();
@@ -42,9 +42,12 @@ describe('CognitionRoute', () => {
     expect(screen.getByText('Spatial Flip')).toBeInTheDocument();
     expect(screen.getByText('Memory Grid')).toBeInTheDocument();
     expect(screen.getByText('Colored Dots')).toBeInTheDocument();
+    expect(screen.getByText('Rhythm Count')).toBeInTheDocument();
+    expect(screen.getByText('Number Balance')).toBeInTheDocument();
+    expect(screen.getByText("What's My Rule")).toBeInTheDocument();
 
     const playButtons = screen.getAllByRole('button', { name: /play/i });
-    expect(playButtons).toHaveLength(9);
+    expect(playButtons).toHaveLength(12);
     expect(screen.queryByText('Coming soon')).not.toBeInTheDocument();
   });
 
@@ -61,6 +64,9 @@ describe('CognitionRoute', () => {
     expect(screen.getByText('Rotate and match shapes')).toBeInTheDocument();
     expect(screen.getByText('Remember and recall patterns')).toBeInTheDocument();
     expect(screen.getByText('Spot the most common color')).toBeInTheDocument();
+    expect(screen.getByText('Skip count to the beat')).toBeInTheDocument();
+    expect(screen.getByText('Balance the equation')).toBeInTheDocument();
+    expect(screen.getByText('Find the hidden pattern')).toBeInTheDocument();
   });
 
   // Test 4: Clicking a Play button shows game view and hides selection
