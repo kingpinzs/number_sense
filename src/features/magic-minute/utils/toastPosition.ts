@@ -23,12 +23,12 @@ export function isMobileDevice(): boolean {
 /**
  * Toast position type - Sonner-compatible
  */
-export type ToastPosition = 'bottom-center' | 'top-right';
+export type ToastPosition = 'top-center' | 'top-right';
 
 /**
  * Get responsive toast position based on screen width
- * AC-3: bottom-center on mobile, top-right on desktop
+ * Mobile uses top-center to avoid being cut off by the fixed BottomNav bar.
  */
 export function getToastPosition(): ToastPosition {
-  return isMobileDevice() ? 'bottom-center' : 'top-right';
+  return isMobileDevice() ? 'top-center' : 'top-right';
 }

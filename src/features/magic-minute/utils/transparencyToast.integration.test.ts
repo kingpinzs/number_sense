@@ -311,7 +311,7 @@ describe('Transparency Toast Integration Tests', () => {
       });
 
       const [, options] = mockToast.mock.calls[0];
-      expect(options?.position).toBe('bottom-center');
+      expect(options?.position).toBe('top-center');
     });
   });
 
