@@ -41,9 +41,10 @@ const DIFFICULTY_CONFIG = {
 function generateSequenceProblem(difficulty: 'easy' | 'medium' | 'hard'): SequenceProblem {
   const config = DIFFICULTY_CONFIG[difficulty];
   const step = config.steps[Math.floor(Math.random() * config.steps.length)];
-  const start = config.minStart + Math.floor(
-    Math.random() * (config.maxStart - config.minStart + 1)
-  );
+  // Start must be a multiple of step (like kids learn: 5, 10, 15... not 8, 13, 18)
+  const maxMultiple = Math.floor(config.maxStart / step);
+  const minMultiple = Math.max(1, Math.ceil(config.minStart / step));
+  const start = (minMultiple + Math.floor(Math.random() * (maxMultiple - minMultiple + 1))) * step;
 
   const sequence: number[] = [];
   for (let i = 0; i < config.sequenceLength; i++) {

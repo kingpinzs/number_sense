@@ -122,7 +122,10 @@ function randInt(min: number, max: number): number {
 function generateSequence(difficulty: 'easy' | 'medium' | 'hard'): CountingSequence {
   const cfg = DIFFICULTY_CONFIG[difficulty];
   const step = pickRandom(cfg.steps);
-  const start = randInt(cfg.minStart, cfg.maxStart);
+  // Start must be a multiple of step (like kids learn: 5, 10, 15... not 8, 13, 18)
+  const maxMultiple = Math.floor(cfg.maxStart / step);
+  const minMultiple = Math.ceil(cfg.minStart / step);
+  const start = randInt(minMultiple, maxMultiple) * step;
 
   const values: number[] = [];
   for (let i = 0; i < cfg.sequenceLength; i++) {
